@@ -176,13 +176,24 @@ matrix:
     #     - make tidy
     #   # Overrides `script`, no need to run tests
     #   before_script:
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GH_TOKEN # github 上的token环境变量
-  local-dir: ./_MYOUTPUT/ ## 根据情况自定义到静态文件输出目录
-  target-branch: gh-pages
-  verbose: true
-  on:
-    branch: master
+#deploy:
+  #provider: pages
+  #skip-cleanup: true
+  #github-token: $GH_TOKEN # github 上的token环境变量
+  #local-dir: ./_MYOUTPUT/ ## 根据情况自定义到静态文件输出目录
+  #target-branch: gh-pages
+  #verbose: true
+  #on:
+    #branch: master
+after_script:
+  - ls -a
+  - rm -rf .git --如果推送整个目录则需要删除.git文件，如果只推送构建后的文件目录dist则cd ./dist就行，不需要删除.git文件，否则最后一句git push会推送不上
+  - ls -a
+  - git init
+  - git config user.name "${U_NAME}"
+  - git config user.email "${U_EMAIL}"
+  - git add .
+  - git commit -m "commit 111"
+  - git status
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:dev
 
