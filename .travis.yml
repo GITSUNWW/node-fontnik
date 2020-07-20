@@ -195,5 +195,5 @@ after_script:
   - git add .
   - git commit -m "commit 111"
   - git status
-  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" SUNWW_TEST
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" SUNWW_BUILD
 
