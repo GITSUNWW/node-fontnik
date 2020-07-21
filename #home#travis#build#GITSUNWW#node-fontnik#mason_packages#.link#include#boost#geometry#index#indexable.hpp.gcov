@@ -1,0 +1,204 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/indexable.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+        -:    4://
+        -:    5:// Use, modification and distribution is subject to the Boost Software License,
+        -:    6:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    7:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    8:
+        -:    9:#ifndef BOOST_GEOMETRY_INDEX_INDEXABLE_HPP
+        -:   10:#define BOOST_GEOMETRY_INDEX_INDEXABLE_HPP
+        -:   11:
+        -:   12:#include <boost/mpl/assert.hpp>
+        -:   13:#include <boost/tuple/tuple.hpp>
+        -:   14:
+        -:   15:#include <boost/geometry/index/detail/is_indexable.hpp>
+        -:   16:
+        -:   17:namespace boost { namespace geometry { namespace index { namespace detail {
+        -:   18:
+        -:   19:/*!
+        -:   20:\brief The function object extracting Indexable from Value.
+        -:   21:
+        -:   22:It translates Value object to Indexable object. The default version handles Values which are Indexables.
+        -:   23:This template is also specialized for std::pair<Indexable, T2>, boost::tuple<Indexable, ...>
+        -:   24:and std::tuple<Indexable, ...>.
+        -:   25:
+        -:   26:\tparam Value       The Value type which may be translated directly to the Indexable.
+        -:   27:\tparam IsIndexable If true, the const reference to Value is returned.
+        -:   28:*/
+        -:   29:template <typename Value, bool IsIndexable = is_indexable<Value>::value>
+        -:   30:struct indexable
+        -:   31:{
+        -:   32:    BOOST_MPL_ASSERT_MSG(
+        -:   33:        (detail::is_indexable<Value>::value),
+        -:   34:        NOT_VALID_INDEXABLE_TYPE,
+        -:   35:        (Value)
+        -:   36:    );
+        -:   37:
+        -:   38:    /*! \brief The type of result returned by function object. */
+        -:   39:    typedef Value const& result_type;
+        -:   40:
+        -:   41:    /*!
+        -:   42:    \brief Return indexable extracted from the value.
+        -:   43:    
+        -:   44:    \param v The value.
+        -:   45:    \return The indexable.
+        -:   46:    */
+        -:   47:    inline result_type operator()(Value const& v) const
+        -:   48:    {
+        -:   49:        return v;
+        -:   50:    }
+        -:   51:};
+        -:   52:
+        -:   53:/*!
+        -:   54:\brief The function object extracting Indexable from Value.
+        -:   55:
+        -:   56:This specialization translates from std::pair<Indexable, T2>.
+        -:   57:
+        -:   58:\tparam Indexable       The Indexable type.
+        -:   59:\tparam T2              The second type.
+        -:   60:*/
+        -:   61:template <typename Indexable, typename T2>
+        -:   62:struct indexable<std::pair<Indexable, T2>, false>
+        -:   63:{
+        -:   64:    BOOST_MPL_ASSERT_MSG(
+        -:   65:        (detail::is_indexable<Indexable>::value),
+        -:   66:        NOT_VALID_INDEXABLE_TYPE,
+        -:   67:        (Indexable)
+        -:   68:    );
+        -:   69:
+        -:   70:    /*! \brief The type of result returned by function object. */
+        -:   71:    typedef Indexable const& result_type;
+        -:   72:
+        -:   73:    /*!
+        -:   74:    \brief Return indexable extracted from the value.
+        -:   75:    
+        -:   76:    \param v The value.
+        -:   77:    \return The indexable.
+        -:   78:    */
+function _ZNK5boost8geometry5index6detail9indexableISt4pairINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEES4_ISA_SA_EELb0EEclERKSD_ called 28266724 returned 100% blocks executed 100%
+ 28266724:   79:    inline result_type operator()(std::pair<Indexable, T2> const& v) const
+        -:   80:    {
+ 28266724:   81:        return v.first;
+        -:   82:    }
+        -:   83:};
+        -:   84:
+        -:   85:/*!
+        -:   86:\brief The function object extracting Indexable from Value.
+        -:   87:
+        -:   88:This specialization translates from boost::tuple<Indexable, ...>.
+        -:   89:
+        -:   90:\tparam Indexable   The Indexable type.
+        -:   91:*/
+        -:   92:template <typename Indexable, typename T1, typename T2, typename T3, typename T4,
+        -:   93:          typename T5, typename T6, typename T7, typename T8, typename T9>
+        -:   94:struct indexable<boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9>, false>
+        -:   95:{
+        -:   96:    typedef boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> value_type;
+        -:   97:
+        -:   98:    BOOST_MPL_ASSERT_MSG(
+        -:   99:        (detail::is_indexable<Indexable>::value),
+        -:  100:        NOT_VALID_INDEXABLE_TYPE,
+        -:  101:        (Indexable)
+        -:  102:        );
+        -:  103:
+        -:  104:    /*! \brief The type of result returned by function object. */
+        -:  105:    typedef Indexable const& result_type;
+        -:  106:
+        -:  107:    /*!
+        -:  108:    \brief Return indexable extracted from the value.
+        -:  109:    
+        -:  110:    \param v The value.
+        -:  111:    \return The indexable.
+        -:  112:    */
+        -:  113:    inline result_type operator()(value_type const& v) const
+        -:  114:    {
+        -:  115:        return boost::get<0>(v);
+        -:  116:    }
+        -:  117:};
+        -:  118:
+        -:  119:}}}} // namespace boost::geometry::index::detail
+        -:  120:
+        -:  121:#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+        -:  122:
+        -:  123:#include <tuple>
+        -:  124:
+        -:  125:namespace boost { namespace geometry { namespace index { namespace detail {
+        -:  126:
+        -:  127:/*!
+        -:  128:\brief The function object extracting Indexable from Value.
+        -:  129:
+        -:  130:This specialization translates from std::tuple<Indexable, Args...>.
+        -:  131:It's defined if the compiler supports tuples and variadic templates.
+        -:  132:
+        -:  133:\tparam Indexable   The Indexable type.
+        -:  134:*/
+        -:  135:template <typename Indexable, typename ...Args>
+        -:  136:struct indexable<std::tuple<Indexable, Args...>, false>
+        -:  137:{
+        -:  138:    typedef std::tuple<Indexable, Args...> value_type;
+        -:  139:
+        -:  140:    BOOST_MPL_ASSERT_MSG(
+        -:  141:        (detail::is_indexable<Indexable>::value),
+        -:  142:        NOT_VALID_INDEXABLE_TYPE,
+        -:  143:        (Indexable)
+        -:  144:        );
+        -:  145:
+        -:  146:    /*! \brief The type of result returned by function object. */
+        -:  147:    typedef Indexable const& result_type;
+        -:  148:
+        -:  149:    /*!
+        -:  150:    \brief Return indexable extracted from the value.
+        -:  151:    
+        -:  152:    \param v The value.
+        -:  153:    \return The indexable.
+        -:  154:    */
+        -:  155:    result_type operator()(value_type const& v) const
+        -:  156:    {
+        -:  157:        return std::get<0>(v);
+        -:  158:    }
+        -:  159:};
+        -:  160:
+        -:  161:}}}} // namespace boost::geometry::index::detail
+        -:  162:
+        -:  163:#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+        -:  164:
+        -:  165:namespace boost { namespace geometry { namespace index {
+        -:  166:
+        -:  167:/*!
+        -:  168:\brief The function object extracting Indexable from Value.
+        -:  169:
+        -:  170:It translates Value object to Indexable object. By default, it can handle Values which are Indexables,
+        -:  171:std::pair<Indexable, T2>, boost::tuple<Indexable, ...> and std::tuple<Indexable, ...> if STD tuples
+        -:  172:and variadic templates are supported.
+        -:  173:
+        -:  174:\tparam Value       The Value type which may be translated directly to the Indexable.
+        -:  175:*/
+        -:  176:template <typename Value>
+        -:  177:struct indexable
+        -:  178:    : detail::indexable<Value>
+        -:  179:{
+        -:  180:    /*! \brief The type of result returned by function object. It should be const Indexable reference. */
+        -:  181:    typedef typename detail::indexable<Value>::result_type result_type;
+        -:  182:
+        -:  183:    /*!
+        -:  184:    \brief Return indexable extracted from the value.
+        -:  185:    
+        -:  186:    \param v The value.
+        -:  187:    \return The indexable.
+        -:  188:    */
+function _ZNK5boost8geometry5index9indexableISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EEEclERKSC_ called 28258210 returned 100% blocks executed 100%
+ 28258210:  189:    inline result_type operator()(Value const& v) const
+        -:  190:    {
+ 28258210:  191:        return detail::indexable<Value>::operator()(v);
+        -:  192:    }
+        -:  193:};
+        -:  194:
+        -:  195:}}} // namespace boost::geometry::index
+        -:  196:
+        -:  197:#endif // BOOST_GEOMETRY_INDEX_INDEXABLE_HPP

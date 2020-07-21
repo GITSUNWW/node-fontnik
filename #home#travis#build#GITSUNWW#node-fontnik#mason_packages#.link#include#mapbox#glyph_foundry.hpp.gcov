@@ -1,0 +1,68 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/mapbox/glyph_foundry.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef SDF_GLYPH_FOUNDRY_HPP
+        -:    2:#define SDF_GLYPH_FOUNDRY_HPP
+        -:    3:
+        -:    4:#include <string>
+        -:    5:
+        -:    6:// freetype2
+        -:    7:extern "C"
+        -:    8:{
+        -:    9:#include <ft2build.h>
+        -:   10:#include FT_FREETYPE_H
+        -:   11:#include FT_GLYPH_H
+        -:   12:#include FT_OUTLINE_H
+        -:   13:}
+        -:   14:
+        -:   15:
+        -:   16:namespace sdf_glyph_foundry
+        -:   17:{
+        -:   18:
+        -:   19:    struct glyph_info;
+        -:   20:    void RenderSDF(glyph_info &glyph,
+        -:   21:                   int size,
+        -:   22:                   int buffer,
+        -:   23:                   float cutoff,
+        -:   24:                   FT_Face ft_face);
+        -:   25:
+function _ZN17sdf_glyph_foundry10glyph_infoD2Ev called 67337 returned 100% blocks executed 100%
+    67337:   26:    struct glyph_info
+        -:   27:    {
+function _ZN17sdf_glyph_foundry10glyph_infoC2Ev called 67336 returned 100% blocks executed 60%
+    67336:   28:       glyph_info()
+    67336:   29:           : glyph_index(0),
+    67336:   30:             bitmap(""),
+branch  0 taken 100%
+branch  1 taken 0%
+    67336:   31:             char_index(0),
+    67336:   32:             left(0),
+    67336:   33:             top(0),
+    67336:   34:             width(0),
+    67336:   35:             height(0),
+    67336:   36:             advance(0.0),
+    67336:   37:             line_height(0.0),
+    67336:   38:             ascender(0.0),
+    67336:   39:             descender(0.0) {}
+        -:   40:       unsigned glyph_index;
+        -:   41:       std::string bitmap;
+        -:   42:       // Position in the string of all characters i.e. before itemizing
+        -:   43:       unsigned char_index;
+        -:   44:       int32_t left;
+        -:   45:       int32_t top;
+        -:   46:       uint32_t width;
+        -:   47:       uint32_t height;
+        -:   48:       double advance;
+        -:   49:       // Line height returned by FreeType, includes normal font
+        -:   50:       // line spacing, but not additional user defined spacing
+        -:   51:       double line_height;
+        -:   52:       // Ascender and descender from baseline returned by FreeType
+        -:   53:       double ascender;
+        -:   54:       double descender;
+        -:   55:    };
+        -:   56:
+        -:   57:} // ns sdf_glyph_foundry
+        -:   58:
+        -:   59:#endif // SDF_GLYPH_FOUNDRY_HPP

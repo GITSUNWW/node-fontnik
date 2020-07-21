@@ -1,0 +1,67 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/translator.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+        -:    4://
+        -:    5:// Use, modification and distribution is subject to the Boost Software License,
+        -:    6:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    7:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    8:
+        -:    9:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_TRANSLATOR_HPP
+        -:   10:#define BOOST_GEOMETRY_INDEX_DETAIL_TRANSLATOR_HPP
+        -:   11:
+        -:   12:namespace boost { namespace geometry { namespace index {
+        -:   13:
+        -:   14:namespace detail {
+        -:   15:
+        -:   16:template <typename IndexableGetter, typename EqualTo>
+        -:   17:struct translator
+        -:   18:    : public IndexableGetter
+        -:   19:    , public EqualTo
+        -:   20:{
+        -:   21:    typedef typename IndexableGetter::result_type result_type;
+        -:   22:
+function _ZN5boost8geometry5index6detail10translatorINS1_9indexableISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EEEENS1_8equal_toISE_EEEC2ERKSF_RKSH_ called 1674 returned 100% blocks executed 100%
+     1674:   23:    translator(IndexableGetter const& i, EqualTo const& e)
+     3348:   24:        : IndexableGetter(i), EqualTo(e)
+     5022:   25:    {}
+        -:   26:
+        -:   27:    template <typename Value>
+function _ZNK5boost8geometry5index6detail10translatorINS1_9indexableISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EEEENS1_8equal_toISE_EEEclISE_EERKSC_RKT_ called 28256719 returned 100% blocks executed 100%
+ 28256719:   28:    result_type operator()(Value const& value) const
+        -:   29:    {
+ 28256719:   30:        return IndexableGetter::operator()(value);
+        -:   31:    }
+        -:   32:
+        -:   33:    template <typename Value>
+        -:   34:    bool equals(Value const& v1, Value const& v2) const
+        -:   35:    {
+        -:   36:        return EqualTo::operator()(v1, v2);
+        -:   37:    }
+        -:   38:};
+        -:   39:
+        -:   40:template <typename IndexableGetter>
+        -:   41:struct result_type
+        -:   42:{
+        -:   43:    typedef typename IndexableGetter::result_type type;
+        -:   44:};
+        -:   45:
+        -:   46:template <typename IndexableGetter>
+        -:   47:struct indexable_type
+        -:   48:{
+        -:   49:    typedef typename boost::remove_const<
+        -:   50:        typename boost::remove_reference<
+        -:   51:            typename result_type<IndexableGetter>::type
+        -:   52:        >::type
+        -:   53:    >::type type;
+        -:   54:};
+        -:   55:
+        -:   56:} // namespace detail
+        -:   57:
+        -:   58:}}} // namespace boost::geometry::index
+        -:   59:
+        -:   60:#endif // BOOST_GEOMETRY_INDEX_DETAIL_TRANSLATOR_HPP

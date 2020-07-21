@@ -1,0 +1,201 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/algorithms/detail/disjoint/box_box.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    4:// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+        -:    5:// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+        -:    6:// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
+        -:    7:
+        -:    8:// This file was modified by Oracle on 2013-2017.
+        -:    9:// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
+        -:   10:
+        -:   11:// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+        -:   12:// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+        -:   13:
+        -:   14:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:   15:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:   16:
+        -:   17:// Use, modification and distribution is subject to the Boost Software License,
+        -:   18:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   19:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   20:
+        -:   21:#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_BOX_BOX_HPP
+        -:   22:#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_BOX_BOX_HPP
+        -:   23:
+        -:   24:#include <cstddef>
+        -:   25:
+        -:   26:#include <boost/geometry/core/access.hpp>
+        -:   27:#include <boost/geometry/core/tags.hpp>
+        -:   28:
+        -:   29:#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+        -:   30:
+        -:   31:#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
+        -:   32:#include <boost/geometry/util/select_most_precise.hpp>
+        -:   33:
+        -:   34:
+        -:   35:namespace boost { namespace geometry
+        -:   36:{
+        -:   37:
+        -:   38:#ifndef DOXYGEN_NO_DETAIL
+        -:   39:namespace detail { namespace disjoint
+        -:   40:{
+        -:   41:
+        -:   42:template
+        -:   43:<
+        -:   44:    typename Box1, typename Box2,
+        -:   45:    std::size_t Dimension = 0,
+        -:   46:    std::size_t DimensionCount = dimension<Box1>::value,
+        -:   47:    typename CSTag = typename tag_cast
+        -:   48:                        <
+        -:   49:                            typename cs_tag<Box1>::type,
+        -:   50:                            spherical_tag
+        -:   51:                        >::type
+        -:   52:>
+        -:   53:struct box_box
+        -:   54:{
+        -:   55:    template <typename Strategy>
+function _ZN5boost8geometry6detail8disjoint7box_boxINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEESA_Lm0ELm2ENS0_13cartesian_tagEE5applyINS0_16default_strategyEEEbRKSA_SG_RKT_ called 23911674 returned 100% blocks executed 100%
+ 23911674:   56:    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const&)
+        -:   57:    {
+ 23911674:   58:        return apply(box1, box2);
+        -:   59:    }
+        -:   60:
+function _ZN5boost8geometry6detail8disjoint7box_boxINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEESA_Lm0ELm2ENS0_13cartesian_tagEE5applyERKSA_SE_ called 24473422 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail8disjoint7box_boxINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEESA_Lm1ELm2ENS0_13cartesian_tagEE5applyERKSA_SE_ called 21175646 returned 100% blocks executed 100%
+ 45649068:   61:    static inline bool apply(Box1 const& box1, Box2 const& box2)
+        -:   62:    {
+ 45649068:   63:        if (get<max_corner, Dimension>(box1) < get<min_corner, Dimension>(box2))
+branch  0 taken 7%
+branch  1 taken 93%
+branch  2 taken 11%
+branch  3 taken 89%
+        -:   64:        {
+  4092761:   65:            return true;
+        -:   66:        }
+ 41548402:   67:        if (get<min_corner, Dimension>(box1) > get<max_corner, Dimension>(box2))
+branch  0 taken 7%
+branch  1 taken 93%
+branch  2 taken 11%
+branch  3 taken 89%
+        -:   68:        {
+  3636192:   69:            return true;
+        -:   70:        }
+ 37910499:   71:        return box_box
+        -:   72:            <
+        -:   73:                Box1, Box2,
+        -:   74:                Dimension + 1, DimensionCount
+ 37910499:   75:            >::apply(box1, box2);
+ 45600340:   76:    }
+        -:   77:};
+        -:   78:
+        -:   79:
+        -:   80:template <typename Box1, typename Box2, std::size_t DimensionCount, typename CSTag>
+        -:   81:struct box_box<Box1, Box2, DimensionCount, DimensionCount, CSTag>
+        -:   82:{
+function _ZN5boost8geometry6detail8disjoint7box_boxINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEESA_Lm2ELm2ENS0_13cartesian_tagEE5applyERKSA_SE_ called 16767985 returned 100% blocks executed 100%
+ 16767985:   83:    static inline bool apply(Box1 const& , Box2 const& )
+        -:   84:    {
+ 16767985:   85:        return false;
+        -:   86:    }
+        -:   87:};
+        -:   88:
+        -:   89:
+        -:   90:template <typename Box1, typename Box2, std::size_t DimensionCount>
+        -:   91:struct box_box<Box1, Box2, 0, DimensionCount, spherical_tag>
+        -:   92:{
+        -:   93:    template <typename Strategy>
+        -:   94:    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const&)
+        -:   95:    {
+        -:   96:        return apply(box1, box2);
+        -:   97:    }
+        -:   98:
+        -:   99:    static inline bool apply(Box1 const& box1, Box2 const& box2)
+        -:  100:    {
+        -:  101:        typedef typename geometry::select_most_precise
+        -:  102:            <
+        -:  103:                typename coordinate_type<Box1>::type,
+        -:  104:                typename coordinate_type<Box2>::type
+        -:  105:            >::type calc_t;
+        -:  106:        typedef typename coordinate_system<Box1>::type::units units_t;
+        -:  107:        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+        -:  108:
+        -:  109:        calc_t const b1_min = get<min_corner, 0>(box1);
+        -:  110:        calc_t const b1_max = get<max_corner, 0>(box1);
+        -:  111:        calc_t const b2_min = get<min_corner, 0>(box2);
+        -:  112:        calc_t const b2_max = get<max_corner, 0>(box2);
+        -:  113:
+        -:  114:        // min <= max <=> diff >= 0
+        -:  115:        calc_t const diff1 = b1_max - b1_min;
+        -:  116:        calc_t const diff2 = b2_max - b2_min;
+        -:  117:
+        -:  118:        // check the intersection if neither box cover the whole globe
+        -:  119:        if (diff1 < constants::period() && diff2 < constants::period())
+        -:  120:        {
+        -:  121:            // calculate positive longitude translation with b1_min as origin
+        -:  122:            calc_t const diff_min = math::longitude_distance_unsigned<units_t>(b1_min, b2_min);
+        -:  123:            calc_t const b2_min_transl = b1_min + diff_min; // always right of b1_min
+        -:  124:            calc_t b2_max_transl = b2_min_transl - constants::period() + diff2;
+        -:  125:
+        -:  126:            // if the translation is too close then use the original point
+        -:  127:            // note that math::abs(b2_max_transl - b2_max) takes values very
+        -:  128:            // close to k*2*constants::period() for k=0,1,2,...
+        -:  129:            if (math::abs(b2_max_transl - b2_max) < constants::period() / 2)
+        -:  130:            {
+        -:  131:                b2_max_transl = b2_max;
+        -:  132:            }
+        -:  133:
+        -:  134:            if (b2_min_transl > b1_max  // b2_min right of b1_max
+        -:  135:             && b2_max_transl < b1_min) // b2_max left of b1_min
+        -:  136:            {
+        -:  137:                return true;
+        -:  138:            }
+        -:  139:        }
+        -:  140:
+        -:  141:        return box_box
+        -:  142:            <
+        -:  143:                Box1, Box2,
+        -:  144:                1, DimensionCount
+        -:  145:            >::apply(box1, box2);
+        -:  146:    }
+        -:  147:};
+        -:  148:
+        -:  149:
+        -:  150:/*!
+        -:  151:    \brief Internal utility function to detect if boxes are disjoint
+        -:  152:    \note Is used from other algorithms, declared separately
+        -:  153:        to avoid circular references
+        -:  154: */
+        -:  155:template <typename Box1, typename Box2>
+        -:  156:inline bool disjoint_box_box(Box1 const& box1, Box2 const& box2)
+        -:  157:{
+        -:  158:    return box_box<Box1, Box2>::apply(box1, box2);
+        -:  159:}
+        -:  160:
+        -:  161:
+        -:  162:}} // namespace detail::disjoint
+        -:  163:#endif // DOXYGEN_NO_DETAIL
+        -:  164:
+        -:  165:
+        -:  166:#ifndef DOXYGEN_NO_DISPATCH
+        -:  167:namespace dispatch
+        -:  168:{
+        -:  169:
+        -:  170:
+        -:  171:template <typename Box1, typename Box2, std::size_t DimensionCount>
+        -:  172:struct disjoint<Box1, Box2, DimensionCount, box_tag, box_tag, false>
+        -:  173:    : detail::disjoint::box_box<Box1, Box2, 0, DimensionCount>
+        -:  174:{};
+        -:  175:
+        -:  176:
+        -:  177:} // namespace dispatch
+        -:  178:#endif // DOXYGEN_NO_DISPATCH
+        -:  179:
+        -:  180:
+        -:  181:}} // namespace boost::geometry
+        -:  182:
+        -:  183:
+        -:  184:#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_BOX_BOX_HPP

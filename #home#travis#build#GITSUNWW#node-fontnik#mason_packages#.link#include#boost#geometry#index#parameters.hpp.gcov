@@ -1,0 +1,267 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/parameters.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree algorithms parameters
+        -:    4://
+        -:    5:// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_PARAMETERS_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_PARAMETERS_HPP
+        -:   13:
+        -:   14:
+        -:   15:#include <limits>
+        -:   16:
+        -:   17:#include <boost/mpl/assert.hpp>
+        -:   18:
+        -:   19:#include <boost/geometry/index/detail/exception.hpp>
+        -:   20:
+        -:   21:
+        -:   22:namespace boost { namespace geometry { namespace index {
+        -:   23:
+        -:   24:namespace detail { 
+        -:   25:
+        -:   26:template <size_t MaxElements>
+        -:   27:struct default_min_elements_s
+        -:   28:{
+        -:   29:    static const size_t raw_value = (MaxElements * 3) / 10;
+        -:   30:    static const size_t value = 1 <= raw_value ? raw_value : 1;
+        -:   31:};
+        -:   32:
+        -:   33:inline size_t default_min_elements_d()
+        -:   34:{
+        -:   35:    return (std::numeric_limits<size_t>::max)();
+        -:   36:}
+        -:   37:
+        -:   38:inline size_t default_min_elements_d_calc(size_t max_elements, size_t min_elements)
+        -:   39:{
+        -:   40:    if ( default_min_elements_d() == min_elements )
+        -:   41:    {
+        -:   42:        size_t raw_value = (max_elements * 3) / 10;
+        -:   43:        return 1 <= raw_value ? raw_value : 1;
+        -:   44:    }
+        -:   45:    
+        -:   46:    return min_elements;
+        -:   47:}
+        -:   48:
+        -:   49:template <size_t MaxElements>
+        -:   50:struct default_rstar_reinserted_elements_s
+        -:   51:{
+        -:   52:    static const size_t value = (MaxElements * 3) / 10;
+        -:   53:};
+        -:   54:
+        -:   55:inline size_t default_rstar_reinserted_elements_d()
+        -:   56:{
+        -:   57:    return (std::numeric_limits<size_t>::max)();
+        -:   58:}
+        -:   59:
+        -:   60:inline size_t default_rstar_reinserted_elements_d_calc(size_t max_elements, size_t reinserted_elements)
+        -:   61:{
+        -:   62:    if ( default_rstar_reinserted_elements_d() == reinserted_elements )
+        -:   63:    {
+        -:   64:        return (max_elements * 3) / 10;
+        -:   65:    }
+        -:   66:    
+        -:   67:    return reinserted_elements;
+        -:   68:}
+        -:   69:
+        -:   70:} // namespace detail
+        -:   71:
+        -:   72:/*!
+        -:   73:\brief Linear r-tree creation algorithm parameters.
+        -:   74:
+        -:   75:\tparam MaxElements     Maximum number of elements in nodes.
+        -:   76:\tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
+        -:   77:*/
+        -:   78:template <size_t MaxElements,
+        -:   79:          size_t MinElements = detail::default_min_elements_s<MaxElements>::value>
+        -:   80:struct linear
+        -:   81:{
+        -:   82:    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+        -:   83:                         INVALID_STATIC_MIN_MAX_PARAMETERS, (linear));
+        -:   84:
+        -:   85:    static const size_t max_elements = MaxElements;
+        -:   86:    static const size_t min_elements = MinElements;
+        -:   87:
+        -:   88:    static size_t get_max_elements() { return MaxElements; }
+        -:   89:    static size_t get_min_elements() { return MinElements; }
+        -:   90:};
+        -:   91:
+        -:   92:/*!
+        -:   93:\brief Quadratic r-tree creation algorithm parameters.
+        -:   94:
+        -:   95:\tparam MaxElements     Maximum number of elements in nodes.
+        -:   96:\tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
+        -:   97:*/
+        -:   98:template <size_t MaxElements,
+        -:   99:          size_t MinElements = detail::default_min_elements_s<MaxElements>::value>
+        -:  100:struct quadratic
+        -:  101:{
+        -:  102:    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+        -:  103:                         INVALID_STATIC_MIN_MAX_PARAMETERS, (quadratic));
+        -:  104:
+        -:  105:    static const size_t max_elements = MaxElements;
+        -:  106:    static const size_t min_elements = MinElements;
+        -:  107:
+        -:  108:    static size_t get_max_elements() { return MaxElements; }
+        -:  109:    static size_t get_min_elements() { return MinElements; }
+        -:  110:};
+        -:  111:
+        -:  112:/*!
+        -:  113:\brief R*-tree creation algorithm parameters.
+        -:  114:
+        -:  115:\tparam MaxElements             Maximum number of elements in nodes.
+        -:  116:\tparam MinElements             Minimum number of elements in nodes. Default: 0.3*Max.
+        -:  117:\tparam ReinsertedElements      The number of elements reinserted by forced reinsertions algorithm.
+        -:  118:                                If 0 forced reinsertions are disabled. Maximum value is Max+1-Min.
+        -:  119:                                Greater values are truncated. Default: 0.3*Max.
+        -:  120:\tparam OverlapCostThreshold    The number of most suitable leafs taken into account while choosing
+        -:  121:                                the leaf node to which currently inserted value will be added. If
+        -:  122:                                value is in range (0, MaxElements) - the algorithm calculates
+        -:  123:                                nearly minimum overlap cost, otherwise all leafs are analyzed
+        -:  124:                                and true minimum overlap cost is calculated. Default: 32.
+        -:  125:*/
+        -:  126:template <size_t MaxElements,
+        -:  127:          size_t MinElements = detail::default_min_elements_s<MaxElements>::value,
+        -:  128:          size_t ReinsertedElements = detail::default_rstar_reinserted_elements_s<MaxElements>::value,
+        -:  129:          size_t OverlapCostThreshold = 32>
+        -:  130:struct rstar
+        -:  131:{
+        -:  132:    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+        -:  133:                         INVALID_STATIC_MIN_MAX_PARAMETERS, (rstar));
+        -:  134:
+        -:  135:    static const size_t max_elements = MaxElements;
+        -:  136:    static const size_t min_elements = MinElements;
+        -:  137:    static const size_t reinserted_elements = ReinsertedElements;
+        -:  138:    static const size_t overlap_cost_threshold = OverlapCostThreshold;
+        -:  139:
+function _ZN5boost8geometry5index5rstarILm16ELm4ELm4ELm32EE16get_max_elementsEv called 171080 returned 100% blocks executed 100%
+   171080:  140:    static size_t get_max_elements() { return MaxElements; }
+function _ZN5boost8geometry5index5rstarILm16ELm4ELm4ELm32EE16get_min_elementsEv called 69808 returned 100% blocks executed 100%
+    69808:  141:    static size_t get_min_elements() { return MinElements; }
+function _ZN5boost8geometry5index5rstarILm16ELm4ELm4ELm32EE23get_reinserted_elementsEv called 73404 returned 100% blocks executed 100%
+    73404:  142:    static size_t get_reinserted_elements() { return ReinsertedElements; }
+function _ZN5boost8geometry5index5rstarILm16ELm4ELm4ELm32EE26get_overlap_cost_thresholdEv called 63523 returned 100% blocks executed 100%
+    63523:  143:    static size_t get_overlap_cost_threshold() { return OverlapCostThreshold; }
+        -:  144:};
+        -:  145:
+        -:  146://template <size_t MaxElements, size_t MinElements>
+        -:  147://struct kmeans
+        -:  148://{
+        -:  149://    static const size_t max_elements = MaxElements;
+        -:  150://    static const size_t min_elements = MinElements;
+        -:  151://};
+        -:  152:
+        -:  153:/*!
+        -:  154:\brief Linear r-tree creation algorithm parameters - run-time version.
+        -:  155:*/
+        -:  156:class dynamic_linear
+        -:  157:{
+        -:  158:public:
+        -:  159:    /*!
+        -:  160:    \brief The constructor.
+        -:  161:
+        -:  162:    \param max_elements     Maximum number of elements in nodes.
+        -:  163:    \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
+        -:  164:    */
+        -:  165:    explicit dynamic_linear(size_t max_elements,
+        -:  166:                            size_t min_elements = detail::default_min_elements_d())
+        -:  167:        : m_max_elements(max_elements)
+        -:  168:        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
+        -:  169:    {
+        -:  170:        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+        -:  171:            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_linear");
+        -:  172:    }
+        -:  173:
+        -:  174:    size_t get_max_elements() const { return m_max_elements; }
+        -:  175:    size_t get_min_elements() const { return m_min_elements; }
+        -:  176:
+        -:  177:private:
+        -:  178:    size_t m_max_elements;
+        -:  179:    size_t m_min_elements;
+        -:  180:};
+        -:  181:
+        -:  182:/*!
+        -:  183:\brief Quadratic r-tree creation algorithm parameters - run-time version.
+        -:  184:*/
+        -:  185:class dynamic_quadratic
+        -:  186:{
+        -:  187:public:
+        -:  188:    /*!
+        -:  189:    \brief The constructor.
+        -:  190:
+        -:  191:    \param max_elements     Maximum number of elements in nodes.
+        -:  192:    \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
+        -:  193:    */
+        -:  194:    explicit dynamic_quadratic(size_t max_elements,
+        -:  195:                               size_t min_elements = detail::default_min_elements_d())
+        -:  196:        : m_max_elements(max_elements)
+        -:  197:        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
+        -:  198:    {
+        -:  199:        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+        -:  200:            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_quadratic");
+        -:  201:    }
+        -:  202:
+        -:  203:    size_t get_max_elements() const { return m_max_elements; }
+        -:  204:    size_t get_min_elements() const { return m_min_elements; }
+        -:  205:
+        -:  206:private:
+        -:  207:    size_t m_max_elements;
+        -:  208:    size_t m_min_elements;
+        -:  209:};
+        -:  210:
+        -:  211:/*!
+        -:  212:\brief R*-tree creation algorithm parameters - run-time version.
+        -:  213:*/
+        -:  214:class dynamic_rstar
+        -:  215:{
+        -:  216:public:
+        -:  217:    /*!
+        -:  218:    \brief The constructor.
+        -:  219:
+        -:  220:    \param max_elements             Maximum number of elements in nodes.
+        -:  221:    \param min_elements             Minimum number of elements in nodes. Default: 0.3*Max.
+        -:  222:    \param reinserted_elements      The number of elements reinserted by forced reinsertions algorithm.
+        -:  223:                                    If 0 forced reinsertions are disabled. Maximum value is Max-Min+1.
+        -:  224:                                    Greater values are truncated. Default: 0.3*Max.
+        -:  225:    \param overlap_cost_threshold   The number of most suitable leafs taken into account while choosing
+        -:  226:                                    the leaf node to which currently inserted value will be added. If
+        -:  227:                                    value is in range (0, MaxElements) - the algorithm calculates
+        -:  228:                                    nearly minimum overlap cost, otherwise all leafs are analyzed
+        -:  229:                                    and true minimum overlap cost is calculated. Default: 32.
+        -:  230:    */
+        -:  231:    explicit dynamic_rstar(size_t max_elements,
+        -:  232:                           size_t min_elements = detail::default_min_elements_d(),
+        -:  233:                           size_t reinserted_elements = detail::default_rstar_reinserted_elements_d(),
+        -:  234:                           size_t overlap_cost_threshold = 32)
+        -:  235:        : m_max_elements(max_elements)
+        -:  236:        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
+        -:  237:        , m_reinserted_elements(detail::default_rstar_reinserted_elements_d_calc(max_elements, reinserted_elements))
+        -:  238:        , m_overlap_cost_threshold(overlap_cost_threshold)
+        -:  239:    {
+        -:  240:        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+        -:  241:            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_rstar");
+        -:  242:    }
+        -:  243:
+        -:  244:    size_t get_max_elements() const { return m_max_elements; }
+        -:  245:    size_t get_min_elements() const { return m_min_elements; }
+        -:  246:    size_t get_reinserted_elements() const { return m_reinserted_elements; }
+        -:  247:    size_t get_overlap_cost_threshold() const { return m_overlap_cost_threshold; }
+        -:  248:
+        -:  249:private:
+        -:  250:    size_t m_max_elements;
+        -:  251:    size_t m_min_elements;
+        -:  252:    size_t m_reinserted_elements;
+        -:  253:    size_t m_overlap_cost_threshold;
+        -:  254:};
+        -:  255:
+        -:  256:}}} // namespace boost::geometry::index
+        -:  257:
+        -:  258:#endif // BOOST_GEOMETRY_INDEX_PARAMETERS_HPP

@@ -1,0 +1,260 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/protozero/varint.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef PROTOZERO_VARINT_HPP
+        -:    2:#define PROTOZERO_VARINT_HPP
+        -:    3:
+        -:    4:/*****************************************************************************
+        -:    5:
+        -:    6:protozero - Minimalistic protocol buffer decoder and encoder in C++.
+        -:    7:
+        -:    8:This file is from https://github.com/mapbox/protozero where you can find more
+        -:    9:documentation.
+        -:   10:
+        -:   11:*****************************************************************************/
+        -:   12:
+        -:   13:/**
+        -:   14: * @file varint.hpp
+        -:   15: *
+        -:   16: * @brief Contains low-level varint and zigzag encoding and decoding functions.
+        -:   17: */
+        -:   18:
+        -:   19:#include <protozero/exception.hpp>
+        -:   20:
+        -:   21:#include <cstdint>
+        -:   22:
+        -:   23:namespace protozero {
+        -:   24:
+        -:   25:/**
+        -:   26: * The maximum length of a 64 bit varint.
+        -:   27: */
+        -:   28:constexpr const int8_t max_varint_length = sizeof(uint64_t) * 8 / 7 + 1;
+        -:   29:
+        -:   30:namespace detail {
+        -:   31:
+        -:   32:    // from https://github.com/facebook/folly/blob/master/folly/Varint.h
+function _ZN9protozero6detail18decode_varint_implEPPKcS2_ called 994 returned 100% blocks executed 29%
+      994:   33:    inline uint64_t decode_varint_impl(const char** data, const char* end) {
+      994:   34:        const auto begin = reinterpret_cast<const int8_t*>(*data);
+      994:   35:        const auto iend = reinterpret_cast<const int8_t*>(end);
+      994:   36:        const int8_t* p = begin;
+      994:   37:        uint64_t val = 0;
+        -:   38:
+      994:   39:        if (iend - begin >= max_varint_length) {  // fast path
+branch  0 taken 100%
+branch  1 taken 0%
+      994:   40:            do {
+        -:   41:                int64_t b;
+      994:   42:                b = *p++; val  = ((uint64_t(b) & 0x7fU)       ); if (b >= 0) { break; }
+branch  0 taken 0%
+branch  1 taken 100%
+      994:   43:                b = *p++; val |= ((uint64_t(b) & 0x7fU) <<  7U); if (b >= 0) { break; }
+branch  0 taken 99%
+branch  1 taken 1%
+        2:   44:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 14U); if (b >= 0) { break; }
+branch  0 taken 100%
+branch  1 taken 0%
+    #####:   45:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 21U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   46:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 28U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   47:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 35U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   48:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 42U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   49:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 49U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   50:                b = *p++; val |= ((uint64_t(b) & 0x7fU) << 56U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   51:                b = *p++; val |= ((uint64_t(b) & 0x01U) << 63U); if (b >= 0) { break; }
+branch  0 never executed
+branch  1 never executed
+    #####:   52:                throw varint_too_long_exception{};
+        -:   53:            } while (false);
+      994:   54:        } else {
+    #####:   55:            unsigned int shift = 0;
+    #####:   56:            while (p != iend && *p < 0) {
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:   57:                val |= (uint64_t(*p++) & 0x7fU) << shift;
+    #####:   58:                shift += 7;
+        -:   59:            }
+    #####:   60:            if (p == iend) {
+branch  0 never executed
+branch  1 never executed
+    #####:   61:                throw end_of_buffer_exception{};
+        -:   62:            }
+    #####:   63:            val |= uint64_t(*p++) << shift;
+        -:   64:        }
+        -:   65:
+      994:   66:        *data = reinterpret_cast<const char*>(p);
+      994:   67:        return val;
+        -:   68:    }
+        -:   69:
+        -:   70:} // end namespace detail
+        -:   71:
+        -:   72:/**
+        -:   73: * Decode a 64 bit varint.
+        -:   74: *
+        -:   75: * Strong exception guarantee: if there is an exception the data pointer will
+        -:   76: * not be changed.
+        -:   77: *
+        -:   78: * @param[in,out] data Pointer to pointer to the input data. After the function
+        -:   79: *        returns this will point to the next data to be read.
+        -:   80: * @param[in] end Pointer one past the end of the input data.
+        -:   81: * @returns The decoded integer
+        -:   82: * @throws varint_too_long_exception if the varint is longer then the maximum
+        -:   83: *         length that would fit in a 64 bit int. Usually this means your data
+        -:   84: *         is corrupted or you are trying to read something as a varint that
+        -:   85: *         isn't.
+        -:   86: * @throws end_of_buffer_exception if the *end* of the buffer was reached
+        -:   87: *         before the end of the varint.
+        -:   88: */
+function _ZN9protozero13decode_varintEPPKcS1_ called 4116 returned 100% blocks executed 100%
+     4116:   89:inline uint64_t decode_varint(const char** data, const char* end) {
+        -:   90:    // If this is a one-byte varint, decode it here.
+     4116:   91:    if (end != *data && ((static_cast<uint64_t>(**data) & 0x80U) == 0)) {
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 76%
+branch  3 taken 24%
+     3122:   92:        const auto val = static_cast<uint64_t>(**data);
+     3122:   93:        ++(*data);
+     3122:   94:        return val;
+        -:   95:    }
+        -:   96:    // If this varint is more than one byte, defer to complete implementation.
+      994:   97:    return detail::decode_varint_impl(data, end);
+     4116:   98:}
+        -:   99:
+        -:  100:/**
+        -:  101: * Skip over a varint.
+        -:  102: *
+        -:  103: * Strong exception guarantee: if there is an exception the data pointer will
+        -:  104: * not be changed.
+        -:  105: *
+        -:  106: * @param[in,out] data Pointer to pointer to the input data. After the function
+        -:  107: *        returns this will point to the next data to be read.
+        -:  108: * @param[in] end Pointer one past the end of the input data.
+        -:  109: * @throws end_of_buffer_exception if the *end* of the buffer was reached
+        -:  110: *         before the end of the varint.
+        -:  111: */
+function _ZN9protozero11skip_varintEPPKcS1_ called 1860 returned 100% blocks executed 72%
+     1860:  112:inline void skip_varint(const char** data, const char* end) {
+     1860:  113:    const auto begin = reinterpret_cast<const int8_t*>(*data);
+     1860:  114:    const auto iend = reinterpret_cast<const int8_t*>(end);
+     1860:  115:    const int8_t* p = begin;
+        -:  116:
+     1860:  117:    while (p != iend && *p < 0) {
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 0%
+branch  3 taken 100%
+    #####:  118:        ++p;
+        -:  119:    }
+        -:  120:
+     1860:  121:    if (p - begin >= max_varint_length) {
+branch  0 taken 0%
+branch  1 taken 100%
+    #####:  122:        throw varint_too_long_exception{};
+        -:  123:    }
+        -:  124:
+     1860:  125:    if (p == iend) {
+branch  0 taken 0%
+branch  1 taken 100%
+    #####:  126:        throw end_of_buffer_exception{};
+        -:  127:    }
+        -:  128:
+     1860:  129:    ++p;
+        -:  130:
+     1860:  131:    *data = reinterpret_cast<const char*>(p);
+     1860:  132:}
+        -:  133:
+        -:  134:/**
+        -:  135: * Varint encode a 64 bit integer.
+        -:  136: *
+        -:  137: * @tparam T An output iterator type.
+        -:  138: * @param data Output iterator the varint encoded value will be written to
+        -:  139: *             byte by byte.
+        -:  140: * @param value The integer that will be encoded.
+        -:  141: * @returns the number of bytes written
+        -:  142: * @throws Any exception thrown by increment or dereference operator on data.
+        -:  143: */
+        -:  144:template <typename T>
+function _ZN9protozero12write_varintISt20back_insert_iteratorISsEEEiT_m called 28843 returned 100% blocks executed 100%
+function _ZN9protozero12write_varintIN9__gnu_cxx17__normal_iteratorIPcSsEEEEiT_m called 2069 returned 100% blocks executed 100%
+    30912:  145:inline int write_varint(T data, uint64_t value) {
+    30912:  146:    int n = 1;
+        -:  147:
+    35807:  148:    while (value >= 0x80U) {
+branch  0 taken 10%
+branch  1 taken 90%
+branch  2 taken 44%
+branch  3 taken 56%
+     4895:  149:        *data++ = char((value & 0x7fU) | 0x80U);
+     4895:  150:        value >>= 7U;
+     4895:  151:        ++n;
+        -:  152:    }
+    30913:  153:    *data++ = char(value);
+        -:  154:
+    30913:  155:    return n;
+        -:  156:}
+        -:  157:
+        -:  158:/**
+        -:  159: * Get the length of the varint the specified value would produce.
+        -:  160: *
+        -:  161: * @param value The integer to be encoded.
+        -:  162: * @returns the number of bytes the varint would have if we created it.
+        -:  163: */
+        -:  164:inline int length_of_varint(uint64_t value) noexcept {
+        -:  165:    int n = 1;
+        -:  166:
+        -:  167:    while (value >= 0x80U) {
+        -:  168:        value >>= 7U;
+        -:  169:        ++n;
+        -:  170:    }
+        -:  171:
+        -:  172:    return n;
+        -:  173:}
+        -:  174:
+        -:  175:/**
+        -:  176: * ZigZag encodes a 32 bit integer.
+        -:  177: */
+function _ZN9protozero15encode_zigzag32Ei called 3612 returned 100% blocks executed 100%
+     3612:  178:inline constexpr uint32_t encode_zigzag32(int32_t value) noexcept {
+     3612:  179:    return (static_cast<uint32_t>(value) << 1U) ^ static_cast<uint32_t>(-static_cast<int32_t>(static_cast<uint32_t>(value) >> 31U));
+        -:  180:}
+        -:  181:
+        -:  182:/**
+        -:  183: * ZigZag encodes a 64 bit integer.
+        -:  184: */
+        -:  185:inline constexpr uint64_t encode_zigzag64(int64_t value) noexcept {
+        -:  186:    return (static_cast<uint64_t>(value) << 1U) ^ static_cast<uint64_t>(-static_cast<int64_t>(static_cast<uint64_t>(value) >> 63U));
+        -:  187:}
+        -:  188:
+        -:  189:/**
+        -:  190: * Decodes a 32 bit ZigZag-encoded integer.
+        -:  191: */
+        -:  192:inline constexpr int32_t decode_zigzag32(uint32_t value) noexcept {
+        -:  193:    return static_cast<int32_t>((value >> 1U) ^ static_cast<uint32_t>(-static_cast<int32_t>(value & 1U)));
+        -:  194:}
+        -:  195:
+        -:  196:/**
+        -:  197: * Decodes a 64 bit ZigZag-encoded integer.
+        -:  198: */
+        -:  199:inline constexpr int64_t decode_zigzag64(uint64_t value) noexcept {
+        -:  200:    return static_cast<int64_t>((value >> 1U) ^ static_cast<uint64_t>(-static_cast<int64_t>(value & 1U)));
+        -:  201:}
+        -:  202:
+        -:  203:} // end namespace protozero
+        -:  204:
+        -:  205:#endif // PROTOZERO_VARINT_HPP

@@ -1,0 +1,844 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/predicates.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// Spatial query predicates definition and checks.
+        -:    4://
+        -:    5:// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
+        -:   13:
+        -:   14://#include <utility>
+        -:   15:
+        -:   16:#include <boost/mpl/assert.hpp>
+        -:   17:#include <boost/tuple/tuple.hpp>
+        -:   18:
+        -:   19:#include <boost/geometry/index/detail/tags.hpp>
+        -:   20:
+        -:   21:namespace boost { namespace geometry { namespace index { namespace detail {
+        -:   22:
+        -:   23:namespace predicates {
+        -:   24:
+        -:   25:// ------------------------------------------------------------------ //
+        -:   26:// predicates
+        -:   27:// ------------------------------------------------------------------ //
+        -:   28:
+        -:   29:template <typename Fun, bool IsFunction>
+        -:   30:struct satisfies_impl
+        -:   31:{
+        -:   32:    satisfies_impl() : fun(NULL) {}
+        -:   33:    satisfies_impl(Fun f) : fun(f) {}
+        -:   34:    Fun * fun;
+        -:   35:};
+        -:   36:
+        -:   37:template <typename Fun>
+        -:   38:struct satisfies_impl<Fun, false>
+        -:   39:{
+        -:   40:    satisfies_impl() {}
+        -:   41:    satisfies_impl(Fun const& f) : fun(f) {}
+        -:   42:    Fun fun;
+        -:   43:};
+        -:   44:
+        -:   45:template <typename Fun, bool Negated>
+        -:   46:struct satisfies
+        -:   47:    : satisfies_impl<Fun, ::boost::is_function<Fun>::value>
+        -:   48:{
+        -:   49:    typedef satisfies_impl<Fun, ::boost::is_function<Fun>::value> base;
+        -:   50:
+        -:   51:    satisfies() {}
+        -:   52:    satisfies(Fun const& f) : base(f) {}
+        -:   53:    satisfies(base const& b) : base(b) {}
+        -:   54:};
+        -:   55:
+        -:   56:// ------------------------------------------------------------------ //
+        -:   57:
+        -:   58:struct contains_tag {};
+        -:   59:struct covered_by_tag {};
+        -:   60:struct covers_tag {};
+        -:   61:struct disjoint_tag {};
+        -:   62:struct intersects_tag {};
+        -:   63:struct overlaps_tag {};
+        -:   64:struct touches_tag {};
+        -:   65:struct within_tag {};
+        -:   66:
+        -:   67:template <typename Geometry, typename Tag, bool Negated>
+        -:   68:struct spatial_predicate
+        -:   69:{
+        -:   70:    spatial_predicate() {}
+function _ZN5boost8geometry5index6detail10predicates17spatial_predicateINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEENS3_14intersects_tagELb0EEC2ERKSB_ called 693896 returned 100% blocks executed 100%
+   693896:   71:    spatial_predicate(Geometry const& g) : geometry(g) {}
+        -:   72:    Geometry geometry;
+        -:   73:};
+        -:   74:
+        -:   75:// ------------------------------------------------------------------ //
+        -:   76:
+        -:   77:// CONSIDER: separated nearest<> and path<> may be replaced by
+        -:   78://           nearest_predicate<Geometry, Tag>
+        -:   79://           where Tag = point_tag | path_tag
+        -:   80:// IMPROVEMENT: user-defined nearest predicate allowing to define
+        -:   81://              all or only geometrical aspects of the search
+        -:   82:
+        -:   83:template <typename PointOrRelation>
+        -:   84:struct nearest
+        -:   85:{
+        -:   86:    nearest()
+        -:   87://        : count(0)
+        -:   88:    {}
+        -:   89:    nearest(PointOrRelation const& por, unsigned k)
+        -:   90:        : point_or_relation(por)
+        -:   91:        , count(k)
+        -:   92:    {}
+        -:   93:    PointOrRelation point_or_relation;
+        -:   94:    unsigned count;
+        -:   95:};
+        -:   96:
+        -:   97:template <typename SegmentOrLinestring>
+        -:   98:struct path
+        -:   99:{
+        -:  100:    path()
+        -:  101://        : count(0)
+        -:  102:    {}
+        -:  103:    path(SegmentOrLinestring const& g, unsigned k)
+        -:  104:        : geometry(g)
+        -:  105:        , count(k)
+        -:  106:    {}
+        -:  107:    SegmentOrLinestring geometry;
+        -:  108:    unsigned count;
+        -:  109:};
+        -:  110:
+        -:  111:} // namespace predicates
+        -:  112:
+        -:  113:// ------------------------------------------------------------------ //
+        -:  114:// predicate_check
+        -:  115:// ------------------------------------------------------------------ //
+        -:  116:
+        -:  117:template <typename Predicate, typename Tag>
+        -:  118:struct predicate_check
+        -:  119:{
+        -:  120:    BOOST_MPL_ASSERT_MSG(
+        -:  121:        (false),
+        -:  122:        NOT_IMPLEMENTED_FOR_THIS_PREDICATE_OR_TAG,
+        -:  123:        (predicate_check));
+        -:  124:};
+        -:  125:
+        -:  126:// ------------------------------------------------------------------ //
+        -:  127:
+        -:  128:template <typename Fun>
+        -:  129:struct predicate_check<predicates::satisfies<Fun, false>, value_tag>
+        -:  130:{
+        -:  131:    template <typename Value, typename Indexable>
+        -:  132:    static inline bool apply(predicates::satisfies<Fun, false> const& p, Value const& v, Indexable const&)
+        -:  133:    {
+        -:  134:        return p.fun(v);
+        -:  135:    }
+        -:  136:};
+        -:  137:
+        -:  138:template <typename Fun>
+        -:  139:struct predicate_check<predicates::satisfies<Fun, true>, value_tag>
+        -:  140:{
+        -:  141:    template <typename Value, typename Indexable>
+        -:  142:    static inline bool apply(predicates::satisfies<Fun, true> const& p, Value const& v, Indexable const&)
+        -:  143:    {
+        -:  144:        return !p.fun(v);
+        -:  145:    }
+        -:  146:};
+        -:  147:
+        -:  148:// ------------------------------------------------------------------ //
+        -:  149:
+        -:  150:template <typename Tag>
+        -:  151:struct spatial_predicate_call
+        -:  152:{
+        -:  153:    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+        -:  154:};
+        -:  155:
+        -:  156:template <>
+        -:  157:struct spatial_predicate_call<predicates::contains_tag>
+        -:  158:{
+        -:  159:    template <typename G1, typename G2>
+        -:  160:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  161:    {
+        -:  162:        return geometry::within(g2, g1);
+        -:  163:    }
+        -:  164:};
+        -:  165:
+        -:  166:template <>
+        -:  167:struct spatial_predicate_call<predicates::covered_by_tag>
+        -:  168:{
+        -:  169:    template <typename G1, typename G2>
+        -:  170:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  171:    {
+        -:  172:        return geometry::covered_by(g1, g2);
+        -:  173:    }
+        -:  174:};
+        -:  175:
+        -:  176:template <>
+        -:  177:struct spatial_predicate_call<predicates::covers_tag>
+        -:  178:{
+        -:  179:    template <typename G1, typename G2>
+        -:  180:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  181:    {
+        -:  182:        return geometry::covered_by(g2, g1);
+        -:  183:    }
+        -:  184:};
+        -:  185:
+        -:  186:template <>
+        -:  187:struct spatial_predicate_call<predicates::disjoint_tag>
+        -:  188:{
+        -:  189:    template <typename G1, typename G2>
+        -:  190:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  191:    {
+        -:  192:        return geometry::disjoint(g1, g2);
+        -:  193:    }
+        -:  194:};
+        -:  195:
+        -:  196:template <>
+        -:  197:struct spatial_predicate_call<predicates::intersects_tag>
+        -:  198:{
+        -:  199:    template <typename G1, typename G2>
+function _ZN5boost8geometry5index6detail22spatial_predicate_callINS2_10predicates14intersects_tagEE5applyINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEESE_EEbRKT_RKT0_ called 23921867 returned 100% blocks executed 100%
+ 23921867:  200:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  201:    {
+ 23921867:  202:        return geometry::intersects(g1, g2);
+        -:  203:    }
+        -:  204:};
+        -:  205:
+        -:  206:template <>
+        -:  207:struct spatial_predicate_call<predicates::overlaps_tag>
+        -:  208:{
+        -:  209:    template <typename G1, typename G2>
+        -:  210:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  211:    {
+        -:  212:        return geometry::overlaps(g1, g2);
+        -:  213:    }
+        -:  214:};
+        -:  215:
+        -:  216:template <>
+        -:  217:struct spatial_predicate_call<predicates::touches_tag>
+        -:  218:{
+        -:  219:    template <typename G1, typename G2>
+        -:  220:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  221:    {
+        -:  222:        return geometry::touches(g1, g2);
+        -:  223:    }
+        -:  224:};
+        -:  225:
+        -:  226:template <>
+        -:  227:struct spatial_predicate_call<predicates::within_tag>
+        -:  228:{
+        -:  229:    template <typename G1, typename G2>
+        -:  230:    static inline bool apply(G1 const& g1, G2 const& g2)
+        -:  231:    {
+        -:  232:        return geometry::within(g1, g2);
+        -:  233:    }
+        -:  234:};
+        -:  235:
+        -:  236:// ------------------------------------------------------------------ //
+        -:  237:
+        -:  238:// spatial predicate
+        -:  239:template <typename Geometry, typename Tag>
+        -:  240:struct predicate_check<predicates::spatial_predicate<Geometry, Tag, false>, value_tag>
+        -:  241:{
+        -:  242:    typedef predicates::spatial_predicate<Geometry, Tag, false> Pred;
+        -:  243:
+        -:  244:    template <typename Value, typename Indexable>
+function _ZN5boost8geometry5index6detail15predicate_checkINS2_10predicates17spatial_predicateINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEENS4_14intersects_tagELb0EEENS2_9value_tagEE5applyISt4pairISC_SI_ISB_SB_EESC_EEbRKSE_RKT_RKT0_ called 21003972 returned 100% blocks executed 100%
+ 21003972:  245:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  246:    {
+ 21003972:  247:        return spatial_predicate_call<Tag>::apply(i, p.geometry);
+        -:  248:    }
+        -:  249:};
+        -:  250:
+        -:  251:// negated spatial predicate
+        -:  252:template <typename Geometry, typename Tag>
+        -:  253:struct predicate_check<predicates::spatial_predicate<Geometry, Tag, true>, value_tag>
+        -:  254:{
+        -:  255:    typedef predicates::spatial_predicate<Geometry, Tag, true> Pred;
+        -:  256:
+        -:  257:    template <typename Value, typename Indexable>
+        -:  258:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  259:    {
+        -:  260:        return !spatial_predicate_call<Tag>::apply(i, p.geometry);
+        -:  261:    }
+        -:  262:};
+        -:  263:
+        -:  264:// ------------------------------------------------------------------ //
+        -:  265:
+        -:  266:template <typename DistancePredicates>
+        -:  267:struct predicate_check<predicates::nearest<DistancePredicates>, value_tag>
+        -:  268:{
+        -:  269:    template <typename Value, typename Box>
+        -:  270:    static inline bool apply(predicates::nearest<DistancePredicates> const&, Value const&, Box const&)
+        -:  271:    {
+        -:  272:        return true;
+        -:  273:    }
+        -:  274:};
+        -:  275:
+        -:  276:template <typename Linestring>
+        -:  277:struct predicate_check<predicates::path<Linestring>, value_tag>
+        -:  278:{
+        -:  279:    template <typename Value, typename Box>
+        -:  280:    static inline bool apply(predicates::path<Linestring> const&, Value const&, Box const&)
+        -:  281:    {
+        -:  282:        return true;
+        -:  283:    }
+        -:  284:};
+        -:  285:
+        -:  286:// ------------------------------------------------------------------ //
+        -:  287:// predicates_check for bounds
+        -:  288:// ------------------------------------------------------------------ //
+        -:  289:
+        -:  290:template <typename Fun, bool Negated>
+        -:  291:struct predicate_check<predicates::satisfies<Fun, Negated>, bounds_tag>
+        -:  292:{
+        -:  293:    template <typename Value, typename Box>
+        -:  294:    static bool apply(predicates::satisfies<Fun, Negated> const&, Value const&, Box const&)
+        -:  295:    {
+        -:  296:        return true;
+        -:  297:    }
+        -:  298:};
+        -:  299:
+        -:  300:// ------------------------------------------------------------------ //
+        -:  301:
+        -:  302:// NOT NEGATED
+        -:  303:// value_tag        bounds_tag
+        -:  304:// ---------------------------
+        -:  305:// contains(I,G)    covers(I,G)
+        -:  306:// covered_by(I,G)  intersects(I,G)
+        -:  307:// covers(I,G)      covers(I,G)
+        -:  308:// disjoint(I,G)    !covered_by(I,G)
+        -:  309:// intersects(I,G)  intersects(I,G)
+        -:  310:// overlaps(I,G)    intersects(I,G)  - possibly change to the version without border case, e.g. intersects_without_border(0,0x1,1, 1,1x2,2) should give false
+        -:  311:// touches(I,G)     intersects(I,G)
+        -:  312:// within(I,G)      intersects(I,G)  - possibly change to the version without border case, e.g. intersects_without_border(0,0x1,1, 1,1x2,2) should give false
+        -:  313:
+        -:  314:// spatial predicate - default
+        -:  315:template <typename Geometry, typename Tag>
+        -:  316:struct predicate_check<predicates::spatial_predicate<Geometry, Tag, false>, bounds_tag>
+        -:  317:{
+        -:  318:    typedef predicates::spatial_predicate<Geometry, Tag, false> Pred;
+        -:  319:
+        -:  320:    template <typename Value, typename Indexable>
+function _ZN5boost8geometry5index6detail15predicate_checkINS2_10predicates17spatial_predicateINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEENS4_14intersects_tagELb0EEENS2_10bounds_tagEE5applyIiSC_EEbRKSE_RKT_RKT0_ called 2904319 returned 100% blocks executed 100%
+  2904319:  321:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  322:    {
+  2904319:  323:        return spatial_predicate_call<predicates::intersects_tag>::apply(i, p.geometry);
+        -:  324:    }
+        -:  325:};
+        -:  326:
+        -:  327:// spatial predicate - contains
+        -:  328:template <typename Geometry>
+        -:  329:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::contains_tag, false>, bounds_tag>
+        -:  330:{
+        -:  331:    typedef predicates::spatial_predicate<Geometry, predicates::contains_tag, false> Pred;
+        -:  332:
+        -:  333:    template <typename Value, typename Indexable>
+        -:  334:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  335:    {
+        -:  336:        return spatial_predicate_call<predicates::covers_tag>::apply(i, p.geometry);
+        -:  337:    }
+        -:  338:};
+        -:  339:
+        -:  340:// spatial predicate - covers
+        -:  341:template <typename Geometry>
+        -:  342:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::covers_tag, false>, bounds_tag>
+        -:  343:{
+        -:  344:    typedef predicates::spatial_predicate<Geometry, predicates::covers_tag, false> Pred;
+        -:  345:
+        -:  346:    template <typename Value, typename Indexable>
+        -:  347:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  348:    {
+        -:  349:        return spatial_predicate_call<predicates::covers_tag>::apply(i, p.geometry);
+        -:  350:    }
+        -:  351:};
+        -:  352:
+        -:  353:// spatial predicate - disjoint
+        -:  354:template <typename Geometry>
+        -:  355:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::disjoint_tag, false>, bounds_tag>
+        -:  356:{
+        -:  357:    typedef predicates::spatial_predicate<Geometry, predicates::disjoint_tag, false> Pred;
+        -:  358:
+        -:  359:    template <typename Value, typename Indexable>
+        -:  360:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  361:    {
+        -:  362:        return !spatial_predicate_call<predicates::covered_by_tag>::apply(i, p.geometry);
+        -:  363:    }
+        -:  364:};
+        -:  365:
+        -:  366:// NEGATED
+        -:  367:// value_tag        bounds_tag
+        -:  368:// ---------------------------
+        -:  369:// !contains(I,G)   TRUE
+        -:  370:// !covered_by(I,G) !covered_by(I,G)
+        -:  371:// !covers(I,G)     TRUE
+        -:  372:// !disjoint(I,G)   !disjoint(I,G)
+        -:  373:// !intersects(I,G) !covered_by(I,G)
+        -:  374:// !overlaps(I,G)   TRUE
+        -:  375:// !touches(I,G)    !intersects(I,G)
+        -:  376:// !within(I,G)     !within(I,G)
+        -:  377:
+        -:  378:// negated spatial predicate - default
+        -:  379:template <typename Geometry, typename Tag>
+        -:  380:struct predicate_check<predicates::spatial_predicate<Geometry, Tag, true>, bounds_tag>
+        -:  381:{
+        -:  382:    typedef predicates::spatial_predicate<Geometry, Tag, true> Pred;
+        -:  383:
+        -:  384:    template <typename Value, typename Indexable>
+        -:  385:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  386:    {
+        -:  387:        return !spatial_predicate_call<Tag>::apply(i, p.geometry);
+        -:  388:    }
+        -:  389:};
+        -:  390:
+        -:  391:// negated spatial predicate - contains
+        -:  392:template <typename Geometry>
+        -:  393:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::contains_tag, true>, bounds_tag>
+        -:  394:{
+        -:  395:    typedef predicates::spatial_predicate<Geometry, predicates::contains_tag, true> Pred;
+        -:  396:
+        -:  397:    template <typename Value, typename Indexable>
+        -:  398:    static inline bool apply(Pred const& , Value const&, Indexable const& )
+        -:  399:    {
+        -:  400:        return true;
+        -:  401:    }
+        -:  402:};
+        -:  403:
+        -:  404:// negated spatial predicate - covers
+        -:  405:template <typename Geometry>
+        -:  406:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::covers_tag, true>, bounds_tag>
+        -:  407:{
+        -:  408:    typedef predicates::spatial_predicate<Geometry, predicates::covers_tag, true> Pred;
+        -:  409:
+        -:  410:    template <typename Value, typename Indexable>
+        -:  411:    static inline bool apply(Pred const& , Value const&, Indexable const& )
+        -:  412:    {
+        -:  413:        return true;
+        -:  414:    }
+        -:  415:};
+        -:  416:
+        -:  417:// negated spatial predicate - intersects
+        -:  418:template <typename Geometry>
+        -:  419:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::intersects_tag, true>, bounds_tag>
+        -:  420:{
+        -:  421:    typedef predicates::spatial_predicate<Geometry, predicates::intersects_tag, true> Pred;
+        -:  422:
+        -:  423:    template <typename Value, typename Indexable>
+        -:  424:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  425:    {
+        -:  426:        return !spatial_predicate_call<predicates::covered_by_tag>::apply(i, p.geometry);
+        -:  427:    }
+        -:  428:};
+        -:  429:
+        -:  430:// negated spatial predicate - overlaps
+        -:  431:template <typename Geometry>
+        -:  432:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::overlaps_tag, true>, bounds_tag>
+        -:  433:{
+        -:  434:    typedef predicates::spatial_predicate<Geometry, predicates::overlaps_tag, true> Pred;
+        -:  435:
+        -:  436:    template <typename Value, typename Indexable>
+        -:  437:    static inline bool apply(Pred const& , Value const&, Indexable const& )
+        -:  438:    {
+        -:  439:        return true;
+        -:  440:    }
+        -:  441:};
+        -:  442:
+        -:  443:// negated spatial predicate - touches
+        -:  444:template <typename Geometry>
+        -:  445:struct predicate_check<predicates::spatial_predicate<Geometry, predicates::touches_tag, true>, bounds_tag>
+        -:  446:{
+        -:  447:    typedef predicates::spatial_predicate<Geometry, predicates::touches_tag, true> Pred;
+        -:  448:
+        -:  449:    template <typename Value, typename Indexable>
+        -:  450:    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+        -:  451:    {
+        -:  452:        return !spatial_predicate_call<predicates::intersects_tag>::apply(i, p.geometry);
+        -:  453:    }
+        -:  454:};
+        -:  455:
+        -:  456:// ------------------------------------------------------------------ //
+        -:  457:
+        -:  458:template <typename DistancePredicates>
+        -:  459:struct predicate_check<predicates::nearest<DistancePredicates>, bounds_tag>
+        -:  460:{
+        -:  461:    template <typename Value, typename Box>
+        -:  462:    static inline bool apply(predicates::nearest<DistancePredicates> const&, Value const&, Box const&)
+        -:  463:    {
+        -:  464:        return true;
+        -:  465:    }
+        -:  466:};
+        -:  467:
+        -:  468:template <typename Linestring>
+        -:  469:struct predicate_check<predicates::path<Linestring>, bounds_tag>
+        -:  470:{
+        -:  471:    template <typename Value, typename Box>
+        -:  472:    static inline bool apply(predicates::path<Linestring> const&, Value const&, Box const&)
+        -:  473:    {
+        -:  474:        return true;
+        -:  475:    }
+        -:  476:};
+        -:  477:
+        -:  478:// ------------------------------------------------------------------ //
+        -:  479:// predicates_length
+        -:  480:// ------------------------------------------------------------------ //
+        -:  481:
+        -:  482:template <typename T>
+        -:  483:struct predicates_length
+        -:  484:{
+        -:  485:    static const unsigned value = 1;
+        -:  486:};
+        -:  487:
+        -:  488://template <typename F, typename S>
+        -:  489://struct predicates_length< std::pair<F, S> >
+        -:  490://{
+        -:  491://    static const unsigned value = 2;
+        -:  492://};
+        -:  493:
+        -:  494://template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+        -:  495://struct predicates_length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+        -:  496://{
+        -:  497://    static const unsigned value = boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value;
+        -:  498://};
+        -:  499:
+        -:  500:template <typename Head, typename Tail>
+        -:  501:struct predicates_length< boost::tuples::cons<Head, Tail> >
+        -:  502:{
+        -:  503:    static const unsigned value = boost::tuples::length< boost::tuples::cons<Head, Tail> >::value;
+        -:  504:};
+        -:  505:
+        -:  506:// ------------------------------------------------------------------ //
+        -:  507:// predicates_element
+        -:  508:// ------------------------------------------------------------------ //
+        -:  509:
+        -:  510:template <unsigned I, typename T>
+        -:  511:struct predicates_element
+        -:  512:{
+        -:  513:    BOOST_MPL_ASSERT_MSG((I < 1), INVALID_INDEX, (predicates_element));
+        -:  514:    typedef T type;
+        -:  515:    static type const& get(T const& p) { return p; }
+        -:  516:};
+        -:  517:
+        -:  518://template <unsigned I, typename F, typename S>
+        -:  519://struct predicates_element< I, std::pair<F, S> >
+        -:  520://{
+        -:  521://    BOOST_MPL_ASSERT_MSG((I < 2), INVALID_INDEX, (predicates_element));
+        -:  522://
+        -:  523://    typedef F type;
+        -:  524://    static type const& get(std::pair<F, S> const& p) { return p.first; }
+        -:  525://};
+        -:  526://
+        -:  527://template <typename F, typename S>
+        -:  528://struct predicates_element< 1, std::pair<F, S> >
+        -:  529://{
+        -:  530://    typedef S type;
+        -:  531://    static type const& get(std::pair<F, S> const& p) { return p.second; }
+        -:  532://};
+        -:  533://
+        -:  534://template <unsigned I, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+        -:  535://struct predicates_element< I, boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+        -:  536://{
+        -:  537://    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicate_type;
+        -:  538://
+        -:  539://    typedef typename boost::tuples::element<I, predicate_type>::type type;
+        -:  540://    static type const& get(predicate_type const& p) { return boost::get<I>(p); }
+        -:  541://};
+        -:  542:
+        -:  543:template <unsigned I, typename Head, typename Tail>
+        -:  544:struct predicates_element< I, boost::tuples::cons<Head, Tail> >
+        -:  545:{
+        -:  546:    typedef boost::tuples::cons<Head, Tail> predicate_type;
+        -:  547:
+        -:  548:    typedef typename boost::tuples::element<I, predicate_type>::type type;
+        -:  549:    static type const& get(predicate_type const& p) { return boost::get<I>(p); }
+        -:  550:};
+        -:  551:
+        -:  552:// ------------------------------------------------------------------ //
+        -:  553:// predicates_check
+        -:  554:// ------------------------------------------------------------------ //
+        -:  555:
+        -:  556://template <typename PairPredicates, typename Tag, unsigned First, unsigned Last>
+        -:  557://struct predicates_check_pair {};
+        -:  558://
+        -:  559://template <typename PairPredicates, typename Tag, unsigned I>
+        -:  560://struct predicates_check_pair<PairPredicates, Tag, I, I>
+        -:  561://{
+        -:  562://    template <typename Value, typename Indexable>
+        -:  563://    static inline bool apply(PairPredicates const& , Value const& , Indexable const& )
+        -:  564://    {
+        -:  565://        return true;
+        -:  566://    }
+        -:  567://};
+        -:  568://
+        -:  569://template <typename PairPredicates, typename Tag>
+        -:  570://struct predicates_check_pair<PairPredicates, Tag, 0, 1>
+        -:  571://{
+        -:  572://    template <typename Value, typename Indexable>
+        -:  573://    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+        -:  574://    {
+        -:  575://        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i);
+        -:  576://    }
+        -:  577://};
+        -:  578://
+        -:  579://template <typename PairPredicates, typename Tag>
+        -:  580://struct predicates_check_pair<PairPredicates, Tag, 1, 2>
+        -:  581://{
+        -:  582://    template <typename Value, typename Indexable>
+        -:  583://    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+        -:  584://    {
+        -:  585://        return predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
+        -:  586://    }
+        -:  587://};
+        -:  588://
+        -:  589://template <typename PairPredicates, typename Tag>
+        -:  590://struct predicates_check_pair<PairPredicates, Tag, 0, 2>
+        -:  591://{
+        -:  592://    template <typename Value, typename Indexable>
+        -:  593://    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+        -:  594://    {
+        -:  595://        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i)
+        -:  596://            && predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
+        -:  597://    }
+        -:  598://};
+        -:  599:
+        -:  600:template <typename TuplePredicates, typename Tag, unsigned First, unsigned Last>
+        -:  601:struct predicates_check_tuple
+        -:  602:{
+        -:  603:    template <typename Value, typename Indexable>
+        -:  604:    static inline bool apply(TuplePredicates const& p, Value const& v, Indexable const& i)
+        -:  605:    {
+        -:  606:        return
+        -:  607:        predicate_check<
+        -:  608:            typename boost::tuples::element<First, TuplePredicates>::type,
+        -:  609:            Tag
+        -:  610:        >::apply(boost::get<First>(p), v, i) &&
+        -:  611:        predicates_check_tuple<TuplePredicates, Tag, First+1, Last>::apply(p, v, i);
+        -:  612:    }
+        -:  613:};
+        -:  614:
+        -:  615:template <typename TuplePredicates, typename Tag, unsigned First>
+        -:  616:struct predicates_check_tuple<TuplePredicates, Tag, First, First>
+        -:  617:{
+        -:  618:    template <typename Value, typename Indexable>
+        -:  619:    static inline bool apply(TuplePredicates const& , Value const& , Indexable const& )
+        -:  620:    {
+        -:  621:        return true;
+        -:  622:    }
+        -:  623:};
+        -:  624:
+        -:  625:template <typename Predicate, typename Tag, unsigned First, unsigned Last>
+        -:  626:struct predicates_check_impl
+        -:  627:{
+        -:  628:    static const bool check = First < 1 && Last <= 1 && First <= Last;
+        -:  629:    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
+        -:  630:
+        -:  631:    template <typename Value, typename Indexable>
+function _ZN5boost8geometry5index6detail21predicates_check_implINS2_10predicates17spatial_predicateINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEENS4_14intersects_tagELb0EEENS2_9value_tagELj0ELj1EE5applyISt4pairISC_SI_ISB_SB_EESC_EEbRKSE_RKT_RKT0_ called 21028400 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail21predicates_check_implINS2_10predicates17spatial_predicateINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEENS4_14intersects_tagELb0EEENS2_10bounds_tagELj0ELj1EE5applyIiSC_EEbRKSE_RKT_RKT0_ called 2904259 returned 100% blocks executed 100%
+ 23932659:  632:    static inline bool apply(Predicate const& p, Value const& v, Indexable const& i)
+        -:  633:    {
+ 23932659:  634:        return predicate_check<Predicate, Tag>::apply(p, v, i);
+        -:  635:    }
+        -:  636:};
+        -:  637:
+        -:  638://template <typename Predicate1, typename Predicate2, typename Tag, size_t First, size_t Last>
+        -:  639://struct predicates_check_impl<std::pair<Predicate1, Predicate2>, Tag, First, Last>
+        -:  640://{
+        -:  641://    BOOST_MPL_ASSERT_MSG((First < 2 && Last <= 2 && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+        -:  642://
+        -:  643://    template <typename Value, typename Indexable>
+        -:  644://    static inline bool apply(std::pair<Predicate1, Predicate2> const& p, Value const& v, Indexable const& i)
+        -:  645://    {
+        -:  646://        return predicate_check<Predicate1, Tag>::apply(p.first, v, i)
+        -:  647://            && predicate_check<Predicate2, Tag>::apply(p.second, v, i);
+        -:  648://    }
+        -:  649://};
+        -:  650://
+        -:  651://template <
+        -:  652://    typename T0, typename T1, typename T2, typename T3, typename T4,
+        -:  653://    typename T5, typename T6, typename T7, typename T8, typename T9,
+        -:  654://    typename Tag, unsigned First, unsigned Last
+        -:  655://>
+        -:  656://struct predicates_check_impl<
+        -:  657://    boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+        -:  658://    Tag, First, Last
+        -:  659://>
+        -:  660://{
+        -:  661://    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicates_type;
+        -:  662://
+        -:  663://    static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
+        -:  664://    BOOST_MPL_ASSERT_MSG((First < pred_len && Last <= pred_len && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+        -:  665://
+        -:  666://    template <typename Value, typename Indexable>
+        -:  667://    static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
+        -:  668://    {
+        -:  669://        return predicates_check_tuple<
+        -:  670://            predicates_type,
+        -:  671://            Tag, First, Last
+        -:  672://        >::apply(p, v, i);
+        -:  673://    }
+        -:  674://};
+        -:  675:
+        -:  676:template <typename Head, typename Tail, typename Tag, unsigned First, unsigned Last>
+        -:  677:struct predicates_check_impl<
+        -:  678:    boost::tuples::cons<Head, Tail>,
+        -:  679:    Tag, First, Last
+        -:  680:>
+        -:  681:{
+        -:  682:    typedef boost::tuples::cons<Head, Tail> predicates_type;
+        -:  683:
+        -:  684:    static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
+        -:  685:    static const bool check = First < pred_len && Last <= pred_len && First <= Last;
+        -:  686:    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
+        -:  687:
+        -:  688:    template <typename Value, typename Indexable>
+        -:  689:    static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
+        -:  690:    {
+        -:  691:        return predicates_check_tuple<
+        -:  692:            predicates_type,
+        -:  693:            Tag, First, Last
+        -:  694:        >::apply(p, v, i);
+        -:  695:    }
+        -:  696:};
+        -:  697:
+        -:  698:template <typename Tag, unsigned First, unsigned Last, typename Predicates, typename Value, typename Indexable>
+function _ZN5boost8geometry5index6detail16predicates_checkINS2_9value_tagELj0ELj1ENS2_10predicates17spatial_predicateINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEENS5_14intersects_tagELb0EEESt4pairISD_SG_ISC_SC_EESD_EEbRKT2_RKT3_RKT4_ called 21035642 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail16predicates_checkINS2_10bounds_tagELj0ELj1ENS2_10predicates17spatial_predicateINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEENS5_14intersects_tagELb0EEEiSD_EEbRKT2_RKT3_RKT4_ called 2904311 returned 99% blocks executed 100%
+ 23939953:  699:inline bool predicates_check(Predicates const& p, Value const& v, Indexable const& i)
+        -:  700:{
+ 23939953:  701:    return detail::predicates_check_impl<Predicates, Tag, First, Last>
+ 23939953:  702:        ::apply(p, v, i);
+        -:  703:}
+        -:  704:
+        -:  705:// ------------------------------------------------------------------ //
+        -:  706:// nearest predicate helpers
+        -:  707:// ------------------------------------------------------------------ //
+        -:  708:
+        -:  709:// predicates_is_nearest
+        -:  710:
+        -:  711:template <typename P>
+        -:  712:struct predicates_is_distance
+        -:  713:{
+        -:  714:    static const unsigned value = 0;
+        -:  715:};
+        -:  716:
+        -:  717:template <typename DistancePredicates>
+        -:  718:struct predicates_is_distance< predicates::nearest<DistancePredicates> >
+        -:  719:{
+        -:  720:    static const unsigned value = 1;
+        -:  721:};
+        -:  722:
+        -:  723:template <typename Linestring>
+        -:  724:struct predicates_is_distance< predicates::path<Linestring> >
+        -:  725:{
+        -:  726:    static const unsigned value = 1;
+        -:  727:};
+        -:  728:
+        -:  729:// predicates_count_nearest
+        -:  730:
+        -:  731:template <typename T>
+        -:  732:struct predicates_count_distance
+        -:  733:{
+        -:  734:    static const unsigned value = predicates_is_distance<T>::value;
+        -:  735:};
+        -:  736:
+        -:  737://template <typename F, typename S>
+        -:  738://struct predicates_count_distance< std::pair<F, S> >
+        -:  739://{
+        -:  740://    static const unsigned value = predicates_is_distance<F>::value
+        -:  741://                                + predicates_is_distance<S>::value;
+        -:  742://};
+        -:  743:
+        -:  744:template <typename Tuple, unsigned N>
+        -:  745:struct predicates_count_distance_tuple
+        -:  746:{
+        -:  747:    static const unsigned value =
+        -:  748:        predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value
+        -:  749:        + predicates_count_distance_tuple<Tuple, N-1>::value;
+        -:  750:};
+        -:  751:
+        -:  752:template <typename Tuple>
+        -:  753:struct predicates_count_distance_tuple<Tuple, 1>
+        -:  754:{
+        -:  755:    static const unsigned value =
+        -:  756:        predicates_is_distance<typename boost::tuples::element<0, Tuple>::type>::value;
+        -:  757:};
+        -:  758:
+        -:  759://template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+        -:  760://struct predicates_count_distance< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+        -:  761://{
+        -:  762://    static const unsigned value = predicates_count_distance_tuple<
+        -:  763://        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+        -:  764://        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+        -:  765://    >::value;
+        -:  766://};
+        -:  767:
+        -:  768:template <typename Head, typename Tail>
+        -:  769:struct predicates_count_distance< boost::tuples::cons<Head, Tail> >
+        -:  770:{
+        -:  771:    static const unsigned value = predicates_count_distance_tuple<
+        -:  772:        boost::tuples::cons<Head, Tail>,
+        -:  773:        boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
+        -:  774:    >::value;
+        -:  775:};
+        -:  776:
+        -:  777:// predicates_find_nearest
+        -:  778:
+        -:  779:template <typename T>
+        -:  780:struct predicates_find_distance
+        -:  781:{
+        -:  782:    static const unsigned value = predicates_is_distance<T>::value ? 0 : 1;
+        -:  783:};
+        -:  784:
+        -:  785://template <typename F, typename S>
+        -:  786://struct predicates_find_distance< std::pair<F, S> >
+        -:  787://{
+        -:  788://    static const unsigned value = predicates_is_distance<F>::value ? 0 :
+        -:  789://                                    (predicates_is_distance<S>::value ? 1 : 2);
+        -:  790://};
+        -:  791:
+        -:  792:template <typename Tuple, unsigned N>
+        -:  793:struct predicates_find_distance_tuple
+        -:  794:{
+        -:  795:    static const bool is_found = predicates_find_distance_tuple<Tuple, N-1>::is_found
+        -:  796:                                || predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value;
+        -:  797:
+        -:  798:    static const unsigned value = predicates_find_distance_tuple<Tuple, N-1>::is_found ?
+        -:  799:        predicates_find_distance_tuple<Tuple, N-1>::value :
+        -:  800:        (predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value ?
+        -:  801:            N-1 : boost::tuples::length<Tuple>::value);
+        -:  802:};
+        -:  803:
+        -:  804:template <typename Tuple>
+        -:  805:struct predicates_find_distance_tuple<Tuple, 1>
+        -:  806:{
+        -:  807:    static const bool is_found = predicates_is_distance<typename boost::tuples::element<0, Tuple>::type>::value;
+        -:  808:    static const unsigned value = is_found ? 0 : boost::tuples::length<Tuple>::value;
+        -:  809:};
+        -:  810:
+        -:  811://template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+        -:  812://struct predicates_find_distance< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+        -:  813://{
+        -:  814://    static const unsigned value = predicates_find_distance_tuple<
+        -:  815://        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+        -:  816://        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+        -:  817://    >::value;
+        -:  818://};
+        -:  819:
+        -:  820:template <typename Head, typename Tail>
+        -:  821:struct predicates_find_distance< boost::tuples::cons<Head, Tail> >
+        -:  822:{
+        -:  823:    static const unsigned value = predicates_find_distance_tuple<
+        -:  824:        boost::tuples::cons<Head, Tail>,
+        -:  825:        boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
+        -:  826:    >::value;
+        -:  827:};
+        -:  828:
+        -:  829:}}}} // namespace boost::geometry::index::detail
+        -:  830:
+        -:  831:#endif // BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP

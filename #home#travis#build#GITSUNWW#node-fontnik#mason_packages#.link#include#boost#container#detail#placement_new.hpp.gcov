@@ -1,0 +1,37 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/container/detail/placement_new.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP
+        -:    2:#define BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP
+        -:    3:///////////////////////////////////////////////////////////////////////////////
+        -:    4://
+        -:    5:// (C) Copyright Ion Gaztanaga 2014-2015. Distributed under the Boost
+        -:    6:// Software License, Version 1.0. (See accompanying file
+        -:    7:// LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+        -:    8://
+        -:    9:// See http://www.boost.org/libs/container for documentation.
+        -:   10://
+        -:   11:///////////////////////////////////////////////////////////////////////////////
+        -:   12:
+        -:   13:#ifndef BOOST_CONFIG_HPP
+        -:   14:#  include <boost/config.hpp>
+        -:   15:#endif
+        -:   16:
+        -:   17:#if defined(BOOST_HAS_PRAGMA_ONCE)
+        -:   18:#  pragma once
+        -:   19:#endif
+        -:   20:
+        -:   21:struct boost_container_new_t{};
+        -:   22:
+        -:   23://avoid including <new>
+function _ZnwmPv21boost_container_new_t called 7950 returned 100% blocks executed 100%
+     7950:   24:inline void *operator new(std::size_t, void *p, boost_container_new_t)
+     7950:   25:{  return p;  }
+        -:   26:
+function _ZdlPvS_21boost_container_new_t called 0 returned 0% blocks executed 0%
+    #####:   27:inline void operator delete(void *, void *, boost_container_new_t)
+    #####:   28:{}
+        -:   29:
+        -:   30:#endif   //BOOST_CONTAINER_DETAIL_PLACEMENT_NEW_HPP

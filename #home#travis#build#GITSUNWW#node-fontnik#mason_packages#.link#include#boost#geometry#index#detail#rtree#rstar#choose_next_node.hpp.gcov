@@ -1,0 +1,326 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/rstar/choose_next_node.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree R*-tree next node choosing algorithm implementation
+        -:    4://
+        -:    5:// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_CHOOSE_NEXT_NODE_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_CHOOSE_NEXT_NODE_HPP
+        -:   13:
+        -:   14:#include <algorithm>
+        -:   15:
+        -:   16:#include <boost/geometry/algorithms/expand.hpp>
+        -:   17:
+        -:   18:#include <boost/geometry/index/detail/algorithms/content.hpp>
+        -:   19:#include <boost/geometry/index/detail/algorithms/intersection_content.hpp>
+        -:   20:#include <boost/geometry/index/detail/algorithms/nth_element.hpp>
+        -:   21:#include <boost/geometry/index/detail/algorithms/union_content.hpp>
+        -:   22:
+        -:   23:#include <boost/geometry/index/detail/rtree/node/node.hpp>
+        -:   24:#include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
+        -:   25:
+        -:   26:namespace boost { namespace geometry { namespace index {
+        -:   27:
+        -:   28:namespace detail { namespace rtree {
+        -:   29:
+        -:   30:template <typename Value, typename Options, typename Box, typename Allocators>
+        -:   31:class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_tag>
+        -:   32:{
+        -:   33:    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:   34:    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:   35:    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:   36:
+        -:   37:    typedef typename rtree::elements_type<internal_node>::type children_type;
+        -:   38:    typedef typename children_type::value_type child_type;
+        -:   39:
+        -:   40:    typedef typename Options::parameters_type parameters_type;
+        -:   41:
+        -:   42:    typedef typename index::detail::default_content_result<Box>::type content_type;
+        -:   43:
+        -:   44:public:
+        -:   45:    template <typename Indexable>
+function _ZN5boost8geometry5index6detail5rtree16choose_next_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EESJ_E5applyISC_EEmRNS3_21variant_internal_nodeISE_SH_SC_SS_SM_EERKT_RKSH_m called 63530 returned 100% blocks executed 100%
+    63530:   46:    static inline size_t apply(internal_node & n,
+        -:   47:                               Indexable const& indexable,
+        -:   48:                               parameters_type const& parameters,
+        -:   49:                               size_t node_relative_level)
+        -:   50:    {
+    63530:   51:        ::boost::ignore_unused_variable_warning(parameters);
+        -:   52:
+    63530:   53:        children_type & children = rtree::elements(n);
+        -:   54:        
+        -:   55:        // children are leafs
+    63530:   56:        if ( node_relative_level <= 1 )
+branch  0 taken 99%
+branch  1 taken 1%
+        -:   57:        {
+    63523:   58:            return choose_by_minimum_overlap_cost(children, indexable, parameters.get_overlap_cost_threshold());
+        -:   59:        }
+        -:   60:        // children are internal nodes
+        -:   61:        else
+        8:   62:            return choose_by_minimum_content_cost(children, indexable);
+    63531:   63:    }
+        -:   64:
+        -:   65:private:
+        -:   66:    template <typename Indexable>
+function _ZN5boost8geometry5index6detail5rtree16choose_next_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EESJ_E30choose_by_minimum_overlap_costISC_EEmRKNS2_6varrayINS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SS_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SS_SM_EEEEEEELm17EEERKT_m called 63522 returned 100% blocks executed 78%
+    63522:   67:    static inline size_t choose_by_minimum_overlap_cost(children_type const& children,
+        -:   68:                                                        Indexable const& indexable,
+        -:   69:                                                        size_t overlap_cost_threshold)
+        -:   70:    {
+    63522:   71:        const size_t children_count = children.size();
+        -:   72:
+    63522:   73:        content_type min_content_diff = (std::numeric_limits<content_type>::max)();
+    63522:   74:        content_type min_content = (std::numeric_limits<content_type>::max)();
+    63522:   75:        size_t choosen_index = 0;
+        -:   76:
+        -:   77:        // create container of children sorted by content enlargement needed to include the new value
+        -:   78:        typedef boost::tuple<size_t, content_type, content_type> child_contents;
+        -:   79:
+    63522:   80:        typename rtree::container_from_elements_type<children_type, child_contents>::type children_contents;
+    63522:   81:        children_contents.resize(children_count);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   82:
+   314490:   83:        for ( size_t i = 0 ; i < children_count ; ++i )
+branch  0 taken 80%
+branch  1 taken 20%
+        -:   84:        {
+   250969:   85:            child_type const& ch_i = children[i];
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   86:
+        -:   87:            // expanded child node's box
+   250970:   88:            Box box_exp(ch_i.first);
+   250970:   89:            geometry::expand(box_exp, indexable);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   90:
+        -:   91:            // areas difference
+   250970:   92:            content_type content = index::detail::content(box_exp);
+branch  0 taken 100%
+branch  1 taken 0%
+   250968:   93:            content_type content_diff = content - index::detail::content(ch_i.first);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   94:
+   250966:   95:            children_contents[i] = boost::make_tuple(i, content_diff, content);
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 taken 100%
+branch  5 taken 0%
+        -:   96:
+   254933:   97:            if ( content_diff < min_content_diff ||
+branch  0 taken 45%
+branch  1 taken 55%
+branch  2 taken 46%
+branch  3 taken 54%
+   111976:   98:                 (content_diff == min_content_diff && content < min_content) )
+branch  0 taken 4%
+branch  1 taken 96%
+        -:   99:            {
+   140807:  100:                min_content_diff = content_diff;
+   140807:  101:                min_content = content;
+   140807:  102:                choosen_index = i;
+   140807:  103:            }
+   250966:  104:        }
+        -:  105:
+        -:  106:        // is this assumption ok? if min_content_diff == 0 there is no overlap increase?
+        -:  107:
+    63523:  108:        if ( min_content_diff < -std::numeric_limits<double>::epsilon() || std::numeric_limits<double>::epsilon() < min_content_diff )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 30%
+branch  3 taken 70%
+        -:  109:        {
+    18945:  110:            size_t first_n_children_count = children_count;
+    18945:  111:            if ( 0 < overlap_cost_threshold && overlap_cost_threshold < children.size() )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 taken 0%
+branch  5 taken 100%
+        -:  112:            {
+    #####:  113:                first_n_children_count = overlap_cost_threshold;
+        -:  114:                // rearrange by content_diff
+        -:  115:                // in order to calculate nearly minimum overlap cost
+    #####:  116:                index::detail::nth_element(children_contents.begin(), children_contents.begin() + first_n_children_count, children_contents.end(), content_diff_less);
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    #####:  117:            }
+        -:  118:
+        -:  119:            // calculate minimum or nearly minimum overlap cost
+    18945:  120:            choosen_index = choose_by_minimum_overlap_cost_first_n(children, indexable, first_n_children_count, children_count, children_contents);
+branch  0 taken 0%
+branch  1 taken 100%
+    18945:  121:        }
+        -:  122:
+    63523:  123:        return choosen_index;
+    63523:  124:    }
+        -:  125:
+function _ZN5boost8geometry5index6detail5rtree16choose_next_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EESJ_E17content_diff_lessERKNS_6tuples5tupleImeeNSU_9null_typeESW_SW_SW_SW_SW_SW_EESZ_ called 0 returned 0% blocks executed 0%
+    #####:  126:    static inline bool content_diff_less(boost::tuple<size_t, content_type, content_type> const& p1, boost::tuple<size_t, content_type, content_type> const& p2)
+        -:  127:    {
+    #####:  128:        return boost::get<1>(p1) < boost::get<1>(p2) ||
+branch  0 never executed
+branch  1 never executed
+    #####:  129:               (boost::get<1>(p1) == boost::get<1>(p2) && boost::get<2>(p1) < boost::get<2>(p2));
+branch  0 never executed
+branch  1 never executed
+        -:  130:    }
+        -:  131:
+        -:  132:    template <typename Indexable, typename ChildrenContents>
+function _ZN5boost8geometry5index6detail5rtree16choose_next_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EESJ_E38choose_by_minimum_overlap_cost_first_nISC_NS2_6varrayINS_6tuples5tupleImeeNSW_9null_typeESY_SY_SY_SY_SY_SY_EELm17EEEEEmRKNSV_INS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SS_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SS_SM_EEEEEEELm17EEERKT_mmRKT0_ called 18945 returned 100% blocks executed 86%
+    18945:  133:    static inline size_t choose_by_minimum_overlap_cost_first_n(children_type const& children,
+        -:  134:                                                                Indexable const& indexable,
+        -:  135:                                                                size_t const first_n_children_count,
+        -:  136:                                                                size_t const children_count,
+        -:  137:                                                                ChildrenContents const& children_contents)
+        -:  138:    {
+    18945:  139:        BOOST_GEOMETRY_INDEX_ASSERT(first_n_children_count <= children_count, "unexpected value");
+branch  0 taken 100%
+branch  1 taken 0%
+    18945:  140:        BOOST_GEOMETRY_INDEX_ASSERT(children_contents.size() == children_count, "unexpected number of elements");
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  141:
+        -:  142:        // choose index with smallest overlap change value, or content change or smallest content
+    18945:  143:        size_t choosen_index = 0;
+    18945:  144:        content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
+    18945:  145:        content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+    18945:  146:        content_type smallest_content = (std::numeric_limits<content_type>::max)();
+        -:  147:
+        -:  148:        // for each child node
+    89923:  149:        for (size_t i = 0 ; i < first_n_children_count ; ++i )
+branch  0 taken 79%
+branch  1 taken 21%
+        -:  150:        {
+    70978:  151:            child_type const& ch_i = children[i];
+        -:  152:
+    70978:  153:            Box box_exp(ch_i.first);
+        -:  154:            // calculate expanded box of child node ch_i
+    70978:  155:            geometry::expand(box_exp, indexable);
+        -:  156:
+    70978:  157:            content_type overlap_diff = 0;
+        -:  158:
+        -:  159:            // calculate overlap
+   399070:  160:            for ( size_t j = 0 ; j < children_count ; ++j )
+branch  0 taken 82%
+branch  1 taken 18%
+        -:  161:            {
+   328091:  162:                if ( i != j )
+branch  0 taken 78%
+branch  1 taken 22%
+        -:  163:                {
+   257115:  164:                    child_type const& ch_j = children[j];
+        -:  165:
+   257115:  166:                    content_type overlap_exp = index::detail::intersection_content(box_exp, ch_j.first);
+   257115:  167:                    if ( overlap_exp < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < overlap_exp )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 41%
+branch  3 taken 59%
+        -:  168:                    {
+   106215:  169:                        overlap_diff += overlap_exp - index::detail::intersection_content(ch_i.first, ch_j.first);
+   106215:  170:                    }
+   257116:  171:                }
+   328093:  172:            }
+        -:  173:
+    70978:  174:            content_type content = boost::get<2>(children_contents[i]);
+    70978:  175:            content_type content_diff = boost::get<1>(children_contents[i]);
+        -:  176:
+        -:  177:            // update result
+    71545:  178:            if ( overlap_diff < smallest_overlap_diff ||
+branch  0 taken 46%
+branch  1 taken 54%
+branch  2 taken 40%
+branch  3 taken 60%
+    32435:  179:                ( overlap_diff == smallest_overlap_diff && ( content_diff < smallest_content_diff ||
+branch  0 taken 13%
+branch  1 taken 87%
+branch  2 taken 48%
+branch  3 taken 52%
+     2009:  180:                ( content_diff == smallest_content_diff && content < smallest_content ) )
+branch  0 taken 28%
+branch  1 taken 72%
+        -:  181:                ) )
+        -:  182:            {
+    40978:  183:                smallest_overlap_diff = overlap_diff;
+    40978:  184:                smallest_content_diff = content_diff;
+    40978:  185:                smallest_content = content;
+    40978:  186:                choosen_index = i;
+    40978:  187:            }
+    70978:  188:        }
+        -:  189:
+    18945:  190:        return choosen_index;
+        -:  191:    }
+        -:  192:
+        -:  193:    template <typename Indexable>
+function _ZN5boost8geometry5index6detail5rtree16choose_next_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EESJ_E30choose_by_minimum_content_costISC_EEmRKNS2_6varrayINS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SS_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SS_SM_EEEEEEELm17EEERKT_ called 8 returned 100% blocks executed 90%
+        8:  194:    static inline size_t choose_by_minimum_content_cost(children_type const& children, Indexable const& indexable)
+        -:  195:    {
+        8:  196:        size_t children_count = children.size();
+        -:  197:
+        -:  198:        // choose index with smallest content change or smallest content
+        8:  199:        size_t choosen_index = 0;
+        8:  200:        content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+        8:  201:        content_type smallest_content = (std::numeric_limits<content_type>::max)();
+        -:  202:
+        -:  203:        // choose the child which requires smallest box expansion to store the indexable
+       24:  204:        for ( size_t i = 0 ; i < children_count ; ++i )
+branch  0 taken 67%
+branch  1 taken 33%
+        -:  205:        {
+       16:  206:            child_type const& ch_i = children[i];
+        -:  207:
+        -:  208:            // expanded child node's box
+       16:  209:            Box box_exp(ch_i.first);
+       16:  210:            geometry::expand(box_exp, indexable);
+        -:  211:
+        -:  212:            // areas difference
+       16:  213:            content_type content = index::detail::content(box_exp);
+       16:  214:            content_type content_diff = content - index::detail::content(ch_i.first);
+        -:  215:
+        -:  216:            // update the result
+       16:  217:            if ( content_diff < smallest_content_diff ||
+branch  0 taken 25%
+branch  1 taken 75%
+branch  2 never executed
+branch  3 never executed
+        4:  218:                ( content_diff == smallest_content_diff && content < smallest_content ) )
+branch  0 taken 0%
+branch  1 taken 100%
+        -:  219:            {
+       12:  220:                smallest_content_diff = content_diff;
+       12:  221:                smallest_content = content;
+       12:  222:                choosen_index = i;
+       12:  223:            }
+       16:  224:        }
+        -:  225:
+        8:  226:        return choosen_index;
+        -:  227:    }
+        -:  228:};
+        -:  229:
+        -:  230:}} // namespace detail::rtree
+        -:  231:
+        -:  232:}}} // namespace boost::geometry::index
+        -:  233:
+        -:  234:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_CHOOSE_NEXT_NODE_HPP

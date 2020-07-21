@@ -1,0 +1,714 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/agg/agg_curves.h
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://----------------------------------------------------------------------------
+        -:    2:// Anti-Grain Geometry - Version 2.4
+        -:    3:// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+        -:    4:// Copyright (C) 2005 Tony Juricic (tonygeek@yahoo.com)
+        -:    5://
+        -:    6:// Permission to copy, use, modify, sell and distribute this software 
+        -:    7:// is granted provided this copyright notice appears in all copies. 
+        -:    8:// This software is provided "as is" without express or implied
+        -:    9:// warranty, and with no claim as to its suitability for any purpose.
+        -:   10://
+        -:   11://----------------------------------------------------------------------------
+        -:   12:// Contact: mcseem@antigrain.com
+        -:   13://          mcseemagg@yahoo.com
+        -:   14://          http://www.antigrain.com
+        -:   15://----------------------------------------------------------------------------
+        -:   16:
+        -:   17:#ifndef AGG_CURVES_INCLUDED
+        -:   18:#define AGG_CURVES_INCLUDED
+        -:   19:
+        -:   20:#include "agg_array.h"
+        -:   21:
+        -:   22:namespace agg_fontnik
+        -:   23:{
+        -:   24:
+        -:   25:    // See Implementation agg_curves.cpp
+        -:   26:
+        -:   27:    //--------------------------------------------curve_approximation_method_e
+        -:   28:    enum curve_approximation_method_e
+        -:   29:    {
+        -:   30:        curve_inc,
+        -:   31:        curve_div
+        -:   32:    };
+        -:   33:    
+        -:   34:    //--------------------------------------------------------------curve3_inc
+        -:   35:    class curve3_inc
+        -:   36:    {
+        -:   37:    public:
+        -:   38:        curve3_inc() :
+        -:   39:          m_num_steps(0), m_step(0), m_scale(1.0) { }
+        -:   40:
+        -:   41:        curve3_inc(double x1, double y1, 
+        -:   42:                   double x2, double y2, 
+        -:   43:                   double x3, double y3) :
+        -:   44:            m_num_steps(0), m_step(0), m_scale(1.0) 
+        -:   45:        { 
+        -:   46:            init(x1, y1, x2, y2, x3, y3);
+        -:   47:        }
+        -:   48:
+        -:   49:        void reset() { m_num_steps = 0; m_step = -1; }
+        -:   50:        void init(double x1, double y1, 
+        -:   51:                  double x2, double y2, 
+        -:   52:                  double x3, double y3);
+        -:   53:
+        -:   54:        void approximation_method(curve_approximation_method_e) {}
+        -:   55:        curve_approximation_method_e approximation_method() const { return curve_inc; }
+        -:   56:
+        -:   57:        void approximation_scale(double s);
+        -:   58:        double approximation_scale() const;
+        -:   59:
+        -:   60:        void angle_tolerance(double) {}
+        -:   61:        double angle_tolerance() const { return 0.0; }
+        -:   62:
+        -:   63:        void cusp_limit(double) {}
+        -:   64:        double cusp_limit() const { return 0.0; }
+        -:   65:
+        -:   66:        void     rewind(unsigned path_id);
+        -:   67:        unsigned vertex(double* x, double* y);
+        -:   68:
+        -:   69:    private:
+        -:   70:        int      m_num_steps;
+        -:   71:        int      m_step;
+        -:   72:        double   m_scale;
+        -:   73:        double   m_start_x; 
+        -:   74:        double   m_start_y;
+        -:   75:        double   m_end_x; 
+        -:   76:        double   m_end_y;
+        -:   77:        double   m_fx; 
+        -:   78:        double   m_fy;
+        -:   79:        double   m_dfx; 
+        -:   80:        double   m_dfy;
+        -:   81:        double   m_ddfx; 
+        -:   82:        double   m_ddfy;
+        -:   83:        double   m_saved_fx; 
+        -:   84:        double   m_saved_fy;
+        -:   85:        double   m_saved_dfx; 
+        -:   86:        double   m_saved_dfy;
+        -:   87:    };
+        -:   88:
+        -:   89:
+        -:   90:
+        -:   91:
+        -:   92:
+        -:   93:    //-------------------------------------------------------------curve3_div
+function _ZN11agg_fontnik10curve3_divD2Ev called 21910 returned 100% blocks executed 100%
+    21910:   94:    class curve3_div
+        -:   95:    {
+        -:   96:    public:
+        -:   97:        curve3_div() : 
+        -:   98:            m_approximation_scale(1.0),
+        -:   99:            m_angle_tolerance(0.0),
+        -:  100:            m_count(0)
+        -:  101:        {}
+        -:  102:
+function _ZN11agg_fontnik10curve3_divC2Edddddd called 21910 returned 99% blocks executed 60%
+    21910:  103:        curve3_div(double x1, double y1, 
+        -:  104:                   double x2, double y2, 
+        -:  105:                   double x3, double y3) :
+    21910:  106:            m_approximation_scale(1.0),
+    21910:  107:            m_angle_tolerance(0.0),
+    21910:  108:            m_count(0)
+        -:  109:        { 
+    21910:  110:            init(x1, y1, x2, y2, x3, y3);
+branch  0 taken 100%
+branch  1 taken 0%
+    21909:  111:        }
+        -:  112:
+        -:  113:        void reset() { m_points.remove_all(); m_count = 0; }
+        -:  114:        void init(double x1, double y1, 
+        -:  115:                  double x2, double y2, 
+        -:  116:                  double x3, double y3);
+        -:  117:
+        -:  118:        void approximation_method(curve_approximation_method_e) {}
+        -:  119:        curve_approximation_method_e approximation_method() const { return curve_div; }
+        -:  120:
+        -:  121:        void approximation_scale(double s) { m_approximation_scale = s; }
+        -:  122:        double approximation_scale() const { return m_approximation_scale;  }
+        -:  123:
+        -:  124:        void angle_tolerance(double a) { m_angle_tolerance = a; }
+        -:  125:        double angle_tolerance() const { return m_angle_tolerance;  }
+        -:  126:
+        -:  127:        void cusp_limit(double) {}
+        -:  128:        double cusp_limit() const { return 0.0; }
+        -:  129:
+function _ZN11agg_fontnik10curve3_div6rewindEj called 21908 returned 100% blocks executed 100%
+    21908:  130:        void rewind(unsigned)
+        -:  131:        {
+    21908:  132:            m_count = 0;
+    21908:  133:        }
+        -:  134:
+function _ZN11agg_fontnik10curve3_div6vertexEPdS1_ called 96005 returned 100% blocks executed 100%
+    96005:  135:        unsigned vertex(double* x, double* y)
+        -:  136:        {
+    96005:  137:            if(m_count >= m_points.size()) return path_cmd_stop;
+branch  0 taken 23%
+branch  1 taken 77%
+    74096:  138:            const point_d& p = m_points[m_count++];
+    74096:  139:            *x = p.x;
+    74096:  140:            *y = p.y;
+    74096:  141:            return (m_count == 1) ? path_cmd_move_to : path_cmd_line_to;
+    96007:  142:        }
+        -:  143:
+        -:  144:    private:
+        -:  145:        void bezier(double x1, double y1, 
+        -:  146:                    double x2, double y2, 
+        -:  147:                    double x3, double y3);
+        -:  148:        void recursive_bezier(double x1, double y1, 
+        -:  149:                              double x2, double y2, 
+        -:  150:                              double x3, double y3,
+        -:  151:                              unsigned level);
+        -:  152:
+        -:  153:        double               m_approximation_scale;
+        -:  154:        double               m_distance_tolerance_square;
+        -:  155:        double               m_angle_tolerance;
+        -:  156:        unsigned             m_count;
+        -:  157:        pod_bvector<point_d> m_points;
+        -:  158:    };
+        -:  159:
+        -:  160:
+        -:  161:
+        -:  162:
+        -:  163:
+        -:  164:
+        -:  165:
+        -:  166:    //-------------------------------------------------------------curve4_points
+        -:  167:    struct curve4_points
+        -:  168:    {
+        -:  169:        double cp[8];
+        -:  170:        curve4_points() {}
+        -:  171:        curve4_points(double x1, double y1,
+        -:  172:                      double x2, double y2,
+        -:  173:                      double x3, double y3,
+        -:  174:                      double x4, double y4)
+        -:  175:        {
+        -:  176:            cp[0] = x1; cp[1] = y1; cp[2] = x2; cp[3] = y2;
+        -:  177:            cp[4] = x3; cp[5] = y3; cp[6] = x4; cp[7] = y4;
+        -:  178:        }
+        -:  179:        void init(double x1, double y1,
+        -:  180:                  double x2, double y2,
+        -:  181:                  double x3, double y3,
+        -:  182:                  double x4, double y4)
+        -:  183:        {
+        -:  184:            cp[0] = x1; cp[1] = y1; cp[2] = x2; cp[3] = y2;
+        -:  185:            cp[4] = x3; cp[5] = y3; cp[6] = x4; cp[7] = y4;
+        -:  186:        }
+        -:  187:        double  operator [] (unsigned i) const { return cp[i]; }
+        -:  188:        double& operator [] (unsigned i)       { return cp[i]; }
+        -:  189:    };
+        -:  190:
+        -:  191:
+        -:  192:
+        -:  193:    //-------------------------------------------------------------curve4_inc
+        -:  194:    class curve4_inc
+        -:  195:    {
+        -:  196:    public:
+        -:  197:        curve4_inc() :
+        -:  198:            m_num_steps(0), m_step(0), m_scale(1.0) { }
+        -:  199:
+        -:  200:        curve4_inc(double x1, double y1, 
+        -:  201:                   double x2, double y2, 
+        -:  202:                   double x3, double y3,
+        -:  203:                   double x4, double y4) :
+        -:  204:            m_num_steps(0), m_step(0), m_scale(1.0) 
+        -:  205:        { 
+        -:  206:            init(x1, y1, x2, y2, x3, y3, x4, y4);
+        -:  207:        }
+        -:  208:
+        -:  209:        curve4_inc(const curve4_points& cp) :
+        -:  210:            m_num_steps(0), m_step(0), m_scale(1.0) 
+        -:  211:        { 
+        -:  212:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  213:        }
+        -:  214:
+        -:  215:        void reset() { m_num_steps = 0; m_step = -1; }
+        -:  216:        void init(double x1, double y1, 
+        -:  217:                  double x2, double y2, 
+        -:  218:                  double x3, double y3,
+        -:  219:                  double x4, double y4);
+        -:  220:
+        -:  221:        void init(const curve4_points& cp)
+        -:  222:        {
+        -:  223:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  224:        }
+        -:  225:
+        -:  226:        void approximation_method(curve_approximation_method_e) {}
+        -:  227:        curve_approximation_method_e approximation_method() const { return curve_inc; }
+        -:  228:
+        -:  229:        void approximation_scale(double s);
+        -:  230:        double approximation_scale() const;
+        -:  231:
+        -:  232:        void angle_tolerance(double) {}
+        -:  233:        double angle_tolerance() const { return 0.0; }
+        -:  234:
+        -:  235:        void cusp_limit(double) {}
+        -:  236:        double cusp_limit() const { return 0.0; }
+        -:  237:
+        -:  238:        void     rewind(unsigned path_id);
+        -:  239:        unsigned vertex(double* x, double* y);
+        -:  240:
+        -:  241:    private:
+        -:  242:        int      m_num_steps;
+        -:  243:        int      m_step;
+        -:  244:        double   m_scale;
+        -:  245:        double   m_start_x; 
+        -:  246:        double   m_start_y;
+        -:  247:        double   m_end_x; 
+        -:  248:        double   m_end_y;
+        -:  249:        double   m_fx; 
+        -:  250:        double   m_fy;
+        -:  251:        double   m_dfx; 
+        -:  252:        double   m_dfy;
+        -:  253:        double   m_ddfx; 
+        -:  254:        double   m_ddfy;
+        -:  255:        double   m_dddfx; 
+        -:  256:        double   m_dddfy;
+        -:  257:        double   m_saved_fx; 
+        -:  258:        double   m_saved_fy;
+        -:  259:        double   m_saved_dfx; 
+        -:  260:        double   m_saved_dfy;
+        -:  261:        double   m_saved_ddfx; 
+        -:  262:        double   m_saved_ddfy;
+        -:  263:    };
+        -:  264:
+        -:  265:
+        -:  266:
+        -:  267:    //-------------------------------------------------------catrom_to_bezier
+        -:  268:    inline curve4_points catrom_to_bezier(double x1, double y1, 
+        -:  269:                                          double x2, double y2, 
+        -:  270:                                          double x3, double y3,
+        -:  271:                                          double x4, double y4)
+        -:  272:    {
+        -:  273:        // Trans. matrix Catmull-Rom to Bezier
+        -:  274:        //
+        -:  275:        //  0       1       0       0
+        -:  276:        //  -1/6    1       1/6     0
+        -:  277:        //  0       1/6     1       -1/6
+        -:  278:        //  0       0       1       0
+        -:  279:        //
+        -:  280:        return curve4_points(
+        -:  281:            x2,
+        -:  282:            y2,
+        -:  283:            (-x1 + 6*x2 + x3) / 6,
+        -:  284:            (-y1 + 6*y2 + y3) / 6,
+        -:  285:            ( x2 + 6*x3 - x4) / 6,
+        -:  286:            ( y2 + 6*y3 - y4) / 6,
+        -:  287:            x3,
+        -:  288:            y3);
+        -:  289:    }
+        -:  290:
+        -:  291:
+        -:  292:    //-----------------------------------------------------------------------
+        -:  293:    inline curve4_points
+        -:  294:    catrom_to_bezier(const curve4_points& cp)
+        -:  295:    {
+        -:  296:        return catrom_to_bezier(cp[0], cp[1], cp[2], cp[3], 
+        -:  297:                                cp[4], cp[5], cp[6], cp[7]);
+        -:  298:    }
+        -:  299:
+        -:  300:
+        -:  301:
+        -:  302:    //-----------------------------------------------------ubspline_to_bezier
+        -:  303:    inline curve4_points ubspline_to_bezier(double x1, double y1, 
+        -:  304:                                            double x2, double y2, 
+        -:  305:                                            double x3, double y3,
+        -:  306:                                            double x4, double y4)
+        -:  307:    {
+        -:  308:        // Trans. matrix Uniform BSpline to Bezier
+        -:  309:        //
+        -:  310:        //  1/6     4/6     1/6     0
+        -:  311:        //  0       4/6     2/6     0
+        -:  312:        //  0       2/6     4/6     0
+        -:  313:        //  0       1/6     4/6     1/6
+        -:  314:        //
+        -:  315:        return curve4_points(
+        -:  316:            (x1 + 4*x2 + x3) / 6,
+        -:  317:            (y1 + 4*y2 + y3) / 6,
+        -:  318:            (4*x2 + 2*x3) / 6,
+        -:  319:            (4*y2 + 2*y3) / 6,
+        -:  320:            (2*x2 + 4*x3) / 6,
+        -:  321:            (2*y2 + 4*y3) / 6,
+        -:  322:            (x2 + 4*x3 + x4) / 6,
+        -:  323:            (y2 + 4*y3 + y4) / 6);
+        -:  324:    }
+        -:  325:
+        -:  326:
+        -:  327:    //-----------------------------------------------------------------------
+        -:  328:    inline curve4_points 
+        -:  329:    ubspline_to_bezier(const curve4_points& cp)
+        -:  330:    {
+        -:  331:        return ubspline_to_bezier(cp[0], cp[1], cp[2], cp[3], 
+        -:  332:                                  cp[4], cp[5], cp[6], cp[7]);
+        -:  333:    }
+        -:  334:
+        -:  335:
+        -:  336:
+        -:  337:
+        -:  338:    //------------------------------------------------------hermite_to_bezier
+        -:  339:    inline curve4_points hermite_to_bezier(double x1, double y1, 
+        -:  340:                                           double x2, double y2, 
+        -:  341:                                           double x3, double y3,
+        -:  342:                                           double x4, double y4)
+        -:  343:    {
+        -:  344:        // Trans. matrix Hermite to Bezier
+        -:  345:        //
+        -:  346:        //  1       0       0       0
+        -:  347:        //  1       0       1/3     0
+        -:  348:        //  0       1       0       -1/3
+        -:  349:        //  0       1       0       0
+        -:  350:        //
+        -:  351:        return curve4_points(
+        -:  352:            x1,
+        -:  353:            y1,
+        -:  354:            (3*x1 + x3) / 3,
+        -:  355:            (3*y1 + y3) / 3,
+        -:  356:            (3*x2 - x4) / 3,
+        -:  357:            (3*y2 - y4) / 3,
+        -:  358:            x2,
+        -:  359:            y2);
+        -:  360:    }
+        -:  361:
+        -:  362:
+        -:  363:
+        -:  364:    //-----------------------------------------------------------------------
+        -:  365:    inline curve4_points 
+        -:  366:    hermite_to_bezier(const curve4_points& cp)
+        -:  367:    {
+        -:  368:        return hermite_to_bezier(cp[0], cp[1], cp[2], cp[3], 
+        -:  369:                                 cp[4], cp[5], cp[6], cp[7]);
+        -:  370:    }
+        -:  371:
+        -:  372:
+        -:  373:    //-------------------------------------------------------------curve4_div
+function _ZN11agg_fontnik10curve4_divD2Ev called 0 returned 0% blocks executed 0%
+    #####:  374:    class curve4_div
+        -:  375:    {
+        -:  376:    public:
+        -:  377:        curve4_div() : 
+        -:  378:            m_approximation_scale(1.0),
+        -:  379:            m_angle_tolerance(0.0),
+        -:  380:            m_cusp_limit(0.0),
+        -:  381:            m_count(0)
+        -:  382:        {}
+        -:  383:
+function _ZN11agg_fontnik10curve4_divC2Edddddddd called 0 returned 0% blocks executed 0%
+    #####:  384:        curve4_div(double x1, double y1, 
+        -:  385:                   double x2, double y2, 
+        -:  386:                   double x3, double y3,
+        -:  387:                   double x4, double y4) :
+    #####:  388:            m_approximation_scale(1.0),
+    #####:  389:            m_angle_tolerance(0.0),
+    #####:  390:            m_cusp_limit(0.0),
+    #####:  391:            m_count(0)
+        -:  392:        { 
+    #####:  393:            init(x1, y1, x2, y2, x3, y3, x4, y4);
+branch  0 never executed
+branch  1 never executed
+    #####:  394:        }
+        -:  395:
+        -:  396:        curve4_div(const curve4_points& cp) :
+        -:  397:            m_approximation_scale(1.0),
+        -:  398:            m_angle_tolerance(0.0),
+        -:  399:            m_count(0)
+        -:  400:        { 
+        -:  401:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  402:        }
+        -:  403:
+        -:  404:        void reset() { m_points.remove_all(); m_count = 0; }
+        -:  405:        void init(double x1, double y1, 
+        -:  406:                  double x2, double y2, 
+        -:  407:                  double x3, double y3,
+        -:  408:                  double x4, double y4);
+        -:  409:
+        -:  410:        void init(const curve4_points& cp)
+        -:  411:        {
+        -:  412:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  413:        }
+        -:  414:
+        -:  415:        void approximation_method(curve_approximation_method_e) {}
+        -:  416:
+        -:  417:        curve_approximation_method_e approximation_method() const 
+        -:  418:        { 
+        -:  419:            return curve_div; 
+        -:  420:        }
+        -:  421:
+        -:  422:        void approximation_scale(double s) { m_approximation_scale = s; }
+        -:  423:        double approximation_scale() const { return m_approximation_scale;  }
+        -:  424:
+        -:  425:        void angle_tolerance(double a) { m_angle_tolerance = a; }
+        -:  426:        double angle_tolerance() const { return m_angle_tolerance;  }
+        -:  427:
+        -:  428:        void cusp_limit(double v) 
+        -:  429:        { 
+        -:  430:            m_cusp_limit = (v == 0.0) ? 0.0 : pi - v; 
+        -:  431:        }
+        -:  432:
+        -:  433:        double cusp_limit() const 
+        -:  434:        { 
+        -:  435:            return (m_cusp_limit == 0.0) ? 0.0 : pi - m_cusp_limit; 
+        -:  436:        }
+        -:  437:
+function _ZN11agg_fontnik10curve4_div6rewindEj called 0 returned 0% blocks executed 0%
+    #####:  438:        void rewind(unsigned)
+        -:  439:        {
+    #####:  440:            m_count = 0;
+    #####:  441:        }
+        -:  442:
+function _ZN11agg_fontnik10curve4_div6vertexEPdS1_ called 0 returned 0% blocks executed 0%
+    #####:  443:        unsigned vertex(double* x, double* y)
+        -:  444:        {
+    #####:  445:            if(m_count >= m_points.size()) return path_cmd_stop;
+branch  0 never executed
+branch  1 never executed
+    #####:  446:            const point_d& p = m_points[m_count++];
+    #####:  447:            *x = p.x;
+    #####:  448:            *y = p.y;
+    #####:  449:            return (m_count == 1) ? path_cmd_move_to : path_cmd_line_to;
+    #####:  450:        }
+        -:  451:
+        -:  452:    private:
+        -:  453:        void bezier(double x1, double y1, 
+        -:  454:                    double x2, double y2, 
+        -:  455:                    double x3, double y3, 
+        -:  456:                    double x4, double y4);
+        -:  457:
+        -:  458:        void recursive_bezier(double x1, double y1, 
+        -:  459:                              double x2, double y2, 
+        -:  460:                              double x3, double y3, 
+        -:  461:                              double x4, double y4,
+        -:  462:                              unsigned level);
+        -:  463:
+        -:  464:        double               m_approximation_scale;
+        -:  465:        double               m_distance_tolerance_square;
+        -:  466:        double               m_angle_tolerance;
+        -:  467:        double               m_cusp_limit;
+        -:  468:        unsigned             m_count;
+        -:  469:        pod_bvector<point_d> m_points;
+        -:  470:    };
+        -:  471:
+        -:  472:
+        -:  473:    //-----------------------------------------------------------------curve3
+        -:  474:    class curve3
+        -:  475:    {
+        -:  476:    public:
+        -:  477:        curve3() : m_approximation_method(curve_div) {}
+        -:  478:        curve3(double x1, double y1, 
+        -:  479:               double x2, double y2, 
+        -:  480:               double x3, double y3) :
+        -:  481:            m_approximation_method(curve_div)
+        -:  482:        { 
+        -:  483:            init(x1, y1, x2, y2, x3, y3);
+        -:  484:        }
+        -:  485:
+        -:  486:        void reset() 
+        -:  487:        { 
+        -:  488:            m_curve_inc.reset();
+        -:  489:            m_curve_div.reset();
+        -:  490:        }
+        -:  491:
+        -:  492:        void init(double x1, double y1, 
+        -:  493:                  double x2, double y2, 
+        -:  494:                  double x3, double y3)
+        -:  495:        {
+        -:  496:            if(m_approximation_method == curve_inc) 
+        -:  497:            {
+        -:  498:                m_curve_inc.init(x1, y1, x2, y2, x3, y3);
+        -:  499:            }
+        -:  500:            else
+        -:  501:            {
+        -:  502:                m_curve_div.init(x1, y1, x2, y2, x3, y3);
+        -:  503:            }
+        -:  504:        }
+        -:  505:
+        -:  506:        void approximation_method(curve_approximation_method_e v) 
+        -:  507:        { 
+        -:  508:            m_approximation_method = v; 
+        -:  509:        }
+        -:  510:
+        -:  511:        curve_approximation_method_e approximation_method() const 
+        -:  512:        { 
+        -:  513:            return m_approximation_method; 
+        -:  514:        }
+        -:  515:
+        -:  516:        void approximation_scale(double s) 
+        -:  517:        { 
+        -:  518:            m_curve_inc.approximation_scale(s);
+        -:  519:            m_curve_div.approximation_scale(s);
+        -:  520:        }
+        -:  521:
+        -:  522:        double approximation_scale() const 
+        -:  523:        { 
+        -:  524:            return m_curve_inc.approximation_scale(); 
+        -:  525:        }
+        -:  526:
+        -:  527:        void angle_tolerance(double a) 
+        -:  528:        { 
+        -:  529:            m_curve_div.angle_tolerance(a); 
+        -:  530:        }
+        -:  531:
+        -:  532:        double angle_tolerance() const 
+        -:  533:        { 
+        -:  534:            return m_curve_div.angle_tolerance(); 
+        -:  535:        }
+        -:  536:
+        -:  537:        void cusp_limit(double v) 
+        -:  538:        { 
+        -:  539:            m_curve_div.cusp_limit(v); 
+        -:  540:        }
+        -:  541:
+        -:  542:        double cusp_limit() const 
+        -:  543:        { 
+        -:  544:            return m_curve_div.cusp_limit();  
+        -:  545:        }
+        -:  546:
+        -:  547:        void rewind(unsigned path_id)
+        -:  548:        {
+        -:  549:            if(m_approximation_method == curve_inc) 
+        -:  550:            {
+        -:  551:                m_curve_inc.rewind(path_id);
+        -:  552:            }
+        -:  553:            else
+        -:  554:            {
+        -:  555:                m_curve_div.rewind(path_id);
+        -:  556:            }
+        -:  557:        }
+        -:  558:
+        -:  559:        unsigned vertex(double* x, double* y)
+        -:  560:        {
+        -:  561:            if(m_approximation_method == curve_inc) 
+        -:  562:            {
+        -:  563:                return m_curve_inc.vertex(x, y);
+        -:  564:            }
+        -:  565:            return m_curve_div.vertex(x, y);
+        -:  566:        }
+        -:  567:
+        -:  568:    private:
+        -:  569:        curve3_inc m_curve_inc;
+        -:  570:        curve3_div m_curve_div;
+        -:  571:        curve_approximation_method_e m_approximation_method;
+        -:  572:    };
+        -:  573:
+        -:  574:
+        -:  575:
+        -:  576:
+        -:  577:
+        -:  578:    //-----------------------------------------------------------------curve4
+        -:  579:    class curve4
+        -:  580:    {
+        -:  581:    public:
+        -:  582:        curve4() : m_approximation_method(curve_div) {}
+        -:  583:        curve4(double x1, double y1, 
+        -:  584:               double x2, double y2, 
+        -:  585:               double x3, double y3,
+        -:  586:               double x4, double y4) : 
+        -:  587:            m_approximation_method(curve_div)
+        -:  588:        { 
+        -:  589:            init(x1, y1, x2, y2, x3, y3, x4, y4);
+        -:  590:        }
+        -:  591:
+        -:  592:        curve4(const curve4_points& cp) :
+        -:  593:            m_approximation_method(curve_div)
+        -:  594:        { 
+        -:  595:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  596:        }
+        -:  597:
+        -:  598:        void reset() 
+        -:  599:        { 
+        -:  600:            m_curve_inc.reset();
+        -:  601:            m_curve_div.reset();
+        -:  602:        }
+        -:  603:
+        -:  604:        void init(double x1, double y1, 
+        -:  605:                  double x2, double y2, 
+        -:  606:                  double x3, double y3,
+        -:  607:                  double x4, double y4)
+        -:  608:        {
+        -:  609:            if(m_approximation_method == curve_inc) 
+        -:  610:            {
+        -:  611:                m_curve_inc.init(x1, y1, x2, y2, x3, y3, x4, y4);
+        -:  612:            }
+        -:  613:            else
+        -:  614:            {
+        -:  615:                m_curve_div.init(x1, y1, x2, y2, x3, y3, x4, y4);
+        -:  616:            }
+        -:  617:        }
+        -:  618:
+        -:  619:        void init(const curve4_points& cp)
+        -:  620:        {
+        -:  621:            init(cp[0], cp[1], cp[2], cp[3], cp[4], cp[5], cp[6], cp[7]);
+        -:  622:        }
+        -:  623:
+        -:  624:        void approximation_method(curve_approximation_method_e v) 
+        -:  625:        { 
+        -:  626:            m_approximation_method = v; 
+        -:  627:        }
+        -:  628:
+        -:  629:        curve_approximation_method_e approximation_method() const 
+        -:  630:        { 
+        -:  631:            return m_approximation_method; 
+        -:  632:        }
+        -:  633:
+        -:  634:        void approximation_scale(double s) 
+        -:  635:        { 
+        -:  636:            m_curve_inc.approximation_scale(s);
+        -:  637:            m_curve_div.approximation_scale(s);
+        -:  638:        }
+        -:  639:        double approximation_scale() const { return m_curve_inc.approximation_scale(); }
+        -:  640:
+        -:  641:        void angle_tolerance(double v) 
+        -:  642:        { 
+        -:  643:            m_curve_div.angle_tolerance(v); 
+        -:  644:        }
+        -:  645:
+        -:  646:        double angle_tolerance() const 
+        -:  647:        { 
+        -:  648:            return m_curve_div.angle_tolerance();  
+        -:  649:        }
+        -:  650:
+        -:  651:        void cusp_limit(double v) 
+        -:  652:        { 
+        -:  653:            m_curve_div.cusp_limit(v); 
+        -:  654:        }
+        -:  655:
+        -:  656:        double cusp_limit() const 
+        -:  657:        { 
+        -:  658:            return m_curve_div.cusp_limit();  
+        -:  659:        }
+        -:  660:
+        -:  661:        void rewind(unsigned path_id)
+        -:  662:        {
+        -:  663:            if(m_approximation_method == curve_inc) 
+        -:  664:            {
+        -:  665:                m_curve_inc.rewind(path_id);
+        -:  666:            }
+        -:  667:            else
+        -:  668:            {
+        -:  669:                m_curve_div.rewind(path_id);
+        -:  670:            }
+        -:  671:        }
+        -:  672:
+        -:  673:        unsigned vertex(double* x, double* y)
+        -:  674:        {
+        -:  675:            if(m_approximation_method == curve_inc) 
+        -:  676:            {
+        -:  677:                return m_curve_inc.vertex(x, y);
+        -:  678:            }
+        -:  679:            return m_curve_div.vertex(x, y);
+        -:  680:        }
+        -:  681:
+        -:  682:    private:
+        -:  683:        curve4_inc m_curve_inc;
+        -:  684:        curve4_div m_curve_div;
+        -:  685:        curve_approximation_method_e m_approximation_method;
+        -:  686:    };
+        -:  687:
+        -:  688:
+        -:  689:
+        -:  690:
+        -:  691:}
+        -:  692:
+        -:  693:#endif

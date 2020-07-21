@@ -1,0 +1,26 @@
+        -:    0:Source:../src/node_fontnik.cpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/node_fontnik.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/node_fontnik.gcda
+        -:    0:Runs:7
+        -:    0:Programs:1
+        -:    1:/*EOF*/
+        -:    2:/*EOF*/
+        -:    3:/*EOF*/
+        -:    4:/*EOF*/
+        -:    5:/*EOF*/
+        -:    6:/*EOF*/
+        -:    7:/*EOF*/
+function _ZN12node_fontnik4initEN4Napi3EnvENS0_6ObjectE called 7 returned 100% blocks executed 100%
+        7:    8:/*EOF*/
+        7:    9:/*EOF*/
+        7:   10:/*EOF*/
+        7:   11:/*EOF*/
+        7:   12:/*EOF*/
+        -:   13:/*EOF*/
+        -:   14:/*EOF*/
+        -:   15:/*EOF*/
+        -:   16:/*EOF*/
+        -:   17:/*EOF*/
+function _ZN12node_fontnik11__napi_initEP10napi_env__P12napi_value__ called 7 returned 100% blocks executed 100%
+function _ZN12node_fontnikL17_register_fontnikEv called 7 returned 100% blocks executed 100%
+       14:   18:/*EOF*/

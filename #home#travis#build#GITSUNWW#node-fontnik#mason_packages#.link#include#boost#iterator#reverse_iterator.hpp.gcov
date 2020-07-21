@@ -1,0 +1,88 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/iterator/reverse_iterator.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// (C) Copyright David Abrahams 2002.
+        -:    2:// (C) Copyright Jeremy Siek    2002.
+        -:    3:// (C) Copyright Thomas Witt    2002.
+        -:    4:// Distributed under the Boost Software License, Version 1.0. (See
+        -:    5:// accompanying file LICENSE_1_0.txt or copy at
+        -:    6:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    7:#ifndef BOOST_REVERSE_ITERATOR_23022003THW_HPP
+        -:    8:#define BOOST_REVERSE_ITERATOR_23022003THW_HPP
+        -:    9:
+        -:   10:#include <boost/iterator/iterator_adaptor.hpp>
+        -:   11:
+        -:   12:namespace boost {
+        -:   13:namespace iterators {
+        -:   14:
+        -:   15:  //
+        -:   16:  //
+        -:   17:  //
+        -:   18:  template <class Iterator>
+        -:   19:  class reverse_iterator
+        -:   20:      : public iterator_adaptor< reverse_iterator<Iterator>, Iterator >
+        -:   21:  {
+        -:   22:      typedef iterator_adaptor< reverse_iterator<Iterator>, Iterator > super_t;
+        -:   23:
+        -:   24:      friend class iterator_core_access;
+        -:   25:
+        -:   26:   public:
+        -:   27:      reverse_iterator() {}
+        -:   28:
+function _ZN5boost9iterators16reverse_iteratorIPSt4pairINS_8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES2_IS9_S9_EEEC2ESD_ called 32382 returned 100% blocks executed 100%
+function _ZN5boost9iterators16reverse_iteratorIPNS_8geometry5index6detail5rtree8ptr_pairINS2_5model3boxINS7_5pointIfLm2ENS2_2cs9cartesianEEEEEPNS_7variantINS5_12variant_leafISt4pairISD_SG_ISC_SC_EENS3_5rstarILm16ELm4ELm4ELm32EEESD_NS5_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SD_NS5_23node_variant_static_tagEEESP_EEJNS5_21variant_internal_nodeISI_SK_SD_SQ_SP_EEEEEEEEC2ESX_ called 0 returned 0% blocks executed 0%
+    32382:   29:      explicit reverse_iterator(Iterator x)
+    32382:   30:          : super_t(x) {}
+        -:   31:
+        -:   32:      template<class OtherIterator>
+        -:   33:      reverse_iterator(
+        -:   34:          reverse_iterator<OtherIterator> const& r
+        -:   35:          , typename enable_if_convertible<OtherIterator, Iterator>::type* = 0
+        -:   36:          )
+        -:   37:          : super_t(r.base())
+        -:   38:      {}
+        -:   39:
+        -:   40:   private:
+function _ZNK5boost9iterators16reverse_iteratorIPSt4pairINS_8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES2_IS9_S9_EEE11dereferenceEv called 21588 returned 100% blocks executed 100%
+function _ZNK5boost9iterators16reverse_iteratorIPNS_8geometry5index6detail5rtree8ptr_pairINS2_5model3boxINS7_5pointIfLm2ENS2_2cs9cartesianEEEEEPNS_7variantINS5_12variant_leafISt4pairISD_SG_ISC_SC_EENS3_5rstarILm16ELm4ELm4ELm32EEESD_NS5_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SD_NS5_23node_variant_static_tagEEESP_EEJNS5_21variant_internal_nodeISI_SK_SD_SQ_SP_EEEEEEEE11dereferenceEv called 0 returned 0% blocks executed 0%
+    21588:   41:      typename super_t::reference dereference() const
+        -:   42:      {
+    21588:   43:          Iterator it = this->base_reference();
+    21588:   44:          --it;
+    21588:   45:          return *it;
+        -:   46:      }
+        -:   47:
+function _ZN5boost9iterators16reverse_iteratorIPSt4pairINS_8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES2_IS9_S9_EEE9incrementEv called 21588 returned 100% blocks executed 100%
+function _ZN5boost9iterators16reverse_iteratorIPNS_8geometry5index6detail5rtree8ptr_pairINS2_5model3boxINS7_5pointIfLm2ENS2_2cs9cartesianEEEEEPNS_7variantINS5_12variant_leafISt4pairISD_SG_ISC_SC_EENS3_5rstarILm16ELm4ELm4ELm32EEESD_NS5_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SD_NS5_23node_variant_static_tagEEESP_EEJNS5_21variant_internal_nodeISI_SK_SD_SQ_SP_EEEEEEEE9incrementEv called 0 returned 0% blocks executed 0%
+    21588:   48:      void increment() { --this->base_reference(); }
+        -:   49:      void decrement() { ++this->base_reference(); }
+        -:   50:
+        -:   51:      void advance(typename super_t::difference_type n)
+        -:   52:      {
+        -:   53:          this->base_reference() -= n;
+        -:   54:      }
+        -:   55:
+        -:   56:      template <class OtherIterator>
+        -:   57:      typename super_t::difference_type
+        -:   58:      distance_to(reverse_iterator<OtherIterator> const& y) const
+        -:   59:      {
+        -:   60:          return this->base_reference() - y.base();
+        -:   61:      }
+        -:   62:  };
+        -:   63:
+        -:   64:  template <class BidirectionalIterator>
+        -:   65:  inline reverse_iterator<BidirectionalIterator> make_reverse_iterator(BidirectionalIterator x)
+        -:   66:  {
+        -:   67:      return reverse_iterator<BidirectionalIterator>(x);
+        -:   68:  }
+        -:   69:
+        -:   70:} // namespace iterators
+        -:   71:
+        -:   72:using iterators::reverse_iterator;
+        -:   73:using iterators::make_reverse_iterator;
+        -:   74:
+        -:   75:} // namespace boost
+        -:   76:
+        -:   77:#endif // BOOST_REVERSE_ITERATOR_23022003THW_HPP

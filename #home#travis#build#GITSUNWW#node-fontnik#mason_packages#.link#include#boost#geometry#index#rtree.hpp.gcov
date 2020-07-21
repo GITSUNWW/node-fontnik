@@ -1,0 +1,2258 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/rtree.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree implementation
+        -:    4://
+        -:    5:// Copyright (c) 2008 Federico J. Fernandez.
+        -:    6:// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
+        -:    7://
+        -:    8:// Use, modification and distribution is subject to the Boost Software License,
+        -:    9:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   10:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   11:
+        -:   12:#ifndef BOOST_GEOMETRY_INDEX_RTREE_HPP
+        -:   13:#define BOOST_GEOMETRY_INDEX_RTREE_HPP
+        -:   14:
+        -:   15:// STD
+        -:   16:#include <algorithm>
+        -:   17:
+        -:   18:// Boost
+        -:   19:#include <boost/container/new_allocator.hpp>
+        -:   20:#include <boost/move/move.hpp>
+        -:   21:#include <boost/tuple/tuple.hpp>
+        -:   22:
+        -:   23:// Boost.Geometry
+        -:   24:#include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
+        -:   25:#include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
+        -:   26:#include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
+        -:   27:#include <boost/geometry/algorithms/detail/equals/interface.hpp>
+        -:   28:#include <boost/geometry/algorithms/detail/intersects/interface.hpp>
+        -:   29:#include <boost/geometry/algorithms/detail/overlaps/interface.hpp>
+        -:   30:#include <boost/geometry/algorithms/detail/touches/interface.hpp>
+        -:   31:#include <boost/geometry/algorithms/detail/within/interface.hpp>
+        -:   32:#include <boost/geometry/algorithms/centroid.hpp>
+        -:   33:
+        -:   34:#include <boost/geometry/geometries/point.hpp>
+        -:   35:#include <boost/geometry/geometries/box.hpp>
+        -:   36:
+        -:   37:// Boost.Geometry.Index
+        -:   38:#include <boost/geometry/index/detail/config_begin.hpp>
+        -:   39:
+        -:   40:#include <boost/geometry/index/detail/assert.hpp>
+        -:   41:#include <boost/geometry/index/detail/exception.hpp>
+        -:   42:
+        -:   43:#include <boost/geometry/index/detail/rtree/options.hpp>
+        -:   44:
+        -:   45:#include <boost/geometry/index/indexable.hpp>
+        -:   46:#include <boost/geometry/index/equal_to.hpp>
+        -:   47:
+        -:   48:#include <boost/geometry/index/detail/translator.hpp>
+        -:   49:
+        -:   50:#include <boost/geometry/index/predicates.hpp>
+        -:   51:#include <boost/geometry/index/distance_predicates.hpp>
+        -:   52:#include <boost/geometry/index/detail/rtree/adaptors.hpp>
+        -:   53:
+        -:   54:#include <boost/geometry/index/detail/meta.hpp>
+        -:   55:#include <boost/geometry/index/detail/utilities.hpp>
+        -:   56:#include <boost/geometry/index/detail/rtree/node/node.hpp>
+        -:   57:
+        -:   58:#include <boost/geometry/index/detail/algorithms/is_valid.hpp>
+        -:   59:
+        -:   60:#include <boost/geometry/index/detail/rtree/visitors/insert.hpp>
+        -:   61:#include <boost/geometry/index/detail/rtree/visitors/iterator.hpp>
+        -:   62:#include <boost/geometry/index/detail/rtree/visitors/remove.hpp>
+        -:   63:#include <boost/geometry/index/detail/rtree/visitors/copy.hpp>
+        -:   64:#include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
+        -:   65:#include <boost/geometry/index/detail/rtree/visitors/spatial_query.hpp>
+        -:   66:#include <boost/geometry/index/detail/rtree/visitors/distance_query.hpp>
+        -:   67:#include <boost/geometry/index/detail/rtree/visitors/count.hpp>
+        -:   68:#include <boost/geometry/index/detail/rtree/visitors/children_box.hpp>
+        -:   69:
+        -:   70:#include <boost/geometry/index/detail/rtree/linear/linear.hpp>
+        -:   71:#include <boost/geometry/index/detail/rtree/quadratic/quadratic.hpp>
+        -:   72:#include <boost/geometry/index/detail/rtree/rstar/rstar.hpp>
+        -:   73://#include <boost/geometry/extensions/index/detail/rtree/kmeans/kmeans.hpp>
+        -:   74:
+        -:   75:#include <boost/geometry/index/detail/rtree/pack_create.hpp>
+        -:   76:
+        -:   77:#include <boost/geometry/index/inserter.hpp>
+        -:   78:
+        -:   79:#include <boost/geometry/index/detail/rtree/utilities/view.hpp>
+        -:   80:
+        -:   81:#include <boost/geometry/index/detail/rtree/iterators.hpp>
+        -:   82:#include <boost/geometry/index/detail/rtree/query_iterators.hpp>
+        -:   83:
+        -:   84:#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        -:   85:// serialization
+        -:   86:#include <boost/geometry/index/detail/serialization.hpp>
+        -:   87:#endif
+        -:   88:
+        -:   89:// TODO change the name to bounding_tree
+        -:   90:
+        -:   91:/*!
+        -:   92:\defgroup rtree_functions R-tree free functions (boost::geometry::index::)
+        -:   93:*/
+        -:   94:
+        -:   95:namespace boost { namespace geometry { namespace index {
+        -:   96:
+        -:   97:/*!
+        -:   98:\brief The R-tree spatial index.
+        -:   99:
+        -:  100:This is self-balancing spatial index capable to store various types of Values
+        -:  101:and balancing algorithms.
+        -:  102:
+        -:  103:\par Parameters
+        -:  104:The user must pass a type defining the Parameters which will
+        -:  105:be used in rtree creation process. This type is used e.g. to specify balancing
+        -:  106:algorithm with specific parameters like min and max number of elements in node.
+        -:  107:
+        -:  108:\par
+        -:  109:Predefined algorithms with compile-time parameters are:
+        -:  110:\li <tt>boost::geometry::index::linear</tt>,
+        -:  111: \li <tt>boost::geometry::index::quadratic</tt>,
+        -:  112: \li <tt>boost::geometry::index::rstar</tt>.
+        -:  113:
+        -:  114:\par
+        -:  115:Predefined algorithms with run-time parameters are:
+        -:  116: \li \c boost::geometry::index::dynamic_linear,
+        -:  117: \li \c boost::geometry::index::dynamic_quadratic,
+        -:  118: \li \c boost::geometry::index::dynamic_rstar.
+        -:  119:
+        -:  120:\par IndexableGetter
+        -:  121:The object of IndexableGetter type translates from Value to Indexable each time
+        -:  122:r-tree requires it. This means that this operation is done for each Value
+        -:  123:access. Therefore the IndexableGetter should return the Indexable by
+        -:  124:a reference type. The Indexable should not be calculated since it could harm
+        -:  125:the performance. The default IndexableGetter can translate all types adapted
+        -:  126:to Point, Box or Segment concepts (called Indexables). Furthermore, it can
+        -:  127:handle <tt>std::pair<Indexable, T></tt>, <tt>boost::tuple<Indexable, ...></tt>
+        -:  128:and <tt>std::tuple<Indexable, ...></tt> when possible. For example, for Value
+        -:  129:of type <tt>std::pair<Box, int></tt>, the default IndexableGetter translates
+        -:  130:from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
+        -:  131:
+        -:  132:\par EqualTo
+        -:  133:The object of EqualTo type compares Values and returns <tt>true</tt> if they
+        -:  134:are equal. It's similar to <tt>std::equal_to<></tt>. The default EqualTo
+        -:  135:returns the result of <tt>boost::geometry::equals()</tt> for types adapted to
+        -:  136:some Geometry concept defined in Boost.Geometry and the result of
+        -:  137:<tt>operator==</tt> for other types. Components of Pairs and Tuples are
+        -:  138:compared left-to-right.
+        -:  139:
+        -:  140:\tparam Value           The type of objects stored in the container.
+        -:  141:\tparam Parameters      Compile-time parameters.
+        -:  142:\tparam IndexableGetter The function object extracting Indexable from Value.
+        -:  143:\tparam EqualTo         The function object comparing objects of type Value.
+        -:  144:\tparam Allocator       The allocator used to allocate/deallocate memory,
+        -:  145:                        construct/destroy nodes and Values.
+        -:  146:*/
+        -:  147:template
+        -:  148:<
+        -:  149:    typename Value,
+        -:  150:    typename Parameters,
+        -:  151:    typename IndexableGetter = index::indexable<Value>,
+        -:  152:    typename EqualTo = index::equal_to<Value>,
+        -:  153:    typename Allocator = boost::container::new_allocator<Value>
+        -:  154:>
+        -:  155:class rtree
+        -:  156:{
+        -:  157:    BOOST_COPYABLE_AND_MOVABLE(rtree)
+        -:  158:
+        -:  159:public:
+        -:  160:    /*! \brief The type of Value stored in the container. */
+        -:  161:    typedef Value value_type;
+        -:  162:    /*! \brief R-tree parameters type. */
+        -:  163:    typedef Parameters parameters_type;
+        -:  164:    /*! \brief The function object extracting Indexable from Value. */
+        -:  165:    typedef IndexableGetter indexable_getter;
+        -:  166:    /*! \brief The function object comparing objects of type Value. */
+        -:  167:    typedef EqualTo value_equal;
+        -:  168:    /*! \brief The type of allocator used by the container. */
+        -:  169:    typedef Allocator allocator_type;
+        -:  170:
+        -:  171:    // TODO: SHOULD THIS TYPE BE REMOVED?
+        -:  172:    /*! \brief The Indexable type to which Value is translated. */
+        -:  173:    typedef typename index::detail::indexable_type<
+        -:  174:        detail::translator<IndexableGetter, EqualTo>
+        -:  175:    >::type indexable_type;
+        -:  176:
+        -:  177:    /*! \brief The Box type used by the R-tree. */
+        -:  178:    typedef geometry::model::box<
+        -:  179:                geometry::model::point<
+        -:  180:                    typename coordinate_type<indexable_type>::type,
+        -:  181:                    dimension<indexable_type>::value,
+        -:  182:                    typename coordinate_system<indexable_type>::type
+        -:  183:                >
+        -:  184:            >
+        -:  185:    bounds_type;
+        -:  186:
+        -:  187:private:
+        -:  188:
+        -:  189:    typedef detail::translator<IndexableGetter, EqualTo> translator_type;
+        -:  190:
+        -:  191:    typedef bounds_type box_type;
+        -:  192:    typedef typename detail::rtree::options_type<Parameters>::type options_type;
+        -:  193:    typedef typename options_type::node_tag node_tag;
+        -:  194:    typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
+        -:  195:
+        -:  196:    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
+        -:  197:    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
+        -:  198:    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
+        -:  199:
+        -:  200:    typedef typename allocators_type::node_pointer node_pointer;
+        -:  201:    typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+        -:  202:    typedef detail::rtree::subtree_destroyer<value_type, options_type, translator_type, box_type, allocators_type> subtree_destroyer;
+        -:  203:
+        -:  204:    friend class detail::rtree::utilities::view<rtree>;
+        -:  205:#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        -:  206:    friend class detail::rtree::private_view<rtree>;
+        -:  207:    friend class detail::rtree::const_private_view<rtree>;
+        -:  208:#endif
+        -:  209:
+        -:  210:public:
+        -:  211:
+        -:  212:    /*! \brief Type of reference to Value. */
+        -:  213:    typedef typename allocators_type::reference reference;
+        -:  214:    /*! \brief Type of reference to const Value. */
+        -:  215:    typedef typename allocators_type::const_reference const_reference;
+        -:  216:    /*! \brief Type of pointer to Value. */
+        -:  217:    typedef typename allocators_type::pointer pointer;
+        -:  218:    /*! \brief Type of pointer to const Value. */
+        -:  219:    typedef typename allocators_type::const_pointer const_pointer;
+        -:  220:    /*! \brief Type of difference type. */
+        -:  221:    typedef typename allocators_type::difference_type difference_type;
+        -:  222:    /*! \brief Unsigned integral type used by the container. */
+        -:  223:    typedef typename allocators_type::size_type size_type;
+        -:  224:
+        -:  225:    /*! \brief Type of const iterator, category ForwardIterator. */
+        -:  226:    typedef index::detail::rtree::iterators::iterator
+        -:  227:        <
+        -:  228:            value_type, options_type, translator_type, box_type, allocators_type
+        -:  229:        > const_iterator;
+        -:  230:
+        -:  231:    /*! \brief Type of const query iterator, category ForwardIterator. */
+        -:  232:    typedef index::detail::rtree::iterators::query_iterator
+        -:  233:        <
+        -:  234:            value_type, allocators_type
+        -:  235:        > const_query_iterator;
+        -:  236:
+        -:  237:public:
+        -:  238:
+        -:  239:    /*!
+        -:  240:    \brief The constructor.
+        -:  241:
+        -:  242:    \param parameters   The parameters object.
+        -:  243:    \param getter       The function object extracting Indexable from Value.
+        -:  244:    \param equal        The function object comparing Values.
+        -:  245:
+        -:  246:    \par Throws
+        -:  247:    If allocator default constructor throws.
+        -:  248:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEEC2ERKSE_RKSG_RKSI_ called 1674 returned 100% blocks executed 100%
+     1674:  249:    inline explicit rtree(parameters_type const& parameters = parameters_type(),
+        -:  250:                          indexable_getter const& getter = indexable_getter(),
+        -:  251:                          value_equal const& equal = value_equal())
+     1674:  252:        : m_members(getter, equal, parameters)
+     1674:  253:    {}
+        -:  254:
+        -:  255:    /*!
+        -:  256:    \brief The constructor.
+        -:  257:
+        -:  258:    \param parameters   The parameters object.
+        -:  259:    \param getter       The function object extracting Indexable from Value.
+        -:  260:    \param equal        The function object comparing Values.
+        -:  261:    \param allocator    The allocator object.
+        -:  262:
+        -:  263:    \par Throws
+        -:  264:    If allocator copy constructor throws.
+        -:  265:    */
+        -:  266:    inline rtree(parameters_type const& parameters,
+        -:  267:                 indexable_getter const& getter,
+        -:  268:                 value_equal const& equal,
+        -:  269:                 allocator_type const& allocator)
+        -:  270:        : m_members(getter, equal, parameters, allocator)
+        -:  271:    {}
+        -:  272:
+        -:  273:    /*!
+        -:  274:    \brief The constructor.
+        -:  275:
+        -:  276:    The tree is created using packing algorithm.
+        -:  277:
+        -:  278:    \param first        The beginning of the range of Values.
+        -:  279:    \param last         The end of the range of Values.
+        -:  280:    \param parameters   The parameters object.
+        -:  281:    \param getter       The function object extracting Indexable from Value.
+        -:  282:    \param equal        The function object comparing Values.
+        -:  283:    \param allocator    The allocator object.
+        -:  284:
+        -:  285:    \par Throws
+        -:  286:    \li If allocator copy constructor throws.
+        -:  287:    \li If Value copy constructor or copy assignment throws.
+        -:  288:    \li If allocation throws or returns invalid value.
+        -:  289:    */
+        -:  290:    template<typename Iterator>
+        -:  291:    inline rtree(Iterator first, Iterator last,
+        -:  292:                 parameters_type const& parameters = parameters_type(),
+        -:  293:                 indexable_getter const& getter = indexable_getter(),
+        -:  294:                 value_equal const& equal = value_equal(),
+        -:  295:                 allocator_type const& allocator = allocator_type())
+        -:  296:        : m_members(getter, equal, parameters, allocator)
+        -:  297:    {
+        -:  298:        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        -:  299:        size_type vc = 0, ll = 0;
+        -:  300:        m_members.root = pack::apply(first, last, vc, ll,
+        -:  301:                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        -:  302:        m_members.values_count = vc;
+        -:  303:        m_members.leafs_level = ll;
+        -:  304:    }
+        -:  305:
+        -:  306:    /*!
+        -:  307:    \brief The constructor.
+        -:  308:
+        -:  309:    The tree is created using packing algorithm.
+        -:  310:
+        -:  311:    \param rng          The range of Values.
+        -:  312:    \param parameters   The parameters object.
+        -:  313:    \param getter       The function object extracting Indexable from Value.
+        -:  314:    \param equal        The function object comparing Values.
+        -:  315:    \param allocator    The allocator object.
+        -:  316:
+        -:  317:    \par Throws
+        -:  318:    \li If allocator copy constructor throws.
+        -:  319:    \li If Value copy constructor or copy assignment throws.
+        -:  320:    \li If allocation throws or returns invalid value.
+        -:  321:    */
+        -:  322:    template<typename Range>
+        -:  323:    inline explicit rtree(Range const& rng,
+        -:  324:                          parameters_type const& parameters = parameters_type(),
+        -:  325:                          indexable_getter const& getter = indexable_getter(),
+        -:  326:                          value_equal const& equal = value_equal(),
+        -:  327:                          allocator_type const& allocator = allocator_type())
+        -:  328:        : m_members(getter, equal, parameters, allocator)
+        -:  329:    {
+        -:  330:        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        -:  331:        size_type vc = 0, ll = 0;
+        -:  332:        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
+        -:  333:                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        -:  334:        m_members.values_count = vc;
+        -:  335:        m_members.leafs_level = ll;
+        -:  336:    }
+        -:  337:
+        -:  338:    /*!
+        -:  339:    \brief The destructor.
+        -:  340:
+        -:  341:    \par Throws
+        -:  342:    Nothing.
+        -:  343:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEED2Ev called 1674 returned 100% blocks executed 75%
+     1674:  344:    inline ~rtree()
+        -:  345:    {
+     1674:  346:        this->raw_destroy(*this);
+branch  0 taken 100%
+branch  1 taken 0%
+     1674:  347:    }
+        -:  348:
+        -:  349:    /*!
+        -:  350:    \brief  The copy constructor.
+        -:  351:
+        -:  352:    It uses parameters, translator and allocator from the source tree.
+        -:  353:
+        -:  354:    \param src          The rtree which content will be copied.
+        -:  355:
+        -:  356:    \par Throws
+        -:  357:    \li If allocator copy constructor throws.
+        -:  358:    \li If Value copy constructor throws.
+        -:  359:    \li If allocation throws or returns invalid value.
+        -:  360:    */
+        -:  361:    inline rtree(rtree const& src)
+        -:  362:        : m_members(src.m_members.indexable_getter(),
+        -:  363:                    src.m_members.equal_to(),
+        -:  364:                    src.m_members.parameters(),
+        -:  365:                    allocator_traits_type::select_on_container_copy_construction(src.get_allocator()))
+        -:  366:    {
+        -:  367:        this->raw_copy(src, *this, false);
+        -:  368:    }
+        -:  369:
+        -:  370:    /*!
+        -:  371:    \brief The copy constructor.
+        -:  372:
+        -:  373:    It uses Parameters and translator from the source tree.
+        -:  374:
+        -:  375:    \param src          The rtree which content will be copied.
+        -:  376:    \param allocator    The allocator which will be used.
+        -:  377:
+        -:  378:    \par Throws
+        -:  379:    \li If allocator copy constructor throws.
+        -:  380:    \li If Value copy constructor throws.
+        -:  381:    \li If allocation throws or returns invalid value.
+        -:  382:    */
+        -:  383:    inline rtree(rtree const& src, allocator_type const& allocator)
+        -:  384:        : m_members(src.m_members.indexable_getter(),
+        -:  385:                    src.m_members.equal_to(),
+        -:  386:                    src.m_members.parameters(), allocator)
+        -:  387:    {
+        -:  388:        this->raw_copy(src, *this, false);
+        -:  389:    }
+        -:  390:
+        -:  391:    /*!
+        -:  392:    \brief The moving constructor.
+        -:  393:
+        -:  394:    It uses parameters, translator and allocator from the source tree.
+        -:  395:
+        -:  396:    \param src          The rtree which content will be moved.
+        -:  397:
+        -:  398:    \par Throws
+        -:  399:    Nothing.
+        -:  400:    */
+        -:  401:    inline rtree(BOOST_RV_REF(rtree) src)
+        -:  402:        : m_members(src.m_members.indexable_getter(),
+        -:  403:                    src.m_members.equal_to(),
+        -:  404:                    src.m_members.parameters(),
+        -:  405:                    boost::move(src.m_members.allocators()))
+        -:  406:    {
+        -:  407:        boost::swap(m_members.values_count, src.m_members.values_count);
+        -:  408:        boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+        -:  409:        boost::swap(m_members.root, src.m_members.root);
+        -:  410:    }
+        -:  411:
+        -:  412:    /*!
+        -:  413:    \brief The moving constructor.
+        -:  414:
+        -:  415:    It uses parameters and translator from the source tree.
+        -:  416:
+        -:  417:    \param src          The rtree which content will be moved.
+        -:  418:    \param allocator    The allocator.
+        -:  419:
+        -:  420:    \par Throws
+        -:  421:    \li If allocator copy constructor throws.
+        -:  422:    \li If Value copy constructor throws (only if allocators aren't equal).
+        -:  423:    \li If allocation throws or returns invalid value (only if allocators aren't equal).
+        -:  424:    */
+        -:  425:    inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
+        -:  426:        : m_members(src.m_members.indexable_getter(),
+        -:  427:                    src.m_members.equal_to(),
+        -:  428:                    src.m_members.parameters(),
+        -:  429:                    allocator)
+        -:  430:    {
+        -:  431:        if ( src.m_members.allocators() == allocator )
+        -:  432:        {
+        -:  433:            boost::swap(m_members.values_count, src.m_members.values_count);
+        -:  434:            boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+        -:  435:            boost::swap(m_members.root, src.m_members.root);
+        -:  436:        }
+        -:  437:        else
+        -:  438:        {
+        -:  439:            this->raw_copy(src, *this, false);
+        -:  440:        }
+        -:  441:    }
+        -:  442:
+        -:  443:    /*!
+        -:  444:    \brief The assignment operator.
+        -:  445:
+        -:  446:    It uses parameters and translator from the source tree.
+        -:  447:
+        -:  448:    \param src          The rtree which content will be copied.
+        -:  449:
+        -:  450:    \par Throws
+        -:  451:    \li If Value copy constructor throws.
+        -:  452:    \li If allocation throws.
+        -:  453:    \li If allocation throws or returns invalid value.
+        -:  454:    */
+        -:  455:    inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
+        -:  456:    {
+        -:  457:        if ( &src != this )
+        -:  458:        {
+        -:  459:            allocators_type & this_allocs = m_members.allocators();
+        -:  460:            allocators_type const& src_allocs = src.m_members.allocators();
+        -:  461:
+        -:  462:            // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+        -:  463:            // (allocators stored as base classes of members_holder)
+        -:  464:            // copying them changes values_count, in this case it doesn't cause errors since data must be copied
+        -:  465:            
+        -:  466:            typedef boost::mpl::bool_<
+        -:  467:                allocator_traits_type::propagate_on_container_copy_assignment::value
+        -:  468:            > propagate;
+        -:  469:            
+        -:  470:            if ( propagate::value && !(this_allocs == src_allocs) )
+        -:  471:                this->raw_destroy(*this);
+        -:  472:            detail::assign_cond(this_allocs, src_allocs, propagate());
+        -:  473:
+        -:  474:            // It uses m_allocators
+        -:  475:            this->raw_copy(src, *this, true);
+        -:  476:        }
+        -:  477:
+        -:  478:        return *this;
+        -:  479:    }
+        -:  480:
+        -:  481:    /*!
+        -:  482:    \brief The moving assignment.
+        -:  483:
+        -:  484:    It uses parameters and translator from the source tree.
+        -:  485:
+        -:  486:    \param src          The rtree which content will be moved.
+        -:  487:
+        -:  488:    \par Throws
+        -:  489:    Only if allocators aren't equal.
+        -:  490:    \li If Value copy constructor throws.
+        -:  491:    \li If allocation throws or returns invalid value.
+        -:  492:    */
+        -:  493:    inline rtree & operator=(BOOST_RV_REF(rtree) src)
+        -:  494:    {
+        -:  495:        if ( &src != this )
+        -:  496:        {
+        -:  497:            allocators_type & this_allocs = m_members.allocators();
+        -:  498:            allocators_type & src_allocs = src.m_members.allocators();
+        -:  499:            
+        -:  500:            if ( this_allocs == src_allocs )
+        -:  501:            {
+        -:  502:                this->raw_destroy(*this);
+        -:  503:
+        -:  504:                m_members.indexable_getter() = src.m_members.indexable_getter();
+        -:  505:                m_members.equal_to() = src.m_members.equal_to();
+        -:  506:                m_members.parameters() = src.m_members.parameters();
+        -:  507:
+        -:  508:                boost::swap(m_members.values_count, src.m_members.values_count);
+        -:  509:                boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+        -:  510:                boost::swap(m_members.root, src.m_members.root);
+        -:  511:
+        -:  512:                // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+        -:  513:                // (allocators stored as base classes of members_holder)
+        -:  514:                // moving them changes values_count
+        -:  515:                
+        -:  516:                typedef boost::mpl::bool_<
+        -:  517:                    allocator_traits_type::propagate_on_container_move_assignment::value
+        -:  518:                > propagate;
+        -:  519:                detail::move_cond(this_allocs, src_allocs, propagate());
+        -:  520:            }
+        -:  521:            else
+        -:  522:            {
+        -:  523:// TODO - shouldn't here propagate_on_container_copy_assignment be checked like in operator=(const&)?
+        -:  524:
+        -:  525:                // It uses m_allocators
+        -:  526:                this->raw_copy(src, *this, true);
+        -:  527:            }
+        -:  528:        }
+        -:  529:
+        -:  530:        return *this;
+        -:  531:    }
+        -:  532:
+        -:  533:    /*!
+        -:  534:    \brief Swaps contents of two rtrees.
+        -:  535:
+        -:  536:    Parameters, translator and allocators are swapped as well.
+        -:  537:
+        -:  538:    \param other    The rtree which content will be swapped with this rtree content.
+        -:  539:
+        -:  540:    \par Throws
+        -:  541:    If allocators swap throws.
+        -:  542:    */
+        -:  543:    void swap(rtree & other)
+        -:  544:    {
+        -:  545:        boost::swap(m_members.indexable_getter(), other.m_members.indexable_getter());
+        -:  546:        boost::swap(m_members.equal_to(), other.m_members.equal_to());
+        -:  547:        boost::swap(m_members.parameters(), other.m_members.parameters());
+        -:  548:        
+        -:  549:        // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+        -:  550:        // (allocators stored as base classes of members_holder)
+        -:  551:        // swapping them changes values_count
+        -:  552:        
+        -:  553:        typedef boost::mpl::bool_<
+        -:  554:            allocator_traits_type::propagate_on_container_swap::value
+        -:  555:        > propagate;
+        -:  556:        detail::swap_cond(m_members.allocators(), other.m_members.allocators(), propagate());
+        -:  557:
+        -:  558:        boost::swap(m_members.values_count, other.m_members.values_count);
+        -:  559:        boost::swap(m_members.leafs_level, other.m_members.leafs_level);
+        -:  560:        boost::swap(m_members.root, other.m_members.root);
+        -:  561:    }
+        -:  562:
+        -:  563:    /*!
+        -:  564:    \brief Insert a value to the index.
+        -:  565:
+        -:  566:    \param value    The value which will be stored in the container.
+        -:  567:
+        -:  568:    \par Throws
+        -:  569:    \li If Value copy constructor or copy assignment throws.
+        -:  570:    \li If allocation throws or returns invalid value.
+        -:  571:
+        -:  572:    \warning
+        -:  573:    This operation only guarantees that there will be no memory leaks.
+        -:  574:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  575:    elements must not be inserted or removed. Other operations are allowed however
+        -:  576:    some of them may return invalid data.
+        -:  577:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE6insertERKSC_ called 68008 returned 100% blocks executed 100%
+    68008:  578:    inline void insert(value_type const& value)
+        -:  579:    {
+    68008:  580:        if ( !m_members.root )
+branch  0 taken 2%
+branch  1 taken 98%
+     1674:  581:            this->raw_create();
+        -:  582:
+    68009:  583:        this->raw_insert(value);
+    68009:  584:    }
+        -:  585:
+        -:  586:    /*!
+        -:  587:    \brief Insert a range of values to the index.
+        -:  588:
+        -:  589:    \param first    The beginning of the range of values.
+        -:  590:    \param last     The end of the range of values.
+        -:  591:
+        -:  592:    \par Throws
+        -:  593:    \li If Value copy constructor or copy assignment throws.
+        -:  594:    \li If allocation throws or returns invalid value.
+        -:  595:
+        -:  596:    \warning
+        -:  597:    This operation only guarantees that there will be no memory leaks.
+        -:  598:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  599:    elements must not be inserted or removed. Other operations are allowed however
+        -:  600:    some of them may return invalid data.
+        -:  601:    */
+        -:  602:    template <typename Iterator>
+        -:  603:    inline void insert(Iterator first, Iterator last)
+        -:  604:    {
+        -:  605:        if ( !m_members.root )
+        -:  606:            this->raw_create();
+        -:  607:
+        -:  608:        for ( ; first != last ; ++first )
+        -:  609:            this->raw_insert(*first);
+        -:  610:    }
+        -:  611:
+        -:  612:    /*!
+        -:  613:    \brief Insert a value created using convertible object or a range of values to the index.
+        -:  614:
+        -:  615:    \param conv_or_rng      An object of type convertible to value_type or a range of values.
+        -:  616:
+        -:  617:    \par Throws
+        -:  618:    \li If Value copy constructor or copy assignment throws.
+        -:  619:    \li If allocation throws or returns invalid value.
+        -:  620:
+        -:  621:    \warning
+        -:  622:    This operation only guarantees that there will be no memory leaks.
+        -:  623:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  624:    elements must not be inserted or removed. Other operations are allowed however
+        -:  625:    some of them may return invalid data.
+        -:  626:    */
+        -:  627:    template <typename ConvertibleOrRange>
+        -:  628:    inline void insert(ConvertibleOrRange const& conv_or_rng)
+        -:  629:    {
+        -:  630:        if ( !m_members.root )
+        -:  631:            this->raw_create();
+        -:  632:
+        -:  633:        typedef boost::mpl::bool_
+        -:  634:            <
+        -:  635:                boost::is_convertible<ConvertibleOrRange, value_type>::value
+        -:  636:            > is_conv_t;
+        -:  637:
+        -:  638:        this->insert_dispatch(conv_or_rng, is_conv_t());
+        -:  639:    }
+        -:  640:
+        -:  641:    /*!
+        -:  642:    \brief Remove a value from the container.
+        -:  643:
+        -:  644:    In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -:  645:    this method removes only one value from the container.
+        -:  646:
+        -:  647:    \param value    The value which will be removed from the container.
+        -:  648:
+        -:  649:    \return         1 if the value was removed, 0 otherwise.
+        -:  650:
+        -:  651:    \par Throws
+        -:  652:    \li If Value copy constructor or copy assignment throws.
+        -:  653:    \li If allocation throws or returns invalid value.
+        -:  654:
+        -:  655:    \warning
+        -:  656:    This operation only guarantees that there will be no memory leaks.
+        -:  657:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  658:    elements must not be inserted or removed. Other operations are allowed however
+        -:  659:    some of them may return invalid data.
+        -:  660:    */
+        -:  661:    inline size_type remove(value_type const& value)
+        -:  662:    {
+        -:  663:        if ( !m_members.root )
+        -:  664:            return 0;
+        -:  665:
+        -:  666:        return this->raw_remove(value);
+        -:  667:    }
+        -:  668:
+        -:  669:    /*!
+        -:  670:    \brief Remove a range of values from the container.
+        -:  671:
+        -:  672:    In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -:  673:    it doesn't take iterators pointing to values stored in this container. It removes values equal
+        -:  674:    to these passed as a range. Furthermore this method removes only one value for each one passed
+        -:  675:    in the range, not all equal values.
+        -:  676:
+        -:  677:    \param first    The beginning of the range of values.
+        -:  678:    \param last     The end of the range of values.
+        -:  679:
+        -:  680:    \return         The number of removed values.
+        -:  681:
+        -:  682:    \par Throws
+        -:  683:    \li If Value copy constructor or copy assignment throws.
+        -:  684:    \li If allocation throws or returns invalid value.
+        -:  685:
+        -:  686:    \warning
+        -:  687:    This operation only guarantees that there will be no memory leaks.
+        -:  688:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  689:    elements must not be inserted or removed. Other operations are allowed however
+        -:  690:    some of them may return invalid data.
+        -:  691:    */
+        -:  692:    template <typename Iterator>
+        -:  693:    inline size_type remove(Iterator first, Iterator last)
+        -:  694:    {
+        -:  695:        size_type result = 0;
+        -:  696:
+        -:  697:        if ( !m_members.root )
+        -:  698:            return result;
+        -:  699:
+        -:  700:        for ( ; first != last ; ++first )
+        -:  701:            result += this->raw_remove(*first);
+        -:  702:        return result;
+        -:  703:    }
+        -:  704:
+        -:  705:    /*!
+        -:  706:    \brief Remove value corresponding to an object convertible to it or a range of values from the container.
+        -:  707:
+        -:  708:    In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -:  709:    it removes values equal to these passed as a range. Furthermore, this method removes only
+        -:  710:    one value for each one passed in the range, not all equal values.
+        -:  711:
+        -:  712:    \param conv_or_rng      The object of type convertible to value_type or a range of values.
+        -:  713:
+        -:  714:    \return         The number of removed values.
+        -:  715:
+        -:  716:    \par Throws
+        -:  717:    \li If Value copy constructor or copy assignment throws.
+        -:  718:    \li If allocation throws or returns invalid value.
+        -:  719:
+        -:  720:    \warning
+        -:  721:    This operation only guarantees that there will be no memory leaks.
+        -:  722:    After an exception is thrown the R-tree may be left in an inconsistent state,
+        -:  723:    elements must not be inserted or removed. Other operations are allowed however
+        -:  724:    some of them may return invalid data.
+        -:  725:    */
+        -:  726:    template <typename ConvertibleOrRange>
+        -:  727:    inline size_type remove(ConvertibleOrRange const& conv_or_rng)
+        -:  728:    {
+        -:  729:        if ( !m_members.root )
+        -:  730:            return 0;
+        -:  731:
+        -:  732:        typedef boost::mpl::bool_
+        -:  733:            <
+        -:  734:                boost::is_convertible<ConvertibleOrRange, value_type>::value
+        -:  735:            > is_conv_t;
+        -:  736:
+        -:  737:        return this->remove_dispatch(conv_or_rng, is_conv_t());
+        -:  738:    }
+        -:  739:
+        -:  740:    /*!
+        -:  741:    \brief Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box.
+        -:  742:
+        -:  743:    This query function performs spatial and k-nearest neighbor searches. It allows to pass a set of predicates.
+        -:  744:    Values will be returned only if all predicates are met.
+        -:  745:
+        -:  746:    <b>Spatial predicates</b>
+        -:  747:    
+        -:  748:    Spatial predicates may be generated by one of the functions listed below:
+        -:  749:    \li \c boost::geometry::index::contains(),
+        -:  750:    \li \c boost::geometry::index::covered_by(),
+        -:  751:    \li \c boost::geometry::index::covers(),
+        -:  752:    \li \c boost::geometry::index::disjoint(),
+        -:  753:    \li \c boost::geometry::index::intersects(),
+        -:  754:    \li \c boost::geometry::index::overlaps(),
+        -:  755:    \li \c boost::geometry::index::within(),
+        -:  756:
+        -:  757:    It is possible to negate spatial predicates:
+        -:  758:    \li <tt>! boost::geometry::index::contains()</tt>,
+        -:  759:    \li <tt>! boost::geometry::index::covered_by()</tt>,
+        -:  760:    \li <tt>! boost::geometry::index::covers()</tt>,
+        -:  761:    \li <tt>! boost::geometry::index::disjoint()</tt>,
+        -:  762:    \li <tt>! boost::geometry::index::intersects()</tt>,
+        -:  763:    \li <tt>! boost::geometry::index::overlaps()</tt>,
+        -:  764:    \li <tt>! boost::geometry::index::within()</tt>
+        -:  765:
+        -:  766:    <b>Satisfies predicate</b>
+        -:  767:    
+        -:  768:    This is a special kind of predicate which allows to pass a user-defined function or function object which checks
+        -:  769:    if Value should be returned by the query. It's generated by:
+        -:  770:    \li \c boost::geometry::index::satisfies().
+        -:  771:
+        -:  772:    <b>Nearest predicate</b>
+        -:  773:
+        -:  774:    If the nearest predicate is passed a k-nearest neighbor search will be performed. This query will result
+        -:  775:    in returning k values to the output iterator. Only one nearest predicate may be passed to the query.
+        -:  776:    It may be generated by:
+        -:  777:    \li \c boost::geometry::index::nearest().
+        -:  778:        
+        -:  779:    <b>Connecting predicates</b>
+        -:  780:
+        -:  781:    Predicates may be passed together connected with \c operator&&().
+        -:  782:
+        -:  783:    \par Example
+        -:  784:    \verbatim
+        -:  785:    // return elements intersecting box
+        -:  786:    tree.query(bgi::intersects(box), std::back_inserter(result));
+        -:  787:    // return elements intersecting poly but not within box
+        -:  788:    tree.query(bgi::intersects(poly) && !bgi::within(box), std::back_inserter(result));
+        -:  789:    // return elements overlapping box and meeting my_fun unary predicate
+        -:  790:    tree.query(bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
+        -:  791:    // return 5 elements nearest to pt and elements are intersecting box
+        -:  792:    tree.query(bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
+        -:  793:
+        -:  794:    // For each found value do_something (it is a type of function object)
+        -:  795:    tree.query(bgi::intersects(box),
+        -:  796:               boost::make_function_output_iterator(do_something()));
+        -:  797:
+        -:  798:    // For each value stored in the rtree do_something
+        -:  799:    // always_true is a type of function object always returning true
+        -:  800:    tree.query(bgi::satisfies(always_true()),
+        -:  801:               boost::make_function_output_iterator(do_something()));
+        -:  802:
+        -:  803:    // C++11 (lambda expression)
+        -:  804:    tree.query(bgi::intersects(box),
+        -:  805:               boost::make_function_output_iterator([](value_type const& val){
+        -:  806:                   // do something
+        -:  807:               }));
+        -:  808:
+        -:  809:    // C++14 (generic lambda expression)
+        -:  810:    tree.query(bgi::intersects(box),
+        -:  811:               boost::make_function_output_iterator([](auto const& val){
+        -:  812:                   // do something
+        -:  813:               }));
+        -:  814:    \endverbatim
+        -:  815:
+        -:  816:    \par Throws
+        -:  817:    If Value copy constructor or copy assignment throws.
+        -:  818:    If predicates copy throws.
+        -:  819:
+        -:  820:    \warning
+        -:  821:    Only one \c nearest() predicate may be passed to the query. Passing more of them results in compile-time error.
+        -:  822:
+        -:  823:    \param predicates   Predicates.
+        -:  824:    \param out_it       The output iterator, e.g. generated by std::back_inserter().
+        -:  825:
+        -:  826:    \return             The number of values found.
+        -:  827:    */
+        -:  828:    template <typename Predicates, typename OutIter>
+function _ZNK5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE5queryINS1_6detail10predicates17spatial_predicateISA_NSP_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISC_SaISC_EEEEEmRKT_T0_ called 693886 returned 99% blocks executed 80%
+   693886:  829:    size_type query(Predicates const& predicates, OutIter out_it) const
+        -:  830:    {
+   693886:  831:        if ( !m_members.root )
+branch  0 taken 0%
+branch  1 taken 100%
+    #####:  832:            return 0;
+        -:  833:
+        -:  834:        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        -:  835:        static const bool is_distance_predicate = 0 < distance_predicates_count;
+        -:  836:        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        -:  837:
+   693892:  838:        return query_dispatch(predicates, out_it, boost::mpl::bool_<is_distance_predicate>());
+   693539:  839:    }
+        -:  840:
+        -:  841:    /*!
+        -:  842:    \brief Returns a query iterator pointing at the begin of the query range.
+        -:  843:
+        -:  844:    This method returns an iterator which may be used to perform iterative queries.
+        -:  845:    For the information about predicates which may be passed to this method see query().
+        -:  846:
+        -:  847:    \par Example
+        -:  848:    \verbatim    
+        -:  849:    for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
+        -:  850:          it != tree.qend() ; ++it )
+        -:  851:    {
+        -:  852:        // do something with value
+        -:  853:        if ( has_enough_nearest_values() )
+        -:  854:            break;
+        -:  855:    }
+        -:  856:
+        -:  857:    // C++11 (auto)
+        -:  858:    for ( auto it = tree.qbegin(bgi::nearest(pt, 3)) ; it != tree.qend() ; ++it )
+        -:  859:    {
+        -:  860:        // do something with value
+        -:  861:    }
+        -:  862:
+        -:  863:    // C++14 (generic lambda expression)
+        -:  864:    std::for_each(tree.qbegin(bgi::nearest(pt, 3)), tree.qend(), [](auto const& val){
+        -:  865:        // do something with value
+        -:  866:    });
+        -:  867:    \endverbatim
+        -:  868:
+        -:  869:    \par Iterator category
+        -:  870:    ForwardIterator
+        -:  871:
+        -:  872:    \par Throws
+        -:  873:    If predicates copy throws.
+        -:  874:    If allocation throws.
+        -:  875:
+        -:  876:    \warning
+        -:  877:    The modification of the rtree may invalidate the iterators.
+        -:  878:
+        -:  879:    \param predicates   Predicates.
+        -:  880:    
+        -:  881:    \return             The iterator pointing at the begin of the query range.
+        -:  882:    */
+        -:  883:    template <typename Predicates>
+        -:  884:    const_query_iterator qbegin(Predicates const& predicates) const
+        -:  885:    {
+        -:  886:        return const_query_iterator(qbegin_(predicates));
+        -:  887:    }
+        -:  888:
+        -:  889:    /*!
+        -:  890:    \brief Returns a query iterator pointing at the end of the query range.
+        -:  891:
+        -:  892:    This method returns an iterator which may be used to check if the query has ended.
+        -:  893:
+        -:  894:    \par Example
+        -:  895:    \verbatim    
+        -:  896:    for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
+        -:  897:          it != tree.qend() ; ++it )
+        -:  898:    {
+        -:  899:        // do something with value
+        -:  900:        if ( has_enough_nearest_values() )
+        -:  901:            break;
+        -:  902:    }
+        -:  903:
+        -:  904:    // C++11 (auto)
+        -:  905:    for ( auto it = tree.qbegin(bgi::nearest(pt, 3)) ; it != tree.qend() ; ++it )
+        -:  906:    {
+        -:  907:        // do something with value
+        -:  908:    }
+        -:  909:
+        -:  910:    // C++14 (generic lambda expression)
+        -:  911:    std::for_each(tree.qbegin(bgi::nearest(pt, 3)), tree.qend(), [](auto const& val){
+        -:  912:        // do something with value
+        -:  913:    });
+        -:  914:    \endverbatim
+        -:  915:
+        -:  916:    \par Iterator category
+        -:  917:    ForwardIterator
+        -:  918:
+        -:  919:    \par Throws
+        -:  920:    Nothing
+        -:  921:
+        -:  922:    \warning
+        -:  923:    The modification of the rtree may invalidate the iterators.
+        -:  924:    
+        -:  925:    \return             The iterator pointing at the end of the query range.
+        -:  926:    */
+        -:  927:    const_query_iterator qend() const
+        -:  928:    {
+        -:  929:        return const_query_iterator();
+        -:  930:    }
+        -:  931:
+        -:  932:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        -:  933:private:
+        -:  934:#endif
+        -:  935:    /*!
+        -:  936:    \brief Returns a query iterator pointing at the begin of the query range.
+        -:  937:
+        -:  938:    This method returns an iterator which may be used to perform iterative queries.
+        -:  939:    For the information about predicates which may be passed to this method see query().
+        -:  940:    
+        -:  941:    The type of the returned iterator depends on the type of passed Predicates but the iterator of this type
+        -:  942:    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator
+        -:  943:    returned by this method you may get the type e.g. by using C++11 decltype or Boost.Typeof library.
+        -:  944:    This iterator may be compared with iterators returned by both versions of qend() method.
+        -:  945:
+        -:  946:    \par Example
+        -:  947:    \verbatim
+        -:  948:    // Store the result in the container using std::copy() - it requires both iterators of the same type
+        -:  949:    std::copy(tree.qbegin_(bgi::intersects(box)), tree.qend_(bgi::intersects(box)), std::back_inserter(result));
+        -:  950:
+        -:  951:    // Store the result in the container using std::copy() and type-erased iterators
+        -:  952:    Rtree::const_query_iterator first = tree.qbegin_(bgi::intersects(box));
+        -:  953:    Rtree::const_query_iterator last = tree.qend_();
+        -:  954:    std::copy(first, last, std::back_inserter(result));
+        -:  955:
+        -:  956:    // Boost.Typeof
+        -:  957:    typedef BOOST_TYPEOF(tree.qbegin(bgi::nearest(pt, 10000))) Iter;
+        -:  958:    for ( Iter it = tree.qbegin_(bgi::nearest(pt, 10000)) ; it != tree.qend_() ; ++it )
+        -:  959:    {
+        -:  960:        // do something with value
+        -:  961:        if ( has_enough_nearest_values() )
+        -:  962:            break;
+        -:  963:    }
+        -:  964:
+        -:  965:    // C++11 (auto)
+        -:  966:    for ( auto it = tree.qbegin_(bgi::nearest(pt, 10000)) ; it != tree.qend_() ; ++it )
+        -:  967:    {
+        -:  968:        // do something with value
+        -:  969:        if ( has_enough_nearest_values() )
+        -:  970:            break;
+        -:  971:    }
+        -:  972:    \endverbatim
+        -:  973:
+        -:  974:    \par Iterator category
+        -:  975:    ForwardIterator
+        -:  976:
+        -:  977:    \par Throws
+        -:  978:    If predicates copy throws.
+        -:  979:    If allocation throws.
+        -:  980:
+        -:  981:    \warning
+        -:  982:    The modification of the rtree may invalidate the iterators.
+        -:  983:
+        -:  984:    \param predicates   Predicates.
+        -:  985:    
+        -:  986:    \return             The iterator pointing at the begin of the query range.
+        -:  987:    */
+        -:  988:    template <typename Predicates>
+        -:  989:    typename boost::mpl::if_c<
+        -:  990:        detail::predicates_count_distance<Predicates>::value == 0,
+        -:  991:        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        -:  992:        detail::rtree::iterators::distance_query_iterator<
+        -:  993:            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+        -:  994:            detail::predicates_find_distance<Predicates>::value
+        -:  995:        >
+        -:  996:    >::type
+        -:  997:    qbegin_(Predicates const& predicates) const
+        -:  998:    {
+        -:  999:        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        -: 1000:        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        -: 1001:
+        -: 1002:        typedef typename boost::mpl::if_c<
+        -: 1003:            detail::predicates_count_distance<Predicates>::value == 0,
+        -: 1004:            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        -: 1005:            detail::rtree::iterators::distance_query_iterator<
+        -: 1006:                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+        -: 1007:                detail::predicates_find_distance<Predicates>::value
+        -: 1008:            >
+        -: 1009:        >::type iterator_type;
+        -: 1010:
+        -: 1011:        if ( !m_members.root )
+        -: 1012:            return iterator_type(m_members.translator(), predicates);
+        -: 1013:
+        -: 1014:        return iterator_type(m_members.root, m_members.translator(), predicates);
+        -: 1015:    }
+        -: 1016:
+        -: 1017:    /*!
+        -: 1018:    \brief Returns the query iterator pointing at the end of the query range.
+        -: 1019:
+        -: 1020:    This method returns the iterator which may be used to perform iterative queries. For the information
+        -: 1021:    about the predicates which may be passed to this method see query().
+        -: 1022:    
+        -: 1023:    The type of the returned iterator depends on the type of passed Predicates but the iterator of this type
+        -: 1024:    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator
+        -: 1025:    returned by this method you may get the type e.g. by using C++11 decltype or Boost.Typeof library.
+        -: 1026:
+        -: 1027:    The type of the iterator returned by this method is the same as the one returned by qbegin() to which
+        -: 1028:    the same predicates were passed.
+        -: 1029:
+        -: 1030:    \par Example
+        -: 1031:    \verbatim
+        -: 1032:    // Store the result in the container using std::copy() - it requires both iterators of the same type
+        -: 1033:    std::copy(tree.qbegin_(bgi::intersects(box)), tree.qend_(bgi::intersects(box)), std::back_inserter(result));
+        -: 1034:    \endverbatim
+        -: 1035:
+        -: 1036:    \par Iterator category
+        -: 1037:    ForwardIterator
+        -: 1038:
+        -: 1039:    \par Throws
+        -: 1040:    If predicates copy throws.
+        -: 1041:
+        -: 1042:    \warning
+        -: 1043:    The modification of the rtree may invalidate the iterators.
+        -: 1044:
+        -: 1045:    \param predicates   Predicates.
+        -: 1046:    
+        -: 1047:    \return             The iterator pointing at the end of the query range.
+        -: 1048:    */
+        -: 1049:    template <typename Predicates>
+        -: 1050:    typename boost::mpl::if_c<
+        -: 1051:        detail::predicates_count_distance<Predicates>::value == 0,
+        -: 1052:        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        -: 1053:        detail::rtree::iterators::distance_query_iterator<
+        -: 1054:            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+        -: 1055:            detail::predicates_find_distance<Predicates>::value
+        -: 1056:        >
+        -: 1057:    >::type
+        -: 1058:    qend_(Predicates const& predicates) const
+        -: 1059:    {
+        -: 1060:        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        -: 1061:        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        -: 1062:
+        -: 1063:        typedef typename boost::mpl::if_c<
+        -: 1064:            detail::predicates_count_distance<Predicates>::value == 0,
+        -: 1065:            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        -: 1066:            detail::rtree::iterators::distance_query_iterator<
+        -: 1067:                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+        -: 1068:                detail::predicates_find_distance<Predicates>::value
+        -: 1069:            >
+        -: 1070:        >::type iterator_type;
+        -: 1071:
+        -: 1072:        return iterator_type(m_members.translator(), predicates);
+        -: 1073:    }
+        -: 1074:
+        -: 1075:    /*!
+        -: 1076:    \brief Returns the query iterator pointing at the end of the query range.
+        -: 1077:
+        -: 1078:    This method returns the iterator which may be compared with the iterator returned by qbegin() in order to
+        -: 1079:    check if the query has ended.
+        -: 1080:    
+        -: 1081:    The type of the returned iterator is different than the type returned by qbegin() but the iterator of this type
+        -: 1082:    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator returned by this
+        -: 1083:    method, which most certainly will be faster than the type-erased iterator, you may get the type
+        -: 1084:    e.g. by using C++11 decltype or Boost.Typeof library.
+        -: 1085:
+        -: 1086:    The type of the iterator returned by this method is different than the type returned by qbegin().
+        -: 1087:
+        -: 1088:    \par Example
+        -: 1089:    \verbatim
+        -: 1090:    // Store the result in the container using std::copy() and type-erased iterators
+        -: 1091:    Rtree::const_query_iterator first = tree.qbegin_(bgi::intersects(box));
+        -: 1092:    Rtree::const_query_iterator last = tree.qend_();
+        -: 1093:    std::copy(first, last, std::back_inserter(result));
+        -: 1094:
+        -: 1095:    // Boost.Typeof
+        -: 1096:    typedef BOOST_TYPEOF(tree.qbegin(bgi::nearest(pt, 10000))) Iter;
+        -: 1097:    for ( Iter it = tree.qbegin_(bgi::nearest(pt, 10000)) ; it != tree.qend_() ; ++it )
+        -: 1098:    {
+        -: 1099:        // do something with value
+        -: 1100:        if ( has_enough_nearest_values() )
+        -: 1101:            break;
+        -: 1102:    }
+        -: 1103:
+        -: 1104:    // C++11 (auto)
+        -: 1105:    for ( auto it = tree.qbegin_(bgi::nearest(pt, 10000)) ; it != tree.qend_() ; ++it )
+        -: 1106:    {
+        -: 1107:        // do something with value
+        -: 1108:        if ( has_enough_nearest_values() )
+        -: 1109:            break;
+        -: 1110:    }
+        -: 1111:    \endverbatim
+        -: 1112:
+        -: 1113:    \par Iterator category
+        -: 1114:    ForwardIterator
+        -: 1115:
+        -: 1116:    \par Throws
+        -: 1117:    Nothing
+        -: 1118:
+        -: 1119:    \warning
+        -: 1120:    The modification of the rtree may invalidate the iterators.
+        -: 1121:    
+        -: 1122:    \return             The iterator pointing at the end of the query range.
+        -: 1123:    */
+        -: 1124:    detail::rtree::iterators::end_query_iterator<value_type, allocators_type>
+        -: 1125:    qend_() const
+        -: 1126:    {
+        -: 1127:        return detail::rtree::iterators::end_query_iterator<value_type, allocators_type>();
+        -: 1128:    }
+        -: 1129:
+        -: 1130:public:
+        -: 1131:
+        -: 1132:    /*!
+        -: 1133:    \brief Returns the iterator pointing at the begin of the rtree values range.
+        -: 1134:
+        -: 1135:    This method returns the iterator which may be used to iterate over all values
+        -: 1136:    stored in the rtree.
+        -: 1137:
+        -: 1138:    \par Example
+        -: 1139:    \verbatim
+        -: 1140:    // Copy all values into the vector
+        -: 1141:    std::copy(tree.begin(), tree.end(), std::back_inserter(vec));
+        -: 1142:
+        -: 1143:    for ( Rtree::const_iterator it = tree.begin() ; it != tree.end() ; ++it )
+        -: 1144:    {
+        -: 1145:        // do something with value
+        -: 1146:    }
+        -: 1147:
+        -: 1148:    // C++11 (auto)
+        -: 1149:    for ( auto it = tree.begin() ; it != tree.end() ; ++it )
+        -: 1150:    {
+        -: 1151:        // do something with value
+        -: 1152:    }
+        -: 1153:
+        -: 1154:    // C++14 (generic lambda expression)
+        -: 1155:    std::for_each(tree.begin(), tree.end(), [](auto const& val){
+        -: 1156:        // do something with value
+        -: 1157:    })
+        -: 1158:    \endverbatim
+        -: 1159:
+        -: 1160:    \par Iterator category
+        -: 1161:    ForwardIterator
+        -: 1162:
+        -: 1163:    \par Throws
+        -: 1164:    If allocation throws.
+        -: 1165:
+        -: 1166:    \warning
+        -: 1167:    The modification of the rtree may invalidate the iterators.
+        -: 1168:
+        -: 1169:    \return             The iterator pointing at the begin of the range.
+        -: 1170:    */
+        -: 1171:    const_iterator begin() const
+        -: 1172:    {
+        -: 1173:        if ( !m_members.root )
+        -: 1174:            return const_iterator();
+        -: 1175:
+        -: 1176:        return const_iterator(m_members.root);
+        -: 1177:    }
+        -: 1178:
+        -: 1179:    /*!
+        -: 1180:    \brief Returns the iterator pointing at the end of the rtree values range.
+        -: 1181:
+        -: 1182:    This method returns the iterator which may be compared with the iterator returned by begin()
+        -: 1183:    in order to check if the iteration has ended.
+        -: 1184:
+        -: 1185:    \par Example
+        -: 1186:    \verbatim
+        -: 1187:    for ( Rtree::const_iterator it = tree.begin() ; it != tree.end() ; ++it )
+        -: 1188:    {
+        -: 1189:        // do something with value
+        -: 1190:    }
+        -: 1191:
+        -: 1192:    // C++11 (lambda expression)
+        -: 1193:    std::for_each(tree.begin(), tree.end(), [](value_type const& val){
+        -: 1194:        // do something with value
+        -: 1195:    })
+        -: 1196:    \endverbatim
+        -: 1197:
+        -: 1198:    \par Iterator category
+        -: 1199:    ForwardIterator
+        -: 1200:
+        -: 1201:    \par Throws
+        -: 1202:    Nothing.
+        -: 1203:
+        -: 1204:    \warning
+        -: 1205:    The modification of the rtree may invalidate the iterators.
+        -: 1206:
+        -: 1207:    \return             The iterator pointing at the end of the range.
+        -: 1208:    */
+        -: 1209:    const_iterator end() const
+        -: 1210:    {
+        -: 1211:        return const_iterator();
+        -: 1212:    }
+        -: 1213:
+        -: 1214:    /*!
+        -: 1215:    \brief Returns the number of stored values.
+        -: 1216:
+        -: 1217:    \return         The number of stored values.
+        -: 1218:
+        -: 1219:    \par Throws
+        -: 1220:    Nothing.
+        -: 1221:    */
+        -: 1222:    inline size_type size() const
+        -: 1223:    {
+        -: 1224:        return m_members.values_count;
+        -: 1225:    }
+        -: 1226:
+        -: 1227:    /*!
+        -: 1228:    \brief Query if the container is empty.
+        -: 1229:
+        -: 1230:    \return         true if the container is empty.
+        -: 1231:
+        -: 1232:    \par Throws
+        -: 1233:    Nothing.
+        -: 1234:    */
+        -: 1235:    inline bool empty() const
+        -: 1236:    {
+        -: 1237:        return 0 == m_members.values_count;
+        -: 1238:    }
+        -: 1239:
+        -: 1240:    /*!
+        -: 1241:    \brief Removes all values stored in the container.
+        -: 1242:
+        -: 1243:    \par Throws
+        -: 1244:    Nothing.
+        -: 1245:    */
+        -: 1246:    inline void clear()
+        -: 1247:    {
+        -: 1248:        this->raw_destroy(*this);
+        -: 1249:    }
+        -: 1250:
+        -: 1251:    /*!
+        -: 1252:    \brief Returns the box able to contain all values stored in the container.
+        -: 1253:
+        -: 1254:    Returns the box able to contain all values stored in the container.
+        -: 1255:    If the container is empty the result of \c geometry::assign_inverse() is returned.
+        -: 1256:
+        -: 1257:    \return     The box able to contain all values stored in the container or an invalid box if
+        -: 1258:                there are no values in the container.
+        -: 1259:
+        -: 1260:    \par Throws
+        -: 1261:    Nothing.
+        -: 1262:    */
+        -: 1263:    inline bounds_type bounds() const
+        -: 1264:    {
+        -: 1265:        bounds_type result;
+        -: 1266:        // in order to suppress the uninitialized variable warnings
+        -: 1267:        geometry::assign_inverse(result);
+        -: 1268:
+        -: 1269:        if ( m_members.root )
+        -: 1270:        {
+        -: 1271:            detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
+        -: 1272:                box_v(result, m_members.translator());
+        -: 1273:            detail::rtree::apply_visitor(box_v, *m_members.root);
+        -: 1274:        }
+        -: 1275:
+        -: 1276:        return result;
+        -: 1277:    }
+        -: 1278:
+        -: 1279:    /*!
+        -: 1280:    \brief Count Values or Indexables stored in the container.
+        -: 1281:    
+        -: 1282:    For indexable_type it returns the number of values which indexables equals the parameter.
+        -: 1283:    For value_type it returns the number of values which equals the parameter.
+        -: 1284:
+        -: 1285:    \param vori The value or indexable which will be counted.
+        -: 1286:
+        -: 1287:    \return     The number of values found.
+        -: 1288:
+        -: 1289:    \par Throws
+        -: 1290:    Nothing.
+        -: 1291:    */
+        -: 1292:    template <typename ValueOrIndexable>
+        -: 1293:    size_type count(ValueOrIndexable const& vori) const
+        -: 1294:    {
+        -: 1295:        if ( !m_members.root )
+        -: 1296:            return 0;
+        -: 1297:
+        -: 1298:        // the input should be convertible to Value or Indexable type
+        -: 1299:
+        -: 1300:        enum { as_val = 0, as_ind, dont_know };
+        -: 1301:        typedef boost::mpl::int_
+        -: 1302:            <
+        -: 1303:                boost::is_same<ValueOrIndexable, value_type>::value ?
+        -: 1304:                    as_val :
+        -: 1305:                    boost::is_same<ValueOrIndexable, indexable_type>::value ?
+        -: 1306:                        as_ind :
+        -: 1307:                        boost::is_convertible<ValueOrIndexable, indexable_type>::value ?
+        -: 1308:                            as_ind :
+        -: 1309:                            boost::is_convertible<ValueOrIndexable, value_type>::value ?
+        -: 1310:                                as_val :
+        -: 1311:                                dont_know
+        -: 1312:            > variant;
+        -: 1313:
+        -: 1314:        BOOST_MPL_ASSERT_MSG((variant::value != dont_know),
+        -: 1315:                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
+        -: 1316:                             (ValueOrIndexable));
+        -: 1317:
+        -: 1318:        typedef typename boost::mpl::if_c
+        -: 1319:            <
+        -: 1320:                variant::value == as_val,
+        -: 1321:                value_type,
+        -: 1322:                indexable_type
+        -: 1323:            >::type value_or_indexable;
+        -: 1324:
+        -: 1325:        // NOTE: If an object of convertible but not the same type is passed
+        -: 1326:        // into the function, here a temporary will be created.
+        -: 1327:        return this->template raw_count<value_or_indexable>(vori);
+        -: 1328:    }
+        -: 1329:
+        -: 1330:    /*!
+        -: 1331:    \brief Returns parameters.
+        -: 1332:
+        -: 1333:    \return     The parameters object.
+        -: 1334:
+        -: 1335:    \par Throws
+        -: 1336:    Nothing.
+        -: 1337:    */
+        -: 1338:    inline parameters_type parameters() const
+        -: 1339:    {
+        -: 1340:        return m_members.parameters();
+        -: 1341:    }
+        -: 1342:
+        -: 1343:    /*!
+        -: 1344:    \brief Returns function retrieving Indexable from Value.
+        -: 1345:
+        -: 1346:    \return     The indexable_getter object.
+        -: 1347:
+        -: 1348:    \par Throws
+        -: 1349:    Nothing.
+        -: 1350:    */
+        -: 1351:    indexable_getter indexable_get() const
+        -: 1352:    {
+        -: 1353:        return m_members.indexable_getter();
+        -: 1354:    }
+        -: 1355:
+        -: 1356:    /*!
+        -: 1357:    \brief Returns function comparing Values
+        -: 1358:
+        -: 1359:    \return     The value_equal function.
+        -: 1360:
+        -: 1361:    \par Throws
+        -: 1362:    Nothing.
+        -: 1363:    */
+        -: 1364:    value_equal value_eq() const
+        -: 1365:    {
+        -: 1366:        return m_members.equal_to();
+        -: 1367:    }
+        -: 1368:
+        -: 1369:    /*!
+        -: 1370:    \brief Returns allocator used by the rtree.
+        -: 1371:
+        -: 1372:    \return     The allocator.
+        -: 1373:
+        -: 1374:    \par Throws
+        -: 1375:    If allocator copy constructor throws.
+        -: 1376:    */
+        -: 1377:    allocator_type get_allocator() const
+        -: 1378:    {
+        -: 1379:        return m_members.allocators().allocator();
+        -: 1380:    }
+        -: 1381:
+        -: 1382:private:
+        -: 1383:
+        -: 1384:    /*!
+        -: 1385:    \brief Returns the translator object.
+        -: 1386:
+        -: 1387:    \return     The translator object.
+        -: 1388:
+        -: 1389:    \par Throws
+        -: 1390:    Nothing.
+        -: 1391:    */
+        -: 1392:    inline translator_type translator() const
+        -: 1393:    {
+        -: 1394:        return m_members.translator();
+        -: 1395:    }
+        -: 1396:
+        -: 1397:    /*!
+        -: 1398:    \brief Apply a visitor to the nodes structure in order to perform some operator.
+        -: 1399:
+        -: 1400:    This function is not a part of the 'official' interface. However it makes
+        -: 1401:    possible e.g. to pass a visitor drawing the tree structure.
+        -: 1402:
+        -: 1403:    \param visitor  The visitor object.
+        -: 1404:
+        -: 1405:    \par Throws
+        -: 1406:    If Visitor::operator() throws.
+        -: 1407:    */
+        -: 1408:    template <typename Visitor>
+        -: 1409:    inline void apply_visitor(Visitor & visitor) const
+        -: 1410:    {
+        -: 1411:        if ( m_members.root )
+        -: 1412:            detail::rtree::apply_visitor(visitor, *m_members.root);
+        -: 1413:    }
+        -: 1414:
+        -: 1415:    /*!
+        -: 1416:    \brief Returns the depth of the R-tree.
+        -: 1417:
+        -: 1418:    This function is not a part of the 'official' interface.
+        -: 1419:
+        -: 1420:    \return     The depth of the R-tree.
+        -: 1421:
+        -: 1422:    \par Throws
+        -: 1423:    Nothing.
+        -: 1424:    */
+        -: 1425:    inline size_type depth() const
+        -: 1426:    {
+        -: 1427:        return m_members.leafs_level;
+        -: 1428:    }
+        -: 1429:
+        -: 1430:private:
+        -: 1431:
+        -: 1432:    /*!
+        -: 1433:    \pre Root node must exist - m_root != 0.
+        -: 1434:
+        -: 1435:    \brief Insert a value to the index.
+        -: 1436:
+        -: 1437:    \param value    The value which will be stored in the container.
+        -: 1438:
+        -: 1439:    \par Exception-safety
+        -: 1440:    basic
+        -: 1441:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE10raw_insertERKSC_ called 68009 returned 99% blocks executed 60%
+    68009: 1442:    inline void raw_insert(value_type const& value)
+        -: 1443:    {
+    68009: 1444:        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+branch  0 taken 100%
+branch  1 taken 0%
+        -: 1445:        // CONSIDER: alternative - ignore invalid indexable or throw an exception
+    68009: 1446:        BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_members.translator()(value)), "Indexable is invalid");
+branch  0 taken 100%
+branch  1 taken 0%
+        -: 1447:
+        -: 1448:        detail::rtree::visitors::insert<
+        -: 1449:            value_type,
+        -: 1450:            value_type, options_type, translator_type, box_type, allocators_type,
+        -: 1451:            typename options_type::insert_tag
+   136016: 1452:        > insert_v(m_members.root, m_members.leafs_level, value,
+    68008: 1453:                   m_members.parameters(), m_members.translator(), m_members.allocators());
+        -: 1454:
+    68008: 1455:        detail::rtree::apply_visitor(insert_v, *m_members.root);
+        -: 1456:
+        -: 1457:// TODO
+        -: 1458:// Think about this: If exception is thrown, may the root be removed?
+        -: 1459:// Or it is just cleared?
+        -: 1460:
+        -: 1461:// TODO
+        -: 1462:// If exception is thrown, m_values_count may be invalid
+    68008: 1463:        ++m_members.values_count;
+    68008: 1464:    }
+        -: 1465:
+        -: 1466:    /*!
+        -: 1467:    \brief Remove the value from the container.
+        -: 1468:
+        -: 1469:    \param value    The value which will be removed from the container.
+        -: 1470:
+        -: 1471:    \par Exception-safety
+        -: 1472:    basic
+        -: 1473:    */
+        -: 1474:    inline size_type raw_remove(value_type const& value)
+        -: 1475:    {
+        -: 1476:        // TODO: awulkiew - assert for correct value (indexable) ?
+        -: 1477:        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        -: 1478:
+        -: 1479:        detail::rtree::visitors::remove<
+        -: 1480:            value_type, options_type, translator_type, box_type, allocators_type
+        -: 1481:        > remove_v(m_members.root, m_members.leafs_level, value,
+        -: 1482:                   m_members.parameters(), m_members.translator(), m_members.allocators());
+        -: 1483:
+        -: 1484:        detail::rtree::apply_visitor(remove_v, *m_members.root);
+        -: 1485:
+        -: 1486:        // If exception is thrown, m_values_count may be invalid
+        -: 1487:
+        -: 1488:        if ( remove_v.is_value_removed() )
+        -: 1489:        {
+        -: 1490:            BOOST_GEOMETRY_INDEX_ASSERT(0 < m_members.values_count, "unexpected state");
+        -: 1491:
+        -: 1492:            --m_members.values_count;
+        -: 1493:
+        -: 1494:            return 1;
+        -: 1495:        }
+        -: 1496:
+        -: 1497:        return 0;
+        -: 1498:    }
+        -: 1499:
+        -: 1500:    /*!
+        -: 1501:    \brief Create an empty R-tree i.e. new empty root node and clear other attributes.
+        -: 1502:
+        -: 1503:    \par Exception-safety
+        -: 1504:    strong
+        -: 1505:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE10raw_createEv called 1674 returned 100% blocks executed 66%
+     1674: 1506:    inline void raw_create()
+        -: 1507:    {
+     1674: 1508:        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_members.root, "the tree is already created");
+branch  0 taken 100%
+branch  1 taken 0%
+        -: 1509:
+     1674: 1510:        m_members.root = detail::rtree::create_node<allocators_type, leaf>::apply(m_members.allocators()); // MAY THROW (N: alloc)
+     1674: 1511:        m_members.values_count = 0;
+     1674: 1512:        m_members.leafs_level = 0;
+     1674: 1513:    }
+        -: 1514:
+        -: 1515:    /*!
+        -: 1516:    \brief Destroy the R-tree i.e. all nodes and clear attributes.
+        -: 1517:
+        -: 1518:    \param t    The container which is going to be destroyed.
+        -: 1519:
+        -: 1520:    \par Exception-safety
+        -: 1521:    nothrow
+        -: 1522:    */
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE11raw_destroyERSM_ called 1674 returned 100% blocks executed 100%
+     1674: 1523:    inline void raw_destroy(rtree & t)
+        -: 1524:    {
+     1674: 1525:        if ( t.m_members.root )
+branch  0 taken 100%
+branch  1 taken 0%
+        -: 1526:        {
+        -: 1527:            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
+     1674: 1528:                del_v(t.m_members.root, t.m_members.allocators());
+     1674: 1529:            detail::rtree::apply_visitor(del_v, *t.m_members.root);
+        -: 1530:
+     1674: 1531:            t.m_members.root = 0;
+     1674: 1532:        }
+     1674: 1533:        t.m_members.values_count = 0;
+     1674: 1534:        t.m_members.leafs_level = 0;
+     1674: 1535:    }
+        -: 1536:
+        -: 1537:    /*!
+        -: 1538:    \brief Copy the R-tree i.e. whole nodes structure, values and other attributes.
+        -: 1539:    It uses destination's allocators to create the new structure.
+        -: 1540:
+        -: 1541:    \param src                  The source R-tree.
+        -: 1542:    \param dst                  The destination R-tree.
+        -: 1543:    \param copy_tr_and_params   If true, translator and parameters will also be copied.
+        -: 1544:
+        -: 1545:    \par Exception-safety
+        -: 1546:    strong
+        -: 1547:    */
+        -: 1548:    inline void raw_copy(rtree const& src, rtree & dst, bool copy_tr_and_params) const
+        -: 1549:    {
+        -: 1550:        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type>
+        -: 1551:            copy_v(dst.m_members.allocators());
+        -: 1552:
+        -: 1553:        if ( src.m_members.root )
+        -: 1554:            detail::rtree::apply_visitor(copy_v, *src.m_members.root);                      // MAY THROW (V, E: alloc, copy, N: alloc)
+        -: 1555:
+        -: 1556:        if ( copy_tr_and_params )
+        -: 1557:        {
+        -: 1558:            dst.m_members.indexable_getter() = src.m_members.indexable_getter();
+        -: 1559:            dst.m_members.equal_to() = src.m_members.equal_to();
+        -: 1560:            dst.m_members.parameters() = src.m_members.parameters();
+        -: 1561:        }
+        -: 1562:
+        -: 1563:        // TODO use subtree_destroyer
+        -: 1564:        if ( dst.m_members.root )
+        -: 1565:        {
+        -: 1566:            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
+        -: 1567:                del_v(dst.m_members.root, dst.m_members.allocators());
+        -: 1568:            detail::rtree::apply_visitor(del_v, *dst.m_members.root);
+        -: 1569:            dst.m_members.root = 0;
+        -: 1570:        }
+        -: 1571:
+        -: 1572:        dst.m_members.root = copy_v.result;
+        -: 1573:        dst.m_members.values_count = src.m_members.values_count;
+        -: 1574:        dst.m_members.leafs_level = src.m_members.leafs_level;
+        -: 1575:    }
+        -: 1576:
+        -: 1577:    /*!
+        -: 1578:    \brief Insert a value corresponding to convertible object into the index.
+        -: 1579:
+        -: 1580:    \param val_conv    The object convertible to value.
+        -: 1581:
+        -: 1582:    \par Exception-safety
+        -: 1583:    basic
+        -: 1584:    */
+        -: 1585:    template <typename ValueConvertible>
+        -: 1586:    inline void insert_dispatch(ValueConvertible const& val_conv,
+        -: 1587:                                boost::mpl::bool_<true> const& /*is_convertible*/)
+        -: 1588:    {
+        -: 1589:        this->raw_insert(val_conv);
+        -: 1590:    }
+        -: 1591:
+        -: 1592:    /*!
+        -: 1593:    \brief Insert a range of values into the index.
+        -: 1594:
+        -: 1595:    \param rng    The range of values.
+        -: 1596:
+        -: 1597:    \par Exception-safety
+        -: 1598:    basic
+        -: 1599:    */
+        -: 1600:    template <typename Range>
+        -: 1601:    inline void insert_dispatch(Range const& rng,
+        -: 1602:                                boost::mpl::bool_<false> const& /*is_convertible*/)
+        -: 1603:    {
+        -: 1604:        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+        -: 1605:                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
+        -: 1606:                             (Range));
+        -: 1607:
+        -: 1608:        typedef typename boost::range_const_iterator<Range>::type It;
+        -: 1609:        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+        -: 1610:            this->raw_insert(*it);
+        -: 1611:    }
+        -: 1612:
+        -: 1613:    /*!
+        -: 1614:    \brief Remove a value corresponding to convertible object from the index.
+        -: 1615:
+        -: 1616:    \param val_conv    The object convertible to value.
+        -: 1617:
+        -: 1618:    \par Exception-safety
+        -: 1619:    basic
+        -: 1620:    */
+        -: 1621:    template <typename ValueConvertible>
+        -: 1622:    inline size_type remove_dispatch(ValueConvertible const& val_conv,
+        -: 1623:                                     boost::mpl::bool_<true> const& /*is_convertible*/)
+        -: 1624:    {
+        -: 1625:        return this->raw_remove(val_conv);
+        -: 1626:    }
+        -: 1627:
+        -: 1628:    /*!
+        -: 1629:    \brief Remove a range of values from the index.
+        -: 1630:
+        -: 1631:    \param rng    The range of values which will be removed from the container.
+        -: 1632:
+        -: 1633:    \par Exception-safety
+        -: 1634:    basic
+        -: 1635:    */
+        -: 1636:    template <typename Range>
+        -: 1637:    inline size_type remove_dispatch(Range const& rng,
+        -: 1638:                                     boost::mpl::bool_<false> const& /*is_convertible*/)
+        -: 1639:    {
+        -: 1640:        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+        -: 1641:                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
+        -: 1642:                             (Range));
+        -: 1643:
+        -: 1644:        size_type result = 0;
+        -: 1645:        typedef typename boost::range_const_iterator<Range>::type It;
+        -: 1646:        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+        -: 1647:            result += this->raw_remove(*it);
+        -: 1648:        return result;
+        -: 1649:    }
+        -: 1650:
+        -: 1651:    /*!
+        -: 1652:    \brief Return values meeting predicates.
+        -: 1653:
+        -: 1654:    \par Exception-safety
+        -: 1655:    strong
+        -: 1656:    */
+        -: 1657:    template <typename Predicates, typename OutIter>
+function _ZNK5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE14query_dispatchINS1_6detail10predicates17spatial_predicateISA_NSP_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISC_SaISC_EEEEEmRKT_T0_RKN4mpl_5bool_ILb0EEE called 693882 returned 100% blocks executed 100%
+   693882: 1658:    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_distance_predicate*/) const
+        -: 1659:    {
+        -: 1660:        detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
+   693882: 1661:            find_v(m_members.translator(), predicates, out_it);
+        -: 1662:
+   693882: 1663:        detail::rtree::apply_visitor(find_v, *m_members.root);
+        -: 1664:
+   693882: 1665:        return find_v.found_count;
+        -: 1666:    }
+        -: 1667:
+        -: 1668:    /*!
+        -: 1669:    \brief Perform nearest neighbour search.
+        -: 1670:
+        -: 1671:    \par Exception-safety
+        -: 1672:    strong
+        -: 1673:    */
+        -: 1674:    template <typename Predicates, typename OutIter>
+        -: 1675:    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_distance_predicate*/) const
+        -: 1676:    {
+        -: 1677:        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        -: 1678:
+        -: 1679:        static const unsigned distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
+        -: 1680:        detail::rtree::visitors::distance_query<
+        -: 1681:            value_type,
+        -: 1682:            options_type,
+        -: 1683:            translator_type,
+        -: 1684:            box_type,
+        -: 1685:            allocators_type,
+        -: 1686:            Predicates,
+        -: 1687:            distance_predicate_index,
+        -: 1688:            OutIter
+        -: 1689:        > distance_v(m_members.parameters(), m_members.translator(), predicates, out_it);
+        -: 1690:
+        -: 1691:        detail::rtree::apply_visitor(distance_v, *m_members.root);
+        -: 1692:
+        -: 1693:        return distance_v.finish();
+        -: 1694:    }
+        -: 1695:    
+        -: 1696:    /*!
+        -: 1697:    \brief Count elements corresponding to value or indexable.
+        -: 1698:
+        -: 1699:    \par Exception-safety
+        -: 1700:    strong
+        -: 1701:    */
+        -: 1702:    template <typename ValueOrIndexable>
+        -: 1703:    size_type raw_count(ValueOrIndexable const& vori) const
+        -: 1704:    {
+        -: 1705:        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        -: 1706:
+        -: 1707:        detail::rtree::visitors::count
+        -: 1708:            <
+        -: 1709:                ValueOrIndexable,
+        -: 1710:                value_type,
+        -: 1711:                options_type,
+        -: 1712:                translator_type,
+        -: 1713:                box_type,
+        -: 1714:                allocators_type
+        -: 1715:            > count_v(vori, m_members.translator());
+        -: 1716:
+        -: 1717:        detail::rtree::apply_visitor(count_v, *m_members.root);
+        -: 1718:
+        -: 1719:        return count_v.found_count;
+        -: 1720:    }
+        -: 1721:
+        -: 1722:    struct members_holder
+        -: 1723:        : public translator_type
+        -: 1724:        , public Parameters
+        -: 1725:        , public allocators_type
+        -: 1726:    {
+        -: 1727:    private:
+        -: 1728:        members_holder(members_holder const&);
+        -: 1729:        members_holder & operator=(members_holder const&);
+        -: 1730:
+        -: 1731:    public:
+        -: 1732:        template <typename IndGet, typename ValEq, typename Alloc>
+        -: 1733:        members_holder(IndGet const& ind_get,
+        -: 1734:                       ValEq const& val_eq,
+        -: 1735:                       Parameters const& parameters,
+        -: 1736:                       BOOST_FWD_REF(Alloc) alloc)
+        -: 1737:            : translator_type(ind_get, val_eq)
+        -: 1738:            , Parameters(parameters)
+        -: 1739:            , allocators_type(boost::forward<Alloc>(alloc))
+        -: 1740:            , values_count(0)
+        -: 1741:            , leafs_level(0)
+        -: 1742:            , root(0)
+        -: 1743:        {}
+        -: 1744:
+        -: 1745:        template <typename IndGet, typename ValEq>
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE14members_holderC2ISG_SI_EERKT_RKT0_RKSE_ called 1674 returned 100% blocks executed 100%
+     1674: 1746:        members_holder(IndGet const& ind_get,
+        -: 1747:                       ValEq const& val_eq,
+        -: 1748:                       Parameters const& parameters)
+     1674: 1749:            : translator_type(ind_get, val_eq)
+     1674: 1750:            , Parameters(parameters)
+     1674: 1751:            , allocators_type()
+     1674: 1752:            , values_count(0)
+     1674: 1753:            , leafs_level(0)
+     1674: 1754:            , root(0)
+     6696: 1755:        {}
+        -: 1756:
+function _ZNK5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE14members_holder10translatorEv called 829858 returned 100% blocks executed 100%
+   829858: 1757:        translator_type const& translator() const { return *this; }
+        -: 1758:
+        -: 1759:        IndexableGetter const& indexable_getter() const { return *this; }
+        -: 1760:        IndexableGetter & indexable_getter() { return *this; }
+        -: 1761:        EqualTo const& equal_to() const { return *this; }
+        -: 1762:        EqualTo & equal_to() { return *this; }
+        -: 1763:        Parameters const& parameters() const { return *this; }
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE14members_holder10parametersEv called 68009 returned 100% blocks executed 100%
+    68009: 1764:        Parameters & parameters() { return *this; }
+        -: 1765:        allocators_type const& allocators() const { return *this; }
+function _ZN5boost8geometry5index5rtreeISt4pairINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEES3_IS9_S9_EENS1_5rstarILm16ELm4ELm4ELm32EEENS1_9indexableISC_EENS1_8equal_toISC_EENS_9container13new_allocatorISC_EEE14members_holder10allocatorsEv called 71357 returned 100% blocks executed 100%
+    71357: 1766:        allocators_type & allocators() { return *this; }
+        -: 1767:
+        -: 1768:        size_type values_count;
+        -: 1769:        size_type leafs_level;
+        -: 1770:        node_pointer root;
+        -: 1771:    };
+        -: 1772:
+        -: 1773:    members_holder m_members;
+        -: 1774:};
+        -: 1775:
+        -: 1776:/*!
+        -: 1777:\brief Insert a value to the index.
+        -: 1778:
+        -: 1779:It calls <tt>rtree::insert(value_type const&)</tt>.
+        -: 1780:
+        -: 1781:\ingroup rtree_functions
+        -: 1782:
+        -: 1783:\param tree The spatial index.
+        -: 1784:\param v    The value which will be stored in the index.
+        -: 1785:*/
+        -: 1786:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 1787:inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1788:                   Value const& v)
+        -: 1789:{
+        -: 1790:    tree.insert(v);
+        -: 1791:}
+        -: 1792:
+        -: 1793:/*!
+        -: 1794:\brief Insert a range of values to the index.
+        -: 1795:
+        -: 1796:It calls <tt>rtree::insert(Iterator, Iterator)</tt>.
+        -: 1797:
+        -: 1798:\ingroup rtree_functions
+        -: 1799:
+        -: 1800:\param tree     The spatial index.
+        -: 1801:\param first    The beginning of the range of values.
+        -: 1802:\param last     The end of the range of values.
+        -: 1803:*/
+        -: 1804:template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 1805:         typename Iterator>
+        -: 1806:inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1807:                   Iterator first, Iterator last)
+        -: 1808:{
+        -: 1809:    tree.insert(first, last);
+        -: 1810:}
+        -: 1811:
+        -: 1812:/*!
+        -: 1813:\brief Insert a value created using convertible object or a range of values to the index.
+        -: 1814:
+        -: 1815:It calls <tt>rtree::insert(ConvertibleOrRange const&)</tt>.
+        -: 1816:
+        -: 1817:\ingroup rtree_functions
+        -: 1818:
+        -: 1819:\param tree             The spatial index.
+        -: 1820:\param conv_or_rng      The object of type convertible to value_type or a range of values.
+        -: 1821:*/
+        -: 1822:template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 1823:         typename ConvertibleOrRange>
+        -: 1824:inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1825:                   ConvertibleOrRange const& conv_or_rng)
+        -: 1826:{
+        -: 1827:    tree.insert(conv_or_rng);
+        -: 1828:}
+        -: 1829:
+        -: 1830:/*!
+        -: 1831:\brief Remove a value from the container.
+        -: 1832:
+        -: 1833:Remove a value from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -: 1834:this function removes only one value from the container.
+        -: 1835:
+        -: 1836:It calls <tt>rtree::remove(value_type const&)</tt>.
+        -: 1837:
+        -: 1838:\ingroup rtree_functions
+        -: 1839:
+        -: 1840:\param tree The spatial index.
+        -: 1841:\param v    The value which will be removed from the index.
+        -: 1842:
+        -: 1843:\return     1 if value was removed, 0 otherwise.
+        -: 1844:*/
+        -: 1845:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 1846:inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+        -: 1847:remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1848:       Value const& v)
+        -: 1849:{
+        -: 1850:    return tree.remove(v);
+        -: 1851:}
+        -: 1852:
+        -: 1853:/*!
+        -: 1854:\brief Remove a range of values from the container.
+        -: 1855:
+        -: 1856:Remove a range of values from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -: 1857:it doesn't take iterators pointing to values stored in this container. It removes values equal
+        -: 1858:to these passed as a range. Furthermore this function removes only one value for each one passed
+        -: 1859:in the range, not all equal values.
+        -: 1860:
+        -: 1861:It calls <tt>rtree::remove(Iterator, Iterator)</tt>.
+        -: 1862:
+        -: 1863:\ingroup rtree_functions
+        -: 1864:
+        -: 1865:\param tree     The spatial index.
+        -: 1866:\param first    The beginning of the range of values.
+        -: 1867:\param last     The end of the range of values.
+        -: 1868:
+        -: 1869:\return         The number of removed values.
+        -: 1870:*/
+        -: 1871:template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 1872:         typename Iterator>
+        -: 1873:inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+        -: 1874:remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1875:       Iterator first, Iterator last)
+        -: 1876:{
+        -: 1877:    return tree.remove(first, last);
+        -: 1878:}
+        -: 1879:
+        -: 1880:/*!
+        -: 1881:\brief Remove a value corresponding to an object convertible to it or a range of values from the container.
+        -: 1882:
+        -: 1883:Remove a value corresponding to an object convertible to it or a range of values from the container.
+        -: 1884:In contrast to the \c std::set or <tt>std::map erase()</tt> method
+        -: 1885:it removes values equal to these passed as a range. Furthermore this method removes only
+        -: 1886:one value for each one passed in the range, not all equal values.
+        -: 1887:
+        -: 1888:It calls <tt>rtree::remove(ConvertibleOrRange const&)</tt>.
+        -: 1889:
+        -: 1890:\ingroup rtree_functions
+        -: 1891:
+        -: 1892:\param tree                 The spatial index.
+        -: 1893:\param conv_or_rng      The object of type convertible to value_type or the range of values.
+        -: 1894:
+        -: 1895:\return         The number of removed values.
+        -: 1896:*/
+        -: 1897:template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 1898:         typename ConvertibleOrRange>
+        -: 1899:inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+        -: 1900:remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+        -: 1901:       ConvertibleOrRange const& conv_or_rng)
+        -: 1902:{
+        -: 1903:    return tree.remove(conv_or_rng);
+        -: 1904:}
+        -: 1905:
+        -: 1906:/*!
+        -: 1907:\brief Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box.
+        -: 1908:
+        -: 1909:This query function performs spatial and k-nearest neighbor searches. It allows to pass a set of predicates.
+        -: 1910:Values will be returned only if all predicates are met.
+        -: 1911:
+        -: 1912:<b>Spatial predicates</b>
+        -: 1913:    
+        -: 1914:Spatial predicates may be generated by one of the functions listed below:
+        -: 1915:\li \c boost::geometry::index::contains(),
+        -: 1916:\li \c boost::geometry::index::covered_by(),
+        -: 1917:\li \c boost::geometry::index::covers(),
+        -: 1918:\li \c boost::geometry::index::disjoint(),
+        -: 1919:\li \c boost::geometry::index::intersects(),
+        -: 1920:\li \c boost::geometry::index::overlaps(),
+        -: 1921:\li \c boost::geometry::index::within(),
+        -: 1922:
+        -: 1923:It is possible to negate spatial predicates:
+        -: 1924:\li <tt>! boost::geometry::index::contains()</tt>,
+        -: 1925:\li <tt>! boost::geometry::index::covered_by()</tt>,
+        -: 1926:\li <tt>! boost::geometry::index::covers()</tt>,
+        -: 1927:\li <tt>! boost::geometry::index::disjoint()</tt>,
+        -: 1928:\li <tt>! boost::geometry::index::intersects()</tt>,
+        -: 1929:\li <tt>! boost::geometry::index::overlaps()</tt>,
+        -: 1930:\li <tt>! boost::geometry::index::within()</tt>
+        -: 1931:
+        -: 1932:<b>Satisfies predicate</b>
+        -: 1933:
+        -: 1934:This is a special kind of predicate which allows to pass a user-defined function or function object which checks
+        -: 1935:if Value should be returned by the query. It's generated by:
+        -: 1936:\li \c boost::geometry::index::satisfies().
+        -: 1937:
+        -: 1938:<b>Nearest predicate</b>
+        -: 1939:
+        -: 1940:If the nearest predicate is passed a k-nearest neighbor search will be performed. This query will result
+        -: 1941:in returning k values to the output iterator. Only one nearest predicate may be passed to the query.
+        -: 1942:It may be generated by:
+        -: 1943:\li \c boost::geometry::index::nearest().
+        -: 1944:        
+        -: 1945:<b>Connecting predicates</b>
+        -: 1946:
+        -: 1947:Predicates may be passed together connected with \c operator&&().
+        -: 1948:
+        -: 1949:\par Example
+        -: 1950:\verbatim
+        -: 1951:// return elements intersecting box
+        -: 1952:bgi::query(tree, bgi::intersects(box), std::back_inserter(result));
+        -: 1953:// return elements intersecting poly but not within box
+        -: 1954:bgi::query(tree, bgi::intersects(poly) && !bgi::within(box), std::back_inserter(result));
+        -: 1955:// return elements overlapping box and meeting my_fun value predicate
+        -: 1956:bgi::query(tree, bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
+        -: 1957:// return 5 elements nearest to pt and elements are intersecting box
+        -: 1958:bgi::query(tree, bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
+        -: 1959:
+        -: 1960:// For each found value do_something (it is a type of function object)
+        -: 1961:tree.query(bgi::intersects(box),
+        -: 1962:           boost::make_function_output_iterator(do_something()));
+        -: 1963:\endverbatim
+        -: 1964:
+        -: 1965:\par Throws
+        -: 1966:If Value copy constructor or copy assignment throws.
+        -: 1967:
+        -: 1968:\warning
+        -: 1969:Only one \c nearest() predicate may be passed to the query. Passing more of them results in compile-time error.
+        -: 1970:
+        -: 1971:\ingroup rtree_functions
+        -: 1972:
+        -: 1973:\param tree         The rtree.
+        -: 1974:\param predicates   Predicates.
+        -: 1975:\param out_it       The output iterator, e.g. generated by std::back_inserter().
+        -: 1976:
+        -: 1977:\return             The number of values found.
+        -: 1978:*/
+        -: 1979:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 1980:          typename Predicates, typename OutIter> inline
+        -: 1981:typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+        -: 1982:query(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
+        -: 1983:      Predicates const& predicates,
+        -: 1984:      OutIter out_it)
+        -: 1985:{
+        -: 1986:    return tree.query(predicates, out_it);
+        -: 1987:}
+        -: 1988:
+        -: 1989:/*!
+        -: 1990:\brief Returns the query iterator pointing at the begin of the query range.
+        -: 1991:
+        -: 1992:This method returns the iterator which may be used to perform iterative queries. For the information
+        -: 1993:about the predicates which may be passed to this method see query().
+        -: 1994:    
+        -: 1995:\par Example
+        -: 1996:\verbatim
+        -: 1997:std::for_each(bgi::qbegin(tree, bgi::nearest(pt, 3)), bgi::qend(tree), do_something());
+        -: 1998:\endverbatim
+        -: 1999:
+        -: 2000:\par Iterator category
+        -: 2001:ForwardIterator
+        -: 2002:
+        -: 2003:\par Throws
+        -: 2004:If predicates copy throws.
+        -: 2005:If allocation throws.
+        -: 2006:
+        -: 2007:\warning
+        -: 2008:The modification of the rtree may invalidate the iterators.
+        -: 2009:
+        -: 2010:\ingroup rtree_functions
+        -: 2011:
+        -: 2012:\param tree         The rtree.
+        -: 2013:\param predicates   Predicates.
+        -: 2014:    
+        -: 2015:\return             The iterator pointing at the begin of the query range.
+        -: 2016:*/
+        -: 2017:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+        -: 2018:          typename Predicates> inline
+        -: 2019:typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_query_iterator
+        -: 2020:qbegin(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
+        -: 2021:       Predicates const& predicates)
+        -: 2022:{
+        -: 2023:    return tree.qbegin(predicates);
+        -: 2024:}
+        -: 2025:
+        -: 2026:/*!
+        -: 2027:\brief Returns the query iterator pointing at the end of the query range.
+        -: 2028:
+        -: 2029:This method returns the iterator which may be used to check if the query has ended.
+        -: 2030:    
+        -: 2031:\par Example
+        -: 2032:\verbatim
+        -: 2033:std::for_each(bgi::qbegin(tree, bgi::nearest(pt, 3)), bgi::qend(tree), do_something());
+        -: 2034:\endverbatim
+        -: 2035:
+        -: 2036:\par Iterator category
+        -: 2037:ForwardIterator
+        -: 2038:
+        -: 2039:\par Throws
+        -: 2040:Nothing
+        -: 2041:
+        -: 2042:\warning
+        -: 2043:The modification of the rtree may invalidate the iterators.
+        -: 2044:
+        -: 2045:\ingroup rtree_functions
+        -: 2046:    
+        -: 2047:\return             The iterator pointing at the end of the query range.
+        -: 2048:*/
+        -: 2049:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+        -: 2050:typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_query_iterator
+        -: 2051:qend(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2052:{
+        -: 2053:    return tree.qend();
+        -: 2054:}
+        -: 2055:
+        -: 2056:/*!
+        -: 2057:\brief Returns the iterator pointing at the begin of the rtree values range.
+        -: 2058:
+        -: 2059:This method returns the iterator which may be used to iterate over all values
+        -: 2060:stored in the rtree.
+        -: 2061:
+        -: 2062:\par Example
+        -: 2063:\verbatim
+        -: 2064:std::for_each(bgi::begin(tree), bgi::end(tree), do_something());
+        -: 2065:// the same as
+        -: 2066:std::for_each(boost::begin(tree), boost::end(tree), do_something());
+        -: 2067:\endverbatim
+        -: 2068:
+        -: 2069:\par Iterator category
+        -: 2070:ForwardIterator
+        -: 2071:
+        -: 2072:\par Throws
+        -: 2073:If allocation throws.
+        -: 2074:
+        -: 2075:\warning
+        -: 2076:The modification of the rtree may invalidate the iterators.
+        -: 2077:
+        -: 2078:\ingroup rtree_functions
+        -: 2079:
+        -: 2080:\return             The iterator pointing at the begin of the range.
+        -: 2081:*/
+        -: 2082:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+        -: 2083:typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_iterator
+        -: 2084:begin(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2085:{
+        -: 2086:    return tree.begin();
+        -: 2087:}
+        -: 2088:
+        -: 2089:/*!
+        -: 2090:\brief Returns the iterator pointing at the end of the rtree values range.
+        -: 2091:
+        -: 2092:This method returns the iterator which may be compared with the iterator returned by begin()
+        -: 2093:in order to check if the iteration has ended.
+        -: 2094:
+        -: 2095:\par Example
+        -: 2096:\verbatim
+        -: 2097:std::for_each(bgi::begin(tree), bgi::end(tree), do_something());
+        -: 2098:// the same as
+        -: 2099:std::for_each(boost::begin(tree), boost::end(tree), do_something());
+        -: 2100:\endverbatim
+        -: 2101:
+        -: 2102:\par Iterator category
+        -: 2103:ForwardIterator
+        -: 2104:
+        -: 2105:\par Throws
+        -: 2106:Nothing.
+        -: 2107:
+        -: 2108:\warning
+        -: 2109:The modification of the rtree may invalidate the iterators.
+        -: 2110:
+        -: 2111:\ingroup rtree_functions
+        -: 2112:
+        -: 2113:\return             The iterator pointing at the end of the range.
+        -: 2114:*/
+        -: 2115:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+        -: 2116:typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_iterator
+        -: 2117:end(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2118:{
+        -: 2119:    return tree.end();
+        -: 2120:}
+        -: 2121:
+        -: 2122:/*!
+        -: 2123:\brief Remove all values from the index.
+        -: 2124:
+        -: 2125:It calls \c rtree::clear().
+        -: 2126:
+        -: 2127:\ingroup rtree_functions
+        -: 2128:
+        -: 2129:\param tree     The spatial index.
+        -: 2130:*/
+        -: 2131:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2132:inline void clear(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree)
+        -: 2133:{
+        -: 2134:    return tree.clear();
+        -: 2135:}
+        -: 2136:
+        -: 2137:/*!
+        -: 2138:\brief Get the number of values stored in the index.
+        -: 2139:
+        -: 2140:It calls \c rtree::size().
+        -: 2141:
+        -: 2142:\ingroup rtree_functions
+        -: 2143:
+        -: 2144:\param tree     The spatial index.
+        -: 2145:
+        -: 2146:\return         The number of values stored in the index.
+        -: 2147:*/
+        -: 2148:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2149:inline size_t size(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2150:{
+        -: 2151:    return tree.size();
+        -: 2152:}
+        -: 2153:
+        -: 2154:/*!
+        -: 2155:\brief Query if there are no values stored in the index.
+        -: 2156:
+        -: 2157:It calls \c rtree::empty().
+        -: 2158:
+        -: 2159:\ingroup rtree_functions
+        -: 2160:
+        -: 2161:\param tree     The spatial index.
+        -: 2162:
+        -: 2163:\return         true if there are no values in the index.
+        -: 2164:*/
+        -: 2165:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2166:inline bool empty(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2167:{
+        -: 2168:    return tree.bounds();
+        -: 2169:}
+        -: 2170:
+        -: 2171:/*!
+        -: 2172:\brief Get the box containing all stored values or an invalid box if the index has no values.
+        -: 2173:
+        -: 2174:It calls \c rtree::envelope().
+        -: 2175:
+        -: 2176:\ingroup rtree_functions
+        -: 2177:
+        -: 2178:\param tree     The spatial index.
+        -: 2179:
+        -: 2180:\return         The box containing all stored values or an invalid box.
+        -: 2181:*/
+        -: 2182:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2183:inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::bounds_type
+        -: 2184:bounds(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+        -: 2185:{
+        -: 2186:    return tree.bounds();
+        -: 2187:}
+        -: 2188:
+        -: 2189:/*!
+        -: 2190:\brief Exchanges the contents of the container with those of other.
+        -: 2191:
+        -: 2192:It calls \c rtree::swap().
+        -: 2193:
+        -: 2194:\ingroup rtree_functions
+        -: 2195:
+        -: 2196:\param l     The first rtree.
+        -: 2197:\param r     The second rtree.
+        -: 2198:*/
+        -: 2199:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2200:inline void swap(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & l,
+        -: 2201:                 rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & r)
+        -: 2202:{
+        -: 2203:    return l.swap(r);
+        -: 2204:}
+        -: 2205:
+        -: 2206:}}} // namespace boost::geometry::index
+        -: 2207:
+        -: 2208:// Boost.Range adaptation
+        -: 2209:namespace boost {
+        -: 2210:
+        -: 2211:template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+        -: 2212:struct range_mutable_iterator
+        -: 2213:    <
+        -: 2214:        boost::geometry::index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>
+        -: 2215:    >
+        -: 2216:{
+        -: 2217:    typedef typename boost::geometry::index::rtree
+        -: 2218:        <
+        -: 2219:            Value, Parameters, IndexableGetter, EqualTo, Allocator
+        -: 2220:        >::const_iterator type;
+        -: 2221:};
+        -: 2222:
+        -: 2223:} // namespace boost
+        -: 2224:
+        -: 2225:#include <boost/geometry/index/detail/config_end.hpp>
+        -: 2226:
+        -: 2227:#endif // BOOST_GEOMETRY_INDEX_RTREE_HPP

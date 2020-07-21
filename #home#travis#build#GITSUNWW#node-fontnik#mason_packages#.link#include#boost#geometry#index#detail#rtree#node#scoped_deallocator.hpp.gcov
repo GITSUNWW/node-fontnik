@@ -1,0 +1,63 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/node/scoped_deallocator.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree scoped deallocator
+        -:    4://
+        -:    5:// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_SCOPED_DEALLOCATOR_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_SCOPED_DEALLOCATOR_HPP
+        -:   13:
+        -:   14:namespace boost { namespace geometry { namespace index {
+        -:   15:
+        -:   16:namespace detail { namespace rtree {
+        -:   17:
+        -:   18:template <typename Alloc>
+        -:   19:class scoped_deallocator
+        -:   20:{
+        -:   21:    typedef boost::container::allocator_traits<Alloc> alloc_traits;
+        -:   22:
+        -:   23:    scoped_deallocator(scoped_deallocator const&);
+        -:   24:    scoped_deallocator & operator=(scoped_deallocator const&);
+        -:   25:public:
+        -:   26:    typedef typename alloc_traits::pointer pointer;
+        -:   27:
+function _ZN5boost8geometry5index6detail5rtree18scoped_deallocatorINS_9container13new_allocatorINS_7variantINS3_12variant_leafISt4pairINS0_5model3boxINSA_5pointIfLm2ENS0_2cs9cartesianEEEEES9_ISF_SF_EENS1_5rstarILm16ELm4ELm4ELm32EEESG_NS3_10allocatorsINS6_ISI_EESI_SK_SG_NS3_23node_variant_static_tagEEESN_EEJNS3_21variant_internal_nodeISI_SK_SG_SO_SN_EEEEEEEEC2EPSS_RST_ called 7950 returned 100% blocks executed 100%
+     7950:   28:    inline scoped_deallocator(pointer p, Alloc & a)
+     7950:   29:        : m_ptr(p), m_alloc(a)
+     7950:   30:    {}
+function _ZN5boost8geometry5index6detail5rtree18scoped_deallocatorINS_9container13new_allocatorINS_7variantINS3_12variant_leafISt4pairINS0_5model3boxINSA_5pointIfLm2ENS0_2cs9cartesianEEEEES9_ISF_SF_EENS1_5rstarILm16ELm4ELm4ELm32EEESG_NS3_10allocatorsINS6_ISI_EESI_SK_SG_NS3_23node_variant_static_tagEEESN_EEJNS3_21variant_internal_nodeISI_SK_SG_SO_SN_EEEEEEEED2Ev called 7950 returned 100% blocks executed 50%
+     7950:   31:    inline ~scoped_deallocator()
+        -:   32:    {
+     7950:   33:        if ( m_ptr )
+branch  0 taken 0%
+branch  1 taken 100%
+        -:   34:        {
+    #####:   35:            alloc_traits::deallocate(m_alloc, m_ptr, 1);
+branch  0 never executed
+branch  1 never executed
+    #####:   36:        }
+     7950:   37:    }
+function _ZN5boost8geometry5index6detail5rtree18scoped_deallocatorINS_9container13new_allocatorINS_7variantINS3_12variant_leafISt4pairINS0_5model3boxINSA_5pointIfLm2ENS0_2cs9cartesianEEEEES9_ISF_SF_EENS1_5rstarILm16ELm4ELm4ELm32EEESG_NS3_10allocatorsINS6_ISI_EESI_SK_SG_NS3_23node_variant_static_tagEEESN_EEJNS3_21variant_internal_nodeISI_SK_SG_SO_SN_EEEEEEEE7releaseEv called 7950 returned 100% blocks executed 100%
+     7950:   38:    inline void release()
+        -:   39:    {
+     7950:   40:        m_ptr = 0;
+     7950:   41:    }
+        -:   42:private:
+        -:   43:    pointer m_ptr;
+        -:   44:    Alloc & m_alloc;
+        -:   45:};
+        -:   46:
+        -:   47:}} // namespace detail::rtree
+        -:   48:
+        -:   49:}}} // namespace boost::geometry::index
+        -:   50:
+        -:   51:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_SCOPED_DEALLOCATOR_HPP

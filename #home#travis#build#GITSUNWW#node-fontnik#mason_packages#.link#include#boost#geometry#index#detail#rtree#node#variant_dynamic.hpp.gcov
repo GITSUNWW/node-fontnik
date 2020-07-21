@@ -1,0 +1,329 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/node/variant_dynamic.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree nodes based on Boost.Variant, storing dynamic-size containers
+        -:    4://
+        -:    5:// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP
+        -:   13:
+        -:   14:#include <boost/core/pointer_traits.hpp>
+        -:   15:
+        -:   16:namespace boost { namespace geometry { namespace index {
+        -:   17:
+        -:   18:namespace detail { namespace rtree {
+        -:   19:
+        -:   20:// nodes default types
+        -:   21:
+        -:   22:template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+function _ZN5boost8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS1_5rstarILm16ELm4ELm4ELm32EEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SG_SC_NS3_23node_variant_static_tagEEESL_ED2Ev called 2646 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS1_5rstarILm16ELm4ELm4ELm32EEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SG_SC_NS3_23node_variant_static_tagEEESL_EC2EOSN_ called 1323 returned 100% blocks executed 100%
+     3969:   23:struct variant_internal_node
+        -:   24:{
+        -:   25:    typedef rtree::ptr_pair<Box, typename Allocators::node_pointer> element_type;
+        -:   26:    typedef typename boost::container::allocator_traits
+        -:   27:        <
+        -:   28:            typename Allocators::node_allocator_type
+        -:   29:        >::template rebind_alloc<element_type> allocator_type;
+        -:   30:
+        -:   31:    typedef boost::container::vector<element_type, allocator_type> elements_type;
+        -:   32:
+        -:   33:    template <typename Al>
+        -:   34:    inline variant_internal_node(Al const& al)
+        -:   35:        : elements(allocator_type(al))
+        -:   36:    {}
+        -:   37:
+        -:   38:    elements_type elements;
+        -:   39:};
+        -:   40:
+        -:   41:template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+function _ZN5boost8geometry5index6detail5rtree12variant_leafISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS1_5rstarILm16ELm4ELm4ELm32EEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SG_SC_NS3_23node_variant_static_tagEEESL_ED2Ev called 13254 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree12variant_leafISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS1_5rstarILm16ELm4ELm4ELm32EEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SG_SC_NS3_23node_variant_static_tagEEESL_EC2EOSN_ called 6627 returned 100% blocks executed 100%
+    19881:   42:struct variant_leaf
+        -:   43:{
+        -:   44:    typedef typename boost::container::allocator_traits
+        -:   45:        <
+        -:   46:            typename Allocators::node_allocator_type
+        -:   47:        >::template rebind_alloc<Value> allocator_type;
+        -:   48:
+        -:   49:    typedef boost::container::vector<Value, allocator_type> elements_type;
+        -:   50:
+        -:   51:    template <typename Al>
+        -:   52:    inline variant_leaf(Al const& al)
+        -:   53:        : elements(allocator_type(al))
+        -:   54:    {}
+        -:   55:
+        -:   56:    elements_type elements;
+        -:   57:};
+        -:   58:
+        -:   59:// nodes traits
+        -:   60:
+        -:   61:template <typename Value, typename Parameters, typename Box, typename Allocators>
+        -:   62:struct node<Value, Parameters, Box, Allocators, node_variant_dynamic_tag>
+        -:   63:{
+        -:   64:    typedef boost::variant<
+        -:   65:        variant_leaf<Value, Parameters, Box, Allocators, node_variant_dynamic_tag>,
+        -:   66:        variant_internal_node<Value, Parameters, Box, Allocators, node_variant_dynamic_tag>
+        -:   67:    > type;
+        -:   68:};
+        -:   69:
+        -:   70:template <typename Value, typename Parameters, typename Box, typename Allocators>
+        -:   71:struct internal_node<Value, Parameters, Box, Allocators, node_variant_dynamic_tag>
+        -:   72:{
+        -:   73:    typedef variant_internal_node<Value, Parameters, Box, Allocators, node_variant_dynamic_tag> type;
+        -:   74:};
+        -:   75:
+        -:   76:template <typename Value, typename Parameters, typename Box, typename Allocators>
+        -:   77:struct leaf<Value, Parameters, Box, Allocators, node_variant_dynamic_tag>
+        -:   78:{
+        -:   79:    typedef variant_leaf<Value, Parameters, Box, Allocators, node_variant_dynamic_tag> type;
+        -:   80:};
+        -:   81:
+        -:   82:// visitor traits
+        -:   83:
+        -:   84:template <typename Value, typename Parameters, typename Box, typename Allocators, bool IsVisitableConst>
+        -:   85:struct visitor<Value, Parameters, Box, Allocators, node_variant_dynamic_tag, IsVisitableConst>
+        -:   86:{
+        -:   87:    typedef static_visitor<> type;
+        -:   88:};
+        -:   89:
+        -:   90:// allocators
+        -:   91:
+        -:   92:template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
+        -:   93:struct node_alloc
+        -:   94:{
+        -:   95:    typedef typename node
+        -:   96:        <
+        -:   97:            Value, Parameters, Box,
+        -:   98:            allocators<Allocator, Value, Parameters, Box, Tag>,
+        -:   99:            Tag
+        -:  100:        >::type node_type;
+        -:  101:
+        -:  102:    typedef typename boost::container::allocator_traits
+        -:  103:        <
+        -:  104:            Allocator
+        -:  105:        >::template rebind_alloc<node_type> type;
+        -:  106:
+        -:  107:    typedef boost::container::allocator_traits<type> traits;
+        -:  108:};
+        -:  109:
+        -:  110:
+        -:  111:template <typename Allocator, typename Value, typename Parameters, typename Box>
+        -:  112:class allocators<Allocator, Value, Parameters, Box, node_variant_dynamic_tag>
+        -:  113:    : public detail::rtree::node_alloc
+        -:  114:        <
+        -:  115:            Allocator, Value, Parameters, Box, node_variant_dynamic_tag
+        -:  116:        >::type
+        -:  117:{
+        -:  118:    typedef detail::rtree::node_alloc
+        -:  119:        <
+        -:  120:            Allocator, Value, Parameters, Box, node_variant_dynamic_tag
+        -:  121:        > node_alloc;
+        -:  122:
+        -:  123:public:
+        -:  124:    typedef typename node_alloc::type node_allocator_type;
+        -:  125:    typedef typename node_alloc::traits::pointer node_pointer;
+        -:  126:
+        -:  127:private:
+        -:  128:    typedef typename boost::container::allocator_traits
+        -:  129:        <
+        -:  130:            node_allocator_type // node_allocator_type for consistency with variant_leaf
+        -:  131:        >::template rebind_alloc<Value> value_allocator_type;
+        -:  132:    typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
+        -:  133:    
+        -:  134:
+        -:  135:public:
+        -:  136:    typedef Allocator allocator_type;
+        -:  137:
+        -:  138:    typedef Value value_type;
+        -:  139:    typedef typename value_allocator_traits::reference reference;
+        -:  140:    typedef typename value_allocator_traits::const_reference const_reference;
+        -:  141:    typedef typename value_allocator_traits::size_type size_type;
+        -:  142:    typedef typename value_allocator_traits::difference_type difference_type;
+        -:  143:    typedef typename value_allocator_traits::pointer pointer;
+        -:  144:    typedef typename value_allocator_traits::const_pointer const_pointer;
+        -:  145:
+        -:  146:    inline allocators()
+        -:  147:        : node_allocator_type()
+        -:  148:    {}
+        -:  149:
+        -:  150:    template <typename Alloc>
+        -:  151:    inline explicit allocators(Alloc const& alloc)
+        -:  152:        : node_allocator_type(alloc)
+        -:  153:    {}
+        -:  154:
+        -:  155:    inline allocators(BOOST_FWD_REF(allocators) a)
+        -:  156:        : node_allocator_type(boost::move(a.node_allocator()))
+        -:  157:    {}
+        -:  158:
+        -:  159:    inline allocators & operator=(BOOST_FWD_REF(allocators) a)
+        -:  160:    {
+        -:  161:        node_allocator() = boost::move(a.node_allocator());
+        -:  162:        return *this;
+        -:  163:    }
+        -:  164:
+        -:  165:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  166:    inline allocators & operator=(allocators const& a)
+        -:  167:    {
+        -:  168:        node_allocator() = a.node_allocator();
+        -:  169:        return *this;
+        -:  170:    }
+        -:  171:#endif
+        -:  172:
+        -:  173:    void swap(allocators & a)
+        -:  174:    {
+        -:  175:        boost::swap(node_allocator(), a.node_allocator());
+        -:  176:    }
+        -:  177:
+        -:  178:    bool operator==(allocators const& a) const { return node_allocator() == a.node_allocator(); }
+        -:  179:    template <typename Alloc>
+        -:  180:    bool operator==(Alloc const& a) const { return node_allocator() == node_allocator_type(a); }
+        -:  181:
+        -:  182:    Allocator allocator() const { return Allocator(node_allocator()); }
+        -:  183:
+        -:  184:    node_allocator_type & node_allocator() { return *this; }
+        -:  185:    node_allocator_type const& node_allocator() const { return *this; }
+        -:  186:};
+        -:  187:
+        -:  188:// create_node_variant
+        -:  189:
+        -:  190:template <typename VariantPtr, typename Node>
+        -:  191:struct create_variant_node
+        -:  192:{
+        -:  193:    template <typename AllocNode>
+function _ZN5boost8geometry5index6detail5rtree19create_variant_nodeIPNS_7variantINS3_12variant_leafISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SI_SE_NS3_23node_variant_static_tagEEESN_EEJNS3_21variant_internal_nodeISG_SI_SE_SO_SN_EEEEESP_E5applyINSL_ISS_EEEEST_RT_ called 6626 returned 100% blocks executed 54%
+function _ZN5boost8geometry5index6detail5rtree19create_variant_nodeIPNS_7variantINS3_12variant_leafISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SI_SE_NS3_23node_variant_static_tagEEESN_EEJNS3_21variant_internal_nodeISG_SI_SE_SO_SN_EEEEESR_E5applyINSL_ISS_EEEEST_RT_ called 1323 returned 100% blocks executed 54%
+     7949:  194:    static inline VariantPtr apply(AllocNode & alloc_node)
+        -:  195:    {
+        -:  196:        typedef boost::container::allocator_traits<AllocNode> Al;
+        -:  197:        typedef typename Al::pointer P;
+        -:  198:
+     7949:  199:        P p = Al::allocate(alloc_node, 1);
+        -:  200:
+     7949:  201:        if ( 0 == p )
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 0%
+branch  3 taken 100%
+    #####:  202:            throw_runtime_error("boost::geometry::index::rtree node creation failed");
+        -:  203:
+     7950:  204:        scoped_deallocator<AllocNode> deallocator(p, alloc_node);
+        -:  205:
+     7950:  206:        Al::construct(alloc_node, boost::to_address(p), Node(alloc_node)); // implicit cast to Variant
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 taken 100%
+branch  5 taken 0%
+branch  6 taken 100%
+branch  7 taken 0%
+        -:  207:
+     7950:  208:        deallocator.release();
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+     7950:  209:        return p;
+     7950:  210:    }
+        -:  211:};
+        -:  212:
+        -:  213:// destroy_node_variant
+        -:  214:
+        -:  215:template <typename Node>
+        -:  216:struct destroy_variant_node
+        -:  217:{
+        -:  218:    template <typename AllocNode, typename VariantPtr>
+function _ZN5boost8geometry5index6detail5rtree20destroy_variant_nodeINS3_12variant_leafISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EENS1_5rstarILm16ELm4ELm4ELm32EEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS3_23node_variant_static_tagEEESM_EEE5applyINSK_INS_7variantISO_JNS3_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEEEEPSU_EEvRT_T0_ called 6627 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree20destroy_variant_nodeINS3_21variant_internal_nodeISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EENS1_5rstarILm16ELm4ELm4ELm32EEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS3_23node_variant_static_tagEEESM_EEE5applyINSK_INS_7variantINS3_12variant_leafISF_SH_SD_SN_SM_EEJSO_EEEEEPSU_EEvRT_T0_ called 1323 returned 100% blocks executed 100%
+     7950:  219:    static inline void apply(AllocNode & alloc_node, VariantPtr n)
+        -:  220:    {
+        -:  221:        typedef boost::container::allocator_traits<AllocNode> Al;
+        -:  222:
+     7950:  223:        Al::destroy(alloc_node, boost::addressof(*n));
+     7950:  224:        Al::deallocate(alloc_node, n, 1);
+     7950:  225:    }
+        -:  226:};
+        -:  227:
+        -:  228:// create_node
+        -:  229:
+        -:  230:template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+        -:  231:struct create_node<
+        -:  232:    Allocators,
+        -:  233:    variant_internal_node<Value, Parameters, Box, Allocators, Tag>
+        -:  234:>
+        -:  235:{
+        -:  236:    static inline typename Allocators::node_pointer
+function _ZN5boost8geometry5index6detail5rtree11create_nodeINS3_10allocatorsINS_9container13new_allocatorISt4pairINS0_5model3boxINS9_5pointIfLm2ENS0_2cs9cartesianEEEEES8_ISE_SE_EEEESH_NS1_5rstarILm16ELm4ELm4ELm32EEESF_NS3_23node_variant_static_tagEEENS3_21variant_internal_nodeISH_SK_SF_SM_SL_EEE5applyERSM_ called 1323 returned 100% blocks executed 100%
+     1323:  237:    apply(Allocators & allocators)
+        -:  238:    {
+     1323:  239:        return create_variant_node<
+        -:  240:            typename Allocators::node_pointer,
+        -:  241:            variant_internal_node<Value, Parameters, Box, Allocators, Tag>
+     1323:  242:        >::apply(allocators.node_allocator());
+        -:  243:    }
+        -:  244:};
+        -:  245:
+        -:  246:template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+        -:  247:struct create_node<
+        -:  248:    Allocators,
+        -:  249:    variant_leaf<Value, Parameters, Box, Allocators, Tag>
+        -:  250:>
+        -:  251:{
+        -:  252:    static inline typename Allocators::node_pointer
+function _ZN5boost8geometry5index6detail5rtree11create_nodeINS3_10allocatorsINS_9container13new_allocatorISt4pairINS0_5model3boxINS9_5pointIfLm2ENS0_2cs9cartesianEEEEES8_ISE_SE_EEEESH_NS1_5rstarILm16ELm4ELm4ELm32EEESF_NS3_23node_variant_static_tagEEENS3_12variant_leafISH_SK_SF_SM_SL_EEE5applyERSM_ called 6627 returned 100% blocks executed 100%
+     6627:  253:    apply(Allocators & allocators)
+        -:  254:    {
+     6627:  255:        return create_variant_node<
+        -:  256:            typename Allocators::node_pointer,
+        -:  257:            variant_leaf<Value, Parameters, Box, Allocators, Tag>
+     6627:  258:        >::apply(allocators.node_allocator());
+        -:  259:    }
+        -:  260:};
+        -:  261:
+        -:  262:// destroy_node
+        -:  263:
+        -:  264:template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+        -:  265:struct destroy_node<
+        -:  266:    Allocators,
+        -:  267:    variant_internal_node<Value, Parameters, Box, Allocators, Tag>
+        -:  268:>
+        -:  269:{
+function _ZN5boost8geometry5index6detail5rtree12destroy_nodeINS3_10allocatorsINS_9container13new_allocatorISt4pairINS0_5model3boxINS9_5pointIfLm2ENS0_2cs9cartesianEEEEES8_ISE_SE_EEEESH_NS1_5rstarILm16ELm4ELm4ELm32EEESF_NS3_23node_variant_static_tagEEENS3_21variant_internal_nodeISH_SK_SF_SM_SL_EEE5applyERSM_PNS_7variantINS3_12variant_leafISH_SK_SF_SM_SL_EEJSO_EEE called 1323 returned 100% blocks executed 100%
+     1323:  270:    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
+        -:  271:    {
+     1323:  272:        destroy_variant_node<
+        -:  273:            variant_internal_node<Value, Parameters, Box, Allocators, Tag>
+     1323:  274:        >::apply(allocators.node_allocator(), n);
+     1323:  275:    }
+        -:  276:};
+        -:  277:
+        -:  278:template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+        -:  279:struct destroy_node<
+        -:  280:    Allocators,
+        -:  281:    variant_leaf<Value, Parameters, Box, Allocators, Tag>
+        -:  282:>
+        -:  283:{
+function _ZN5boost8geometry5index6detail5rtree12destroy_nodeINS3_10allocatorsINS_9container13new_allocatorISt4pairINS0_5model3boxINS9_5pointIfLm2ENS0_2cs9cartesianEEEEES8_ISE_SE_EEEESH_NS1_5rstarILm16ELm4ELm4ELm32EEESF_NS3_23node_variant_static_tagEEENS3_12variant_leafISH_SK_SF_SM_SL_EEE5applyERSM_PNS_7variantISO_JNS3_21variant_internal_nodeISH_SK_SF_SM_SL_EEEEE called 6627 returned 100% blocks executed 100%
+     6627:  284:    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
+        -:  285:    {
+     6627:  286:        destroy_variant_node<
+        -:  287:            variant_leaf<Value, Parameters, Box, Allocators, Tag>
+     6627:  288:        >::apply(allocators.node_allocator(), n);
+     6627:  289:    }
+        -:  290:};
+        -:  291:
+        -:  292:}} // namespace detail::rtree
+        -:  293:
+        -:  294:}}} // namespace boost::geometry::index
+        -:  295:
+        -:  296:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP

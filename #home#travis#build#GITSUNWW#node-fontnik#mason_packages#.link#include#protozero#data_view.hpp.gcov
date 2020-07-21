@@ -1,0 +1,250 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/protozero/data_view.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef PROTOZERO_DATA_VIEW_HPP
+        -:    2:#define PROTOZERO_DATA_VIEW_HPP
+        -:    3:
+        -:    4:/*****************************************************************************
+        -:    5:
+        -:    6:protozero - Minimalistic protocol buffer decoder and encoder in C++.
+        -:    7:
+        -:    8:This file is from https://github.com/mapbox/protozero where you can find more
+        -:    9:documentation.
+        -:   10:
+        -:   11:*****************************************************************************/
+        -:   12:
+        -:   13:/**
+        -:   14: * @file data_view.hpp
+        -:   15: *
+        -:   16: * @brief Contains the implementation of the data_view class.
+        -:   17: */
+        -:   18:
+        -:   19:#include <protozero/config.hpp>
+        -:   20:
+        -:   21:#include <algorithm>
+        -:   22:#include <cstddef>
+        -:   23:#include <cstring>
+        -:   24:#include <string>
+        -:   25:#include <utility>
+        -:   26:
+        -:   27:namespace protozero {
+        -:   28:
+        -:   29:#ifdef PROTOZERO_USE_VIEW
+        -:   30:using data_view = PROTOZERO_USE_VIEW;
+        -:   31:#else
+        -:   32:
+        -:   33:/**
+        -:   34: * Holds a pointer to some data and a length.
+        -:   35: *
+        -:   36: * This class is supposed to be compatible with the std::string_view
+        -:   37: * that will be available in C++17.
+        -:   38: */
+        -:   39:class data_view {
+        -:   40:
+        4:   41:    const char* m_data = nullptr;
+        4:   42:    std::size_t m_size = 0;
+        -:   43:
+        -:   44:public:
+        -:   45:
+        -:   46:    /**
+        -:   47:     * Default constructor. Construct an empty data_view.
+        -:   48:     */
+function _ZN9protozero9data_viewC2Ev called 4 returned 100% blocks executed 100%
+        4:   49:    constexpr data_view() noexcept = default;
+        -:   50:
+        -:   51:    /**
+        -:   52:     * Create data_view from pointer and size.
+        -:   53:     *
+        -:   54:     * @param ptr Pointer to the data.
+        -:   55:     * @param length Length of the data.
+        -:   56:     */
+function _ZN9protozero9data_viewC2EPKcm called 386 returned 100% blocks executed 100%
+      386:   57:    constexpr data_view(const char* ptr, std::size_t length) noexcept
+      386:   58:        : m_data{ptr},
+      386:   59:          m_size{length} {
+      386:   60:    }
+        -:   61:
+        -:   62:    /**
+        -:   63:     * Create data_view from string.
+        -:   64:     *
+        -:   65:     * @param str String with the data.
+        -:   66:     */
+        -:   67:    data_view(const std::string& str) noexcept // NOLINT(google-explicit-constructor, hicpp-explicit-conversions)
+        -:   68:        : m_data{str.data()},
+        -:   69:          m_size{str.size()} {
+        -:   70:    }
+        -:   71:
+        -:   72:    /**
+        -:   73:     * Create data_view from zero-terminated string.
+        -:   74:     *
+        -:   75:     * @param ptr Pointer to the data.
+        -:   76:     */
+        -:   77:    data_view(const char* ptr) noexcept // NOLINT(google-explicit-constructor, hicpp-explicit-conversions)
+        -:   78:        : m_data{ptr},
+        -:   79:          m_size{std::strlen(ptr)} {
+        -:   80:    }
+        -:   81:
+        -:   82:    /**
+        -:   83:     * Swap the contents of this object with the other.
+        -:   84:     *
+        -:   85:     * @param other Other object to swap data with.
+        -:   86:     */
+        -:   87:    void swap(data_view& other) noexcept {
+        -:   88:        using std::swap;
+        -:   89:        swap(m_data, other.m_data);
+        -:   90:        swap(m_size, other.m_size);
+        -:   91:    }
+        -:   92:
+        -:   93:    /// Return pointer to data.
+function _ZNK9protozero9data_view4dataEv called 1116 returned 100% blocks executed 100%
+     1116:   94:    constexpr const char* data() const noexcept {
+     1116:   95:        return m_data;
+        -:   96:    }
+        -:   97:
+        -:   98:    /// Return length of data in bytes.
+function _ZNK9protozero9data_view4sizeEv called 736 returned 100% blocks executed 100%
+      736:   99:    constexpr std::size_t size() const noexcept {
+      736:  100:        return m_size;
+        -:  101:    }
+        -:  102:
+        -:  103:    /// Returns true if size is 0.
+        -:  104:    constexpr bool empty() const noexcept {
+        -:  105:        return m_size == 0;
+        -:  106:    }
+        -:  107:
+        -:  108:#ifndef PROTOZERO_STRICT_API
+        -:  109:    /**
+        -:  110:     * Convert data view to string.
+        -:  111:     *
+        -:  112:     * @pre Must not be default constructed data_view.
+        -:  113:     *
+        -:  114:     * @deprecated to_string() is not available in C++17 string_view so it
+        -:  115:     *             should not be used to make conversion to that class easier
+        -:  116:     *             in the future.
+        -:  117:     */
+        -:  118:    std::string to_string() const {
+        -:  119:        protozero_assert(m_data);
+        -:  120:        return {m_data, m_size};
+        -:  121:    }
+        -:  122:#endif
+        -:  123:
+        -:  124:    /**
+        -:  125:     * Convert data view to string.
+        -:  126:     *
+        -:  127:     * @pre Must not be default constructed data_view.
+        -:  128:     */
+function _ZNK9protozero9data_viewcvSsEv called 6 returned 100% blocks executed 55%
+        6:  129:    explicit operator std::string() const {
+        6:  130:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+        6:  131:        return {m_data, m_size};
+branch  0 taken 100%
+branch  1 taken 0%
+    #####:  132:    }
+        -:  133:
+        -:  134:    /**
+        -:  135:     * Compares the contents of this object with the given other object.
+        -:  136:     *
+        -:  137:     * @returns 0 if they are the same, <0 if this object is smaller than
+        -:  138:     *          the other or >0 if it is larger. If both objects have the
+        -:  139:     *          same size returns <0 if this object is lexicographically
+        -:  140:     *          before the other, >0 otherwise.
+        -:  141:     *
+        -:  142:     * @pre Must not be default constructed data_view.
+        -:  143:     */
+        -:  144:    int compare(data_view other) const noexcept {
+        -:  145:        assert(m_data && other.m_data);
+        -:  146:        const int cmp = std::memcmp(data(), other.data(),
+        -:  147:                                    std::min(size(), other.size()));
+        -:  148:        if (cmp == 0) {
+        -:  149:            if (size() == other.size()) {
+        -:  150:                return 0;
+        -:  151:            }
+        -:  152:            return size() < other.size() ? -1 : 1;
+        -:  153:        }
+        -:  154:        return cmp;
+        -:  155:    }
+        -:  156:
+        -:  157:}; // class data_view
+        -:  158:
+        -:  159:/**
+        -:  160: * Swap two data_view objects.
+        -:  161: *
+        -:  162: * @param lhs First object.
+        -:  163: * @param rhs Second object.
+        -:  164: */
+        -:  165:inline void swap(data_view& lhs, data_view& rhs) noexcept {
+        -:  166:    lhs.swap(rhs);
+        -:  167:}
+        -:  168:
+        -:  169:/**
+        -:  170: * Two data_view instances are equal if they have the same size and the
+        -:  171: * same content.
+        -:  172: *
+        -:  173: * @param lhs First object.
+        -:  174: * @param rhs Second object.
+        -:  175: */
+        -:  176:inline constexpr bool operator==(const data_view lhs, const data_view rhs) noexcept {
+        -:  177:    return lhs.size() == rhs.size() &&
+        -:  178:           std::equal(lhs.data(), lhs.data() + lhs.size(), rhs.data());
+        -:  179:}
+        -:  180:
+        -:  181:/**
+        -:  182: * Two data_view instances are not equal if they have different sizes or the
+        -:  183: * content differs.
+        -:  184: *
+        -:  185: * @param lhs First object.
+        -:  186: * @param rhs Second object.
+        -:  187: */
+        -:  188:inline constexpr bool operator!=(const data_view lhs, const data_view rhs) noexcept {
+        -:  189:    return !(lhs == rhs);
+        -:  190:}
+        -:  191:
+        -:  192:/**
+        -:  193: * Returns true if lhs.compare(rhs) < 0.
+        -:  194: *
+        -:  195: * @param lhs First object.
+        -:  196: * @param rhs Second object.
+        -:  197: */
+        -:  198:inline bool operator<(const data_view lhs, const data_view rhs) noexcept {
+        -:  199:    return lhs.compare(rhs) < 0;
+        -:  200:}
+        -:  201:
+        -:  202:/**
+        -:  203: * Returns true if lhs.compare(rhs) <= 0.
+        -:  204: *
+        -:  205: * @param lhs First object.
+        -:  206: * @param rhs Second object.
+        -:  207: */
+        -:  208:inline bool operator<=(const data_view lhs, const data_view rhs) noexcept {
+        -:  209:    return lhs.compare(rhs) <= 0;
+        -:  210:}
+        -:  211:
+        -:  212:/**
+        -:  213: * Returns true if lhs.compare(rhs) > 0.
+        -:  214: *
+        -:  215: * @param lhs First object.
+        -:  216: * @param rhs Second object.
+        -:  217: */
+        -:  218:inline bool operator>(const data_view lhs, const data_view rhs) noexcept {
+        -:  219:    return lhs.compare(rhs) > 0;
+        -:  220:}
+        -:  221:
+        -:  222:/**
+        -:  223: * Returns true if lhs.compare(rhs) >= 0.
+        -:  224: *
+        -:  225: * @param lhs First object.
+        -:  226: * @param rhs Second object.
+        -:  227: */
+        -:  228:inline bool operator>=(const data_view lhs, const data_view rhs) noexcept {
+        -:  229:    return lhs.compare(rhs) >= 0;
+        -:  230:}
+        -:  231:
+        -:  232:#endif
+        -:  233:
+        -:  234:} // end namespace protozero
+        -:  235:
+        -:  236:#endif // PROTOZERO_DATA_VIEW_HPP

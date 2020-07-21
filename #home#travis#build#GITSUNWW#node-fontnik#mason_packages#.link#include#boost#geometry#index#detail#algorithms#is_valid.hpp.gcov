@@ -1,0 +1,102 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/algorithms/is_valid.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// n-dimensional Indexable validity check
+        -:    4://
+        -:    5:// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_IS_VALID_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_IS_VALID_HPP
+        -:   13:
+        -:   14:#include <cstddef>
+        -:   15:#include <boost/geometry/core/access.hpp>
+        -:   16:
+        -:   17:namespace boost { namespace geometry { namespace index { namespace detail {
+        -:   18:
+        -:   19:namespace dispatch {
+        -:   20:
+        -:   21:template <typename Box,
+        -:   22:          std::size_t Dimension = geometry::dimension<Box>::value>
+        -:   23:struct is_valid_box
+        -:   24:{
+function _ZN5boost8geometry5index6detail8dispatch12is_valid_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEELm2EE5applyERKSB_ called 68008 returned 100% blocks executed 100%
+    68008:   25:    static inline bool apply(Box const& b)
+        -:   26:    {
+   136017:   27:        return is_valid_box<Box, Dimension - 1>::apply(b) &&
+branch  0 taken 100%
+branch  1 taken 0%
+    68009:   28:            ( get<min_corner, Dimension - 1>(b) <= get<max_corner, Dimension - 1>(b) );
+        -:   29:    }
+        -:   30:};
+        -:   31:
+        -:   32:template <typename Box>
+        -:   33:struct is_valid_box<Box, 1>
+        -:   34:{
+function _ZN5boost8geometry5index6detail8dispatch12is_valid_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEELm1EE5applyERKSB_ called 68009 returned 100% blocks executed 100%
+    68009:   35:    static inline bool apply(Box const& b)
+        -:   36:    {
+    68009:   37:        return get<min_corner, 0>(b) <= get<max_corner, 0>(b);
+        -:   38:    }
+        -:   39:};
+        -:   40:
+        -:   41:template <typename Indexable,
+        -:   42:          typename Tag = typename geometry::tag<Indexable>::type>
+        -:   43:struct is_valid
+        -:   44:{
+        -:   45:    BOOST_MPL_ASSERT_MSG(
+        -:   46:        (false),
+        -:   47:        NOT_IMPLEMENTED_FOR_THIS_INDEXABLE,
+        -:   48:        (is_valid));
+        -:   49:};
+        -:   50:
+        -:   51:template <typename Indexable>
+        -:   52:struct is_valid<Indexable, point_tag>
+        -:   53:{
+        -:   54:    static inline bool apply(Indexable const&)
+        -:   55:    {
+        -:   56:        return true;
+        -:   57:    }
+        -:   58:};
+        -:   59:
+        -:   60:template <typename Indexable>
+        -:   61:struct is_valid<Indexable, box_tag>
+        -:   62:{
+function _ZN5boost8geometry5index6detail8dispatch8is_validINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEENS0_7box_tagEE5applyERKSB_ called 68007 returned 100% blocks executed 100%
+    68007:   63:    static inline bool apply(Indexable const& b)
+        -:   64:    {
+    68007:   65:        return dispatch::is_valid_box<Indexable>::apply(b);
+        -:   66:    }
+        -:   67:};
+        -:   68:
+        -:   69:template <typename Indexable>
+        -:   70:struct is_valid<Indexable, segment_tag>
+        -:   71:{
+        -:   72:    static inline bool apply(Indexable const&)
+        -:   73:    {
+        -:   74:        return true;
+        -:   75:    }
+        -:   76:};
+        -:   77:
+        -:   78:} // namespace dispatch
+        -:   79:
+        -:   80:template <typename Indexable>
+function _ZN5boost8geometry5index6detail8is_validINS0_5model3boxINS4_5pointIfLm2ENS0_2cs9cartesianEEEEEEEbRKT_ called 68007 returned 100% blocks executed 100%
+    68007:   81:inline bool is_valid(Indexable const& b)
+        -:   82:{
+        -:   83:    // CONSIDER: detection of NaNs
+        -:   84:    // e.g. by comparison of b with copy of b
+        -:   85:
+    68007:   86:    return dispatch::is_valid<Indexable>::apply(b);
+        -:   87:}
+        -:   88:
+        -:   89:}}}} // namespace boost::geometry::index::detail
+        -:   90:
+        -:   91:#endif // BOOST_GEOMETRY_DETAIL_INDEX_ALGORITHMS_IS_VALID_HPP

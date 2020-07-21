@@ -1,0 +1,138 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/core/coordinate_dimension.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+        -:    4:// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    5:// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+        -:    6:
+        -:    7:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:    8:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:    9:
+        -:   10:// Use, modification and distribution is subject to the Boost Software License,
+        -:   11:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   12:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   13:
+        -:   14:#ifndef BOOST_GEOMETRY_CORE_COORDINATE_DIMENSION_HPP
+        -:   15:#define BOOST_GEOMETRY_CORE_COORDINATE_DIMENSION_HPP
+        -:   16:
+        -:   17:
+        -:   18:#include <cstddef>
+        -:   19:
+        -:   20:#include <boost/mpl/assert.hpp>
+        -:   21:#include <boost/static_assert.hpp>
+        -:   22:
+        -:   23:#include <boost/geometry/core/point_type.hpp>
+        -:   24:#include <boost/geometry/util/bare_type.hpp>
+        -:   25:
+        -:   26:namespace boost { namespace geometry
+        -:   27:{
+        -:   28:
+        -:   29:namespace traits
+        -:   30:{
+        -:   31:
+        -:   32:/*!
+        -:   33:\brief Traits class indicating the number of dimensions of a point
+        -:   34:\par Geometries:
+        -:   35:    - point
+        -:   36:\par Specializations should provide:
+        -:   37:    - value (should be derived from boost::mpl::int_<D>
+        -:   38:\ingroup traits
+        -:   39:*/
+        -:   40:template <typename Point, typename Enable = void>
+        -:   41:struct dimension
+        -:   42:{
+        -:   43:   BOOST_MPL_ASSERT_MSG
+        -:   44:        (
+        -:   45:            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Point>)
+        -:   46:        );
+        -:   47:};
+        -:   48:
+        -:   49:} // namespace traits
+        -:   50:
+        -:   51:#ifndef DOXYGEN_NO_DISPATCH
+        -:   52:namespace core_dispatch
+        -:   53:{
+        -:   54:
+        -:   55:// Base class derive from its own specialization of point-tag
+        -:   56:template <typename T, typename G>
+        -:   57:struct dimension : dimension<point_tag, typename point_type<T, G>::type> {};
+        -:   58:
+        -:   59:template <typename P>
+        -:   60:struct dimension<point_tag, P>
+        -:   61:    : traits::dimension<typename geometry::util::bare_type<P>::type>
+        -:   62:{
+        -:   63:    BOOST_MPL_ASSERT_MSG(
+        -:   64:        (traits::dimension<typename geometry::util::bare_type<P>::type>::value > 0),
+        -:   65:        INVALID_DIMENSION_VALUE,
+        -:   66:        (traits::dimension<typename geometry::util::bare_type<P>::type>)
+        -:   67:    );
+        -:   68:};
+        -:   69:
+        -:   70:} // namespace core_dispatch
+        -:   71:#endif
+        -:   72:
+        -:   73:/*!
+        -:   74:\brief \brief_meta{value, number of coordinates (the number of axes of any geometry), \meta_point_type}
+        -:   75:\tparam Geometry \tparam_geometry
+        -:   76:\ingroup core
+        -:   77:
+        -:   78:\qbk{[include reference/core/coordinate_dimension.qbk]}
+        -:   79:*/
+        -:   80:template <typename Geometry>
+        -:   81:struct dimension
+        -:   82:    : core_dispatch::dimension
+        -:   83:        <
+        -:   84:            typename tag<Geometry>::type,
+        -:   85:            typename geometry::util::bare_type<Geometry>::type
+        -:   86:        >
+        -:   87:{};
+        -:   88:
+        -:   89:/*!
+        -:   90:\brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
+        -:   91:\ingroup utility
+        -:   92:*/
+        -:   93:template <typename Geometry, int Dimensions>
+        -:   94:inline void assert_dimension()
+        -:   95:{
+        -:   96:    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::value) == Dimensions ));
+        -:   97:}
+        -:   98:
+        -:   99:/*!
+        -:  100:\brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
+        -:  101:\ingroup utility
+        -:  102:*/
+        -:  103:template <typename Geometry, int Dimensions>
+        -:  104:inline void assert_dimension_less_equal()
+        -:  105:{
+        -:  106:    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) <= Dimensions ));
+        -:  107:}
+        -:  108:
+        -:  109:template <typename Geometry, int Dimensions>
+        -:  110:inline void assert_dimension_greater_equal()
+        -:  111:{
+        -:  112:    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) >= Dimensions ));
+        -:  113:}
+        -:  114:
+        -:  115:/*!
+        -:  116:\brief assert_dimension_equal, enables compile-time checking if coordinate dimensions of two geometries are equal
+        -:  117:\ingroup utility
+        -:  118:*/
+        -:  119:template <typename G1, typename G2>
+function _ZN5boost8geometry22assert_dimension_equalIKNS0_5model5pointIfLm2ENS0_2cs9cartesianEEES6_EEvv called 1523781 returned 100% blocks executed 100%
+function _ZN5boost8geometry22assert_dimension_equalIKNS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEES9_EEvv called 23929827 returned 100% blocks executed 100%
+function _ZN5boost8geometry22assert_dimension_equalIKNS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEES8_EEvv called 1002577 returned 100% blocks executed 100%
+function _ZN5boost8geometry22assert_dimension_equalINS0_5model5pointIfLm2ENS0_2cs9cartesianEEEKNS2_3boxIS6_EEEEvv called 97146 returned 100% blocks executed 100%
+function _ZN5boost8geometry22assert_dimension_equalINS0_5model5pointIfLm2ENS0_2cs9cartesianEEES6_EEvv called 91749 returned 100% blocks executed 100%
+function _ZN5boost8geometry22assert_dimension_equalINS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEKS8_EEvv called 3497364 returned 100% blocks executed 100%
+ 30142444:  120:inline void assert_dimension_equal()
+        -:  121:{
+        -:  122:    BOOST_STATIC_ASSERT(( static_cast<size_t>(dimension<G1>::type::value) == static_cast<size_t>(dimension<G2>::type::value) ));
+ 30142444:  123:}
+        -:  124:
+        -:  125:}} // namespace boost::geometry
+        -:  126:
+        -:  127:#endif // BOOST_GEOMETRY_CORE_COORDINATE_DIMENSION_HPP
