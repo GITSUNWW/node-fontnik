@@ -24,4 +24,9 @@ function output2pbf(font, start, end, outputDir) {
     });
 }
 
-convert("./fonts/open-sans/OpenSans-Regular.ttf", "./fonts/open-sans/");
+convert("./fonts/msyh/msyh.ttc", "./fonts/msyh/");
+convert("./fonts/msyhbd/msyhbd.ttc", "./fonts/msyhbd/");
+convert("./fonts/msyhl/msyhl.ttc", "./fonts/msyhl/");
+convert("./fonts/simfang/simfang.ttf", "./fonts/simfang/");
+convert("./fonts/simhei/simhei.ttf", "./fonts/simhei/");
+convert("./fonts/simsun/simsun.ttc", "./fonts/simsun/");

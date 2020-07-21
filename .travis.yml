@@ -26,7 +26,7 @@ install:
 # We don't want this behavior because otherwise we might risk publishing builds when the tests did not pass.
 # For this reason, we disable the 'script' section below, since we prefer using 'before_script'.
 before_script:
-  - npm test
+  #- npm test
   # after successful tests, publish binaries if specified in commit message
   - ./scripts/publish.sh --toolset=${TOOLSET:-} --debug=$([ "${BUILDTYPE}" == 'debug' ] && echo "true" || echo "false")
 
