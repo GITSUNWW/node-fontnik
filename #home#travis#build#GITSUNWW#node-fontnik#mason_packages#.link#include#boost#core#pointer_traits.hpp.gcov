@@ -1,0 +1,239 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/core/pointer_traits.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:Copyright 2017-2018 Glen Joseph Fernandes
+        -:    3:(glenjofe@gmail.com)
+        -:    4:
+        -:    5:Distributed under the Boost Software License, Version 1.0.
+        -:    6:(http://www.boost.org/LICENSE_1_0.txt)
+        -:    7:*/
+        -:    8:#ifndef BOOST_CORE_POINTER_TRAITS_HPP
+        -:    9:#define BOOST_CORE_POINTER_TRAITS_HPP
+        -:   10:
+        -:   11:#include <boost/config.hpp>
+        -:   12:#if !defined(BOOST_NO_CXX11_POINTER_TRAITS)
+        -:   13:#include <memory>
+        -:   14:#else
+        -:   15:#include <boost/core/addressof.hpp>
+        -:   16:#endif
+        -:   17:
+        -:   18:namespace boost {
+        -:   19:
+        -:   20:#if !defined(BOOST_NO_CXX11_POINTER_TRAITS)
+        -:   21:template<class T>
+        -:   22:struct pointer_traits
+        -:   23:    : std::pointer_traits<T> {
+        -:   24:    template<class U>
+        -:   25:    struct rebind_to {
+        -:   26:        typedef typename std::pointer_traits<T>::template rebind<U> type;
+        -:   27:    };
+        -:   28:};
+        -:   29:
+        -:   30:template<class T>
+        -:   31:struct pointer_traits<T*>
+        -:   32:    : std::pointer_traits<T*> {
+        -:   33:    template<class U>
+        -:   34:    struct rebind_to {
+        -:   35:        typedef U* type;
+        -:   36:    };
+        -:   37:};
+        -:   38:#else
+        -:   39:namespace detail {
+        -:   40:
+        -:   41:template<class>
+        -:   42:struct ptr_void {
+        -:   43:    typedef void type;
+        -:   44:};
+        -:   45:
+        -:   46:template<class T>
+        -:   47:struct ptr_first;
+        -:   48:
+        -:   49:#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+        -:   50:template<template<class, class...> class T, class U, class... Args>
+        -:   51:struct ptr_first<T<U, Args...> > {
+        -:   52:    typedef U type;
+        -:   53:};
+        -:   54:#else
+        -:   55:template<template<class> class T, class U>
+        -:   56:struct ptr_first<T<U> > {
+        -:   57:    typedef U type;
+        -:   58:};
+        -:   59:
+        -:   60:template<template<class, class> class T, class U1, class U2>
+        -:   61:struct ptr_first<T<U1, U2> > {
+        -:   62:    typedef U1 type;
+        -:   63:};
+        -:   64:
+        -:   65:template<template<class, class, class> class T, class U1, class U2, class U3>
+        -:   66:struct ptr_first<T<U1, U2, U3> > {
+        -:   67:    typedef U1 type;
+        -:   68:};
+        -:   69:#endif
+        -:   70:
+        -:   71:template<class T, class = void>
+        -:   72:struct ptr_element {
+        -:   73:    typedef typename ptr_first<T>::type type;
+        -:   74:};
+        -:   75:
+        -:   76:template<class T>
+        -:   77:struct ptr_element<T, typename ptr_void<typename T::element_type>::type> {
+        -:   78:    typedef typename T::element_type type;
+        -:   79:};
+        -:   80:
+        -:   81:template<class, class = void>
+        -:   82:struct ptr_difference {
+        -:   83:    typedef std::ptrdiff_t type;
+        -:   84:};
+        -:   85:
+        -:   86:template<class T>
+        -:   87:struct ptr_difference<T,
+        -:   88:    typename ptr_void<typename T::difference_type>::type> {
+        -:   89:    typedef typename T::difference_type type;
+        -:   90:};
+        -:   91:
+        -:   92:template<class T, class V>
+        -:   93:struct ptr_transform;
+        -:   94:
+        -:   95:#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+        -:   96:template<template<class, class...> class T, class U, class... Args, class V>
+        -:   97:struct ptr_transform<T<U, Args...>, V> {
+        -:   98:    typedef T<V, Args...> type;
+        -:   99:};
+        -:  100:#else
+        -:  101:template<template<class> class T, class U, class V>
+        -:  102:struct ptr_transform<T<U>, V> {
+        -:  103:    typedef T<V> type;
+        -:  104:};
+        -:  105:
+        -:  106:template<template<class, class> class T, class U1, class U2, class V>
+        -:  107:struct ptr_transform<T<U1, U2>, V> {
+        -:  108:    typedef T<V, U2> type;
+        -:  109:};
+        -:  110:
+        -:  111:template<template<class, class, class> class T,
+        -:  112:    class U1, class U2, class U3, class V>
+        -:  113:struct ptr_transform<T<U1, U2, U3>, V> {
+        -:  114:    typedef T<V, U2, U3> type;
+        -:  115:};
+        -:  116:#endif
+        -:  117:
+        -:  118:template<class T, class U, class = void>
+        -:  119:struct ptr_rebind {
+        -:  120:    typedef typename ptr_transform<T, U>::type type;
+        -:  121:};
+        -:  122:
+        -:  123:#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+        -:  124:template<class T, class U>
+        -:  125:struct ptr_rebind<T, U,
+        -:  126:    typename ptr_void<typename T::template rebind<U> >::type> {
+        -:  127:    typedef typename T::template rebind<U> type;
+        -:  128:};
+        -:  129:#endif
+        -:  130:
+        -:  131:template<class T>
+        -:  132:struct ptr_value {
+        -:  133:    typedef T type;
+        -:  134:};
+        -:  135:
+        -:  136:template<>
+        -:  137:struct ptr_value<void> {
+        -:  138:    typedef struct { } type;
+        -:  139:};
+        -:  140:
+        -:  141:} /* detail */
+        -:  142:
+        -:  143:template<class T>
+        -:  144:struct pointer_traits {
+        -:  145:    typedef T pointer;
+        -:  146:    typedef typename detail::ptr_element<T>::type element_type;
+        -:  147:    typedef typename detail::ptr_difference<T>::type difference_type;
+        -:  148:    template<class U>
+        -:  149:    struct rebind_to {
+        -:  150:        typedef typename detail::ptr_rebind<T, U>::type type;
+        -:  151:    };
+        -:  152:#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+        -:  153:    template<class U>
+        -:  154:    using rebind = typename detail::ptr_rebind<T, U>::type;
+        -:  155:#endif
+        -:  156:    static pointer
+        -:  157:    pointer_to(typename detail::ptr_value<element_type>::type& v) {
+        -:  158:        return pointer::pointer_to(v);
+        -:  159:    }
+        -:  160:};
+        -:  161:
+        -:  162:template<class T>
+        -:  163:struct pointer_traits<T*> {
+        -:  164:    typedef T* pointer;
+        -:  165:    typedef T element_type;
+        -:  166:    typedef std::ptrdiff_t difference_type;
+        -:  167:    template<class U>
+        -:  168:    struct rebind_to {
+        -:  169:        typedef U* type;
+        -:  170:    };
+        -:  171:#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+        -:  172:    template<class U>
+        -:  173:    using rebind = U*;
+        -:  174:#endif
+        -:  175:    static T*
+        -:  176:    pointer_to(typename detail::ptr_value<T>::type& v) BOOST_NOEXCEPT {
+        -:  177:        return boost::addressof(v);
+        -:  178:    }
+        -:  179:};
+        -:  180:#endif
+        -:  181:
+        -:  182:template<class T>
+        -:  183:BOOST_CONSTEXPR inline T*
+function _ZN5boost10to_addressINS_7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS2_5model3boxINS8_5pointIfLm2ENS2_2cs9cartesianEEEEES7_ISD_SD_EENS3_5rstarILm16ELm4ELm4ELm32EEESE_NS5_10allocatorsINS_9container13new_allocatorISG_EESG_SI_SE_NS5_23node_variant_static_tagEEESN_EEJNS5_21variant_internal_nodeISG_SI_SE_SO_SN_EEEEEEEPT_SU_ called 7950 returned 100% blocks executed 100%
+     7950:  184:to_address(T* v) BOOST_NOEXCEPT
+        -:  185:{
+     7950:  186:    return v;
+        -:  187:}
+        -:  188:
+        -:  189:#if !defined(BOOST_NO_CXX14_RETURN_TYPE_DEDUCTION)
+        -:  190:namespace detail {
+        -:  191:
+        -:  192:template<class T>
+        -:  193:inline T*
+        -:  194:ptr_address(T* v, int) BOOST_NOEXCEPT
+        -:  195:{
+        -:  196:    return v;
+        -:  197:}
+        -:  198:
+        -:  199:template<class T>
+        -:  200:inline auto
+        -:  201:ptr_address(const T& v, int) BOOST_NOEXCEPT
+        -:  202:-> decltype(boost::pointer_traits<T>::to_address(v))
+        -:  203:{
+        -:  204:    return boost::pointer_traits<T>::to_address(v);
+        -:  205:}
+        -:  206:
+        -:  207:template<class T>
+        -:  208:inline auto
+        -:  209:ptr_address(const T& v, long) BOOST_NOEXCEPT
+        -:  210:{
+        -:  211:    return boost::detail::ptr_address(v.operator->(), 0);
+        -:  212:}
+        -:  213:
+        -:  214:} /* detail */
+        -:  215:
+        -:  216:template<class T>
+        -:  217:inline auto
+        -:  218:to_address(const T& v) BOOST_NOEXCEPT
+        -:  219:{
+        -:  220:    return boost::detail::ptr_address(v, 0);
+        -:  221:}
+        -:  222:#else
+        -:  223:template<class T>
+        -:  224:inline typename pointer_traits<T>::element_type*
+        -:  225:to_address(const T& v) BOOST_NOEXCEPT
+        -:  226:{
+        -:  227:    return boost::to_address(v.operator->());
+        -:  228:}
+        -:  229:#endif
+        -:  230:
+        -:  231:} /* boost */
+        -:  232:
+        -:  233:#endif

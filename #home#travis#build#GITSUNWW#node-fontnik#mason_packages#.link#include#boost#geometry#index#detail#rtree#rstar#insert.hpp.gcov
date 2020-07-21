@@ -1,0 +1,956 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/rstar/insert.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree R*-tree insert algorithm implementation
+        -:    4://
+        -:    5:// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
+        -:   13:
+        -:   14:#include <boost/geometry/index/detail/algorithms/content.hpp>
+        -:   15:
+        -:   16:namespace boost { namespace geometry { namespace index {
+        -:   17:
+        -:   18:namespace detail { namespace rtree { namespace visitors {
+        -:   19:
+        -:   20:namespace rstar {
+        -:   21:
+        -:   22:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+        -:   23:class remove_elements_to_reinsert
+        -:   24:{
+        -:   25:public:
+        -:   26:    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:   27:    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:   28:    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:   29:
+        -:   30:    typedef typename Options::parameters_type parameters_type;
+        -:   31:
+        -:   32:    //typedef typename Allocators::internal_node_pointer internal_node_pointer;
+        -:   33:    typedef internal_node * internal_node_pointer;
+        -:   34:
+        -:   35:    template <typename ResultElements, typename Node>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar27remove_elements_to_reinsertISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE5applyINS2_6varrayISG_Lm17EEENS3_12variant_leafISG_SJ_SE_S10_SO_EEEEvRT_RT0_PNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEmRKSJ_RKSV_RS10_ called 5397 returned 100% blocks executed 65%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar27remove_elements_to_reinsertISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE5applyINS2_6varrayINS3_8ptr_pairISE_PNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEEEELm17EEES19_EEvRT_RT0_PS19_mRKSJ_RKSV_RS10_ called 0 returned 0% blocks executed 0%
+     5397:   36:    static inline void apply(ResultElements & result_elements,
+        -:   37:                             Node & n,
+        -:   38:                             internal_node_pointer parent,
+        -:   39:                             size_t current_child_index,
+        -:   40:                             parameters_type const& parameters,
+        -:   41:                             Translator const& translator,
+        -:   42:                             Allocators & allocators)
+        -:   43:    {
+        -:   44:        typedef typename rtree::elements_type<Node>::type elements_type;
+        -:   45:        typedef typename elements_type::value_type element_type;
+        -:   46:        typedef typename geometry::point_type<Box>::type point_type;
+        -:   47:        // TODO: awulkiew - change second point_type to the point type of the Indexable?
+        -:   48:        typedef typename
+        -:   49:            geometry::default_comparable_distance_result<point_type>::type
+        -:   50:                comparable_distance_type;
+        -:   51:
+     5397:   52:        elements_type & elements = rtree::elements(n);
+        -:   53:
+     5397:   54:        const size_t elements_count = parameters.get_max_elements() + 1;
+     5397:   55:        const size_t reinserted_elements_count = (::std::min)(parameters.get_reinserted_elements(), elements_count - parameters.get_min_elements());
+        -:   56:
+     5397:   57:        BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+     5397:   58:        BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected elements number");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+     5397:   59:        BOOST_GEOMETRY_INDEX_ASSERT(0 < reinserted_elements_count, "wrong value of elements to reinsert");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+        -:   60:
+        -:   61:        // calculate current node's center
+        -:   62:        point_type node_center;
+     5397:   63:        geometry::centroid(rtree::elements(*parent)[current_child_index].first, node_center);
+        -:   64:
+        -:   65:        // fill the container of centers' distances of children from current node's center
+        -:   66:        typedef typename index::detail::rtree::container_from_elements_type<
+        -:   67:            elements_type,
+        -:   68:            std::pair<comparable_distance_type, element_type>
+        -:   69:        >::type sorted_elements_type;
+        -:   70:
+     5397:   71:        sorted_elements_type sorted_elements;
+        -:   72:        // If constructor is used instead of resize() MS implementation leaks here
+     5397:   73:        sorted_elements.reserve(elements_count);                                                         // MAY THROW, STRONG (V, E: alloc, copy)
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+        -:   74:        
+   194292:   75:        for ( typename elements_type::const_iterator it = elements.begin() ;
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 94%
+branch  3 taken 6%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    97146:   76:              it != elements.end() ; ++it )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+        -:   77:        {
+        -:   78:            point_type element_center;
+    91749:   79:            geometry::centroid( rtree::element_indexable(*it, translator), element_center);
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    91749:   80:            sorted_elements.push_back(std::make_pair(
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    91748:   81:                geometry::comparable_distance(node_center, element_center),
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+    91749:   82:                *it));                                                                                  // MAY THROW (V, E: copy)
+    91748:   83:        }
+        -:   84:
+        -:   85:        // sort elements by distances from center
+     5397:   86:        std::partial_sort(
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+     5397:   87:            sorted_elements.begin(),
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+     5397:   88:            sorted_elements.begin() + reinserted_elements_count,
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+     5397:   89:            sorted_elements.end(),
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+        -:   90:            distances_dsc<comparable_distance_type, element_type>);                                                // MAY THROW, BASIC (V, E: copy)
+        -:   91:
+        -:   92:        // copy elements which will be reinserted
+     5397:   93:        result_elements.clear();
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+     5397:   94:        result_elements.reserve(reinserted_elements_count);                                             // MAY THROW, STRONG (V, E: alloc, copy)
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+    53970:   95:        for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() ;
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 80%
+branch  3 taken 20%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    26985:   96:              it != sorted_elements.begin() + reinserted_elements_count ; ++it )
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+        -:   97:        {
+    21588:   98:            result_elements.push_back(it->second);                                                      // MAY THROW (V, E: copy)
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+    21588:   99:        }
+        -:  100:
+        -:  101:        BOOST_TRY
+        -:  102:        {
+        -:  103:            // copy remaining elements to the current node
+     5397:  104:            elements.clear();
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+     5397:  105:            elements.reserve(elements_count - reinserted_elements_count);                                // SHOULDN'T THROW (new_size <= old size)
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+   151116:  106:            for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() + reinserted_elements_count;
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 93%
+branch  3 taken 7%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    75558:  107:                  it != sorted_elements.end() ; ++it )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+        -:  108:            {
+    70161:  109:                elements.push_back(it->second);                                                         // MAY THROW (V, E: copy)
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+    70161:  110:            }
+     5397:  111:        }
+        -:  112:        BOOST_CATCH(...)
+        -:  113:        {
+    #####:  114:            elements.clear();
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  115:
+    #####:  116:            for ( typename sorted_elements_type::iterator it = sorted_elements.begin() ;
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    #####:  117:                  it != sorted_elements.end() ; ++it )
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  118:            {
+    #####:  119:                destroy_element<Value, Options, Translator, Box, Allocators>::apply(it->second, allocators);
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  120:            }
+        -:  121:
+    #####:  122:            BOOST_RETHROW                                                                                 // RETHROW
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  123:        }
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  124:        BOOST_CATCH_END
+        -:  125:
+     5397:  126:        ::boost::ignore_unused_variable_warning(parameters);
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+     5397:  127:    }
+        -:  128:
+        -:  129:private:
+        -:  130:    template <typename Distance, typename El>
+        -:  131:    static inline bool distances_asc(
+        -:  132:        std::pair<Distance, El> const& d1,
+        -:  133:        std::pair<Distance, El> const& d2)
+        -:  134:    {
+        -:  135:        return d1.first < d2.first;
+        -:  136:    }
+        -:  137:    
+        -:  138:    template <typename Distance, typename El>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar27remove_elements_to_reinsertISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE13distances_dscIdSG_EEbRKS7_IT_T0_ES17_ called 178945 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar27remove_elements_to_reinsertISt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE13distances_dscIdNS3_8ptr_pairISE_PNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEEEEEEbRKS7_IT_T0_ES1G_ called 0 returned 0% blocks executed 0%
+   178945:  139:    static inline bool distances_dsc(
+        -:  140:        std::pair<Distance, El> const& d1,
+        -:  141:        std::pair<Distance, El> const& d2)
+        -:  142:    {
+   178945:  143:        return d1.first > d2.first;
+        -:  144:    }
+        -:  145:};
+        -:  146:
+        -:  147:template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Box, typename Allocators>
+        -:  148:struct level_insert_elements_type
+        -:  149:{
+        -:  150:    typedef typename rtree::elements_type<
+        -:  151:        typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
+        -:  152:    >::type type;
+        -:  153:};
+        -:  154:
+        -:  155:template <typename Value, typename Options, typename Box, typename Allocators>
+        -:  156:struct level_insert_elements_type<0, Value, Value, Options, Box, Allocators>
+        -:  157:{
+        -:  158:    typedef typename rtree::elements_type<
+        -:  159:        typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
+        -:  160:    >::type type;
+        -:  161:};
+        -:  162:
+        -:  163:template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEED2Ev called 68007 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_ED2Ev called 0 returned 0% blocks executed 0%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEED2Ev called 21587 returned 100% blocks executed 100%
+    89594:  164:struct level_insert_base
+        -:  165:    : public detail::insert<Element, Value, Options, Translator, Box, Allocators>
+        -:  166:{
+        -:  167:    typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
+        -:  168:    typedef typename base::node node;
+        -:  169:    typedef typename base::internal_node internal_node;
+        -:  170:    typedef typename base::leaf leaf;
+        -:  171:
+        -:  172:    typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box, Allocators>::type elements_type;
+        -:  173:    typedef typename index::detail::rtree::container_from_elements_type<
+        -:  174:        elements_type,
+        -:  175:        typename elements_type::value_type
+        -:  176:    >::type result_elements_type;
+        -:  177:
+        -:  178:    typedef typename Options::parameters_type parameters_type;
+        -:  179:
+        -:  180:    typedef typename Allocators::node_pointer node_pointer;
+        -:  181:    typedef typename Allocators::size_type size_type;
+        -:  182:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEC2ERPNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEERmRKSG_RKSJ_RKSV_RS10_m called 68007 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEC2ERPNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEERmRKSG_RKSJ_RKSV_RS10_m called 21588 returned 100% blocks executed 100%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_EC2ERSW_RmRKSX_RKSL_RKS19_RSR_m called 0 returned 0% blocks executed 0%
+    89595:  183:    inline level_insert_base(node_pointer & root,
+        -:  184:                             size_type & leafs_level,
+        -:  185:                             Element const& element,
+        -:  186:                             parameters_type const& parameters,
+        -:  187:                             Translator const& translator,
+        -:  188:                             Allocators & allocators,
+        -:  189:                             size_type relative_level)
+    89595:  190:        : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
+    89595:  191:        , result_relative_level(0)
+   179190:  192:    {}
+        -:  193:
+        -:  194:    template <typename Node>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE41handle_possible_reinsert_or_split_of_rootINS3_12variant_leafISG_SJ_SE_S10_SO_EEEEvRT_ called 68008 returned 100% blocks executed 73%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE41handle_possible_reinsert_or_split_of_rootINS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEvRT_ called 21588 returned 99% blocks executed 66%
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_E41handle_possible_reinsert_or_split_of_rootISU_EEvRT_ called 0 returned 0% blocks executed 0%
+    89596:  195:    inline void handle_possible_reinsert_or_split_of_root(Node &n)
+        -:  196:    {
+    89596:  197:        BOOST_GEOMETRY_INDEX_ASSERT(result_elements.empty(), "reinsert should be handled only once for level");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 never executed
+branch  5 never executed
+        -:  198:
+    89595:  199:        result_relative_level = base::m_leafs_level - base::m_traverse_data.current_level;
+        -:  200:
+        -:  201:        // overflow
+    89595:  202:        if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
+branch  0 taken 10%
+branch  1 taken 90%
+branch  2 taken 1%
+branch  3 taken 99%
+branch  4 never executed
+branch  5 never executed
+        -:  203:        {
+        -:  204:            // node isn't root node
+     6718:  205:            if ( !base::m_traverse_data.current_is_root() )
+branch  0 taken 80%
+branch  1 taken 20%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 never executed
+branch  5 never executed
+        -:  206:            {
+        -:  207:                // NOTE: exception-safety
+        -:  208:                // After an exception result_elements may contain garbage, don't use it
+     5397:  209:                rstar::remove_elements_to_reinsert<Value, Options, Translator, Box, Allocators>::apply(
+     5397:  210:                    result_elements, n,
+     5397:  211:                    base::m_traverse_data.parent, base::m_traverse_data.current_child_index,
+     5397:  212:                    base::m_parameters, base::m_translator, base::m_allocators);                            // MAY THROW, BASIC (V, E: alloc, copy)
+     5397:  213:            }
+        -:  214:            // node is root node
+        -:  215:            else
+        -:  216:            {
+     1321:  217:                BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<Node>(*base::m_root_node), "node should be the root node");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 never executed
+branch  5 never executed
+     1321:  218:                base::split(n);                                                                             // MAY THROW (V, E: alloc, copy, N: alloc)
+        -:  219:            }
+     6718:  220:        }
+    89593:  221:    }
+        -:  222:
+        -:  223:    template <typename Node>
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE21handle_possible_splitINS3_12variant_leafISG_SJ_SE_S10_SO_EEEEvRT_ called 21588 returned 100% blocks executed 100%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_E21handle_possible_splitISU_EEvRT_ called 0 returned 0% blocks executed 0%
+    21588:  224:    inline void handle_possible_split(Node &n) const
+        -:  225:    {
+        -:  226:        // overflow
+    21588:  227:        if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
+branch  0 taken 17%
+branch  1 taken 83%
+branch  2 never executed
+branch  3 never executed
+        -:  228:        {
+     3634:  229:            base::split(n);                                                                                 // MAY THROW (V, E: alloc, copy, N: alloc)
+     3634:  230:        }
+    21588:  231:    }
+        -:  232:
+        -:  233:    template <typename Node>
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE29recalculate_aabb_if_necessaryINS3_12variant_leafISG_SJ_SE_S10_SO_EEEEvRKT_ called 68007 returned 100% blocks executed 100%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE29recalculate_aabb_if_necessaryINS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEvRKT_ called 41942 returned 100% blocks executed 80%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE29recalculate_aabb_if_necessaryINS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEvRKT_ called 21587 returned 100% blocks executed 60%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_E29recalculate_aabb_if_necessaryISU_EEvRKT_ called 0 returned 0% blocks executed 0%
+   131536:  234:    inline void recalculate_aabb_if_necessary(Node const& n) const
+        -:  235:    {
+   131536:  236:        if ( !result_elements.empty() && !base::m_traverse_data.current_is_root() )
+branch  0 taken 8%
+branch  1 taken 92%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 taken 13%
+branch  5 taken 87%
+branch  6 taken 0%
+branch  7 taken 100%
+branch  8 taken 0%
+branch  9 taken 100%
+branch 10 never executed
+branch 11 never executed
+branch 12 never executed
+branch 13 never executed
+branch 14 never executed
+branch 15 never executed
+        -:  237:        {
+        -:  238:            // calulate node's new box
+     5397:  239:            recalculate_aabb(n);
+     5397:  240:        }
+   131537:  241:    }
+        -:  242:
+        -:  243:    template <typename Node>
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE16recalculate_aabbINS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEvRKT_ called 0 returned 0% blocks executed 0%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE16recalculate_aabbINS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEvRKT_ called 0 returned 0% blocks executed 0%
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_E16recalculate_aabbISU_EEvRKT_ called 0 returned 0% blocks executed 0%
+    #####:  244:    inline void recalculate_aabb(Node const& n) const
+        -:  245:    {
+    #####:  246:        base::m_traverse_data.current_element().first =
+    #####:  247:            elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_translator);
+    #####:  248:    }
+        -:  249:
+function _ZNK5boost8geometry5index6detail5rtree8visitors5rstar17level_insert_baseILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEE16recalculate_aabbERKNS3_12variant_leafISG_SJ_SE_S10_SO_EE called 5397 returned 100% blocks executed 100%
+     5397:  250:    inline void recalculate_aabb(leaf const& n) const
+        -:  251:    {
+     5397:  252:        base::m_traverse_data.current_element().first =
+     5397:  253:            values_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_translator);
+     5397:  254:    }
+        -:  255:
+        -:  256:    size_type result_relative_level;
+        -:  257:    result_elements_type result_elements;
+        -:  258:};
+        -:  259:
+        -:  260:template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_ED2Ev called 0 returned 0% blocks executed 0%
+    #####:  261:struct level_insert
+        -:  262:    : public level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators>
+        -:  263:{
+        -:  264:    typedef level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators> base;
+        -:  265:    typedef typename base::node node;
+        -:  266:    typedef typename base::internal_node internal_node;
+        -:  267:    typedef typename base::leaf leaf;
+        -:  268:
+        -:  269:    typedef typename Options::parameters_type parameters_type;
+        -:  270:
+        -:  271:    typedef typename Allocators::node_pointer node_pointer;
+        -:  272:    typedef typename Allocators::size_type size_type;
+        -:  273:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_EC2ERSW_RmRKSX_RKSL_RKS19_RSR_m called 0 returned 0% blocks executed 0%
+    #####:  274:    inline level_insert(node_pointer & root,
+        -:  275:                        size_type & leafs_level,
+        -:  276:                        Element const& element,
+        -:  277:                        parameters_type const& parameters,
+        -:  278:                        Translator const& translator,
+        -:  279:                        Allocators & allocators,
+        -:  280:                        size_type relative_level)
+    #####:  281:        : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
+    #####:  282:    {}
+        -:  283:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_EclERSU_ called 0 returned 0% blocks executed 0%
+    #####:  284:    inline void operator()(internal_node & n)
+        -:  285:    {
+    #####:  286:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
+branch  0 never executed
+branch  1 never executed
+        -:  287:
+    #####:  288:        if ( base::m_traverse_data.current_level < base::m_level )
+branch  0 never executed
+branch  1 never executed
+        -:  289:        {
+        -:  290:            // next traversing step
+    #####:  291:            base::traverse(*this, n);                                                                       // MAY THROW (E: alloc, copy, N: alloc)
+        -:  292:
+        -:  293:            // further insert
+        -:  294:            if ( 0 < InsertIndex )
+        -:  295:            {
+    #####:  296:                BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
+branch  0 never executed
+branch  1 never executed
+        -:  297:
+    #####:  298:                if ( base::m_traverse_data.current_level == base::m_level - 1 )
+branch  0 never executed
+branch  1 never executed
+        -:  299:                {
+    #####:  300:                    base::handle_possible_reinsert_or_split_of_root(n);                                     // MAY THROW (E: alloc, copy, N: alloc)
+    #####:  301:                }
+        -:  302:            }
+    #####:  303:        }
+        -:  304:        else
+        -:  305:        {
+    #####:  306:            BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
+branch  0 never executed
+branch  1 never executed
+        -:  307:
+        -:  308:            BOOST_TRY
+        -:  309:            {
+        -:  310:                // push new child node
+    #####:  311:                rtree::elements(n).push_back(base::m_element);                                              // MAY THROW, STRONG (E: alloc, copy)
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  312:            }
+        -:  313:            BOOST_CATCH(...)
+        -:  314:            {
+        -:  315:                // NOTE: exception-safety
+        -:  316:                // if the insert fails above, the element won't be stored in the tree, so delete it
+        -:  317:
+    #####:  318:                rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
+branch  0 never executed
+branch  1 never executed
+    #####:  319:                rtree::apply_visitor(del_v, *base::m_element.second);
+branch  0 never executed
+branch  1 never executed
+        -:  320:
+    #####:  321:                BOOST_RETHROW                                                                                 // RETHROW
+branch  0 never executed
+branch  1 never executed
+    #####:  322:            }
+branch  0 never executed
+branch  1 never executed
+        -:  323:            BOOST_CATCH_END
+        -:  324:
+        -:  325:            // first insert
+        -:  326:            if ( 0 == InsertIndex )
+        -:  327:            {
+        -:  328:                base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, copy, N: alloc)
+        -:  329:            }
+        -:  330:            // not the first insert
+        -:  331:            else
+        -:  332:            {
+    #####:  333:                base::handle_possible_split(n);                                                             // MAY THROW (E: alloc, N: alloc)
+        -:  334:            }
+        -:  335:        }
+        -:  336:
+    #####:  337:        base::recalculate_aabb_if_necessary(n);
+    #####:  338:    }
+        -:  339:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS3_8ptr_pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS_7variantINS3_12variant_leafISt4pairISE_SH_ISD_SD_EENS1_5rstarILm16ELm4ELm4ELm32EEESE_NS3_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS3_23node_variant_static_tagEEESQ_EEJNS3_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEESJ_NS3_7optionsISL_NS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagESQ_EENS2_10translatorINS1_9indexableISJ_EENS1_8equal_toISJ_EEEESE_SR_EclERSS_ called 0 returned 0% blocks executed 0%
+    #####:  340:    inline void operator()(leaf &)
+        -:  341:    {
+    #####:  342:        BOOST_GEOMETRY_INDEX_ASSERT(false, "this visitor can't be used for a leaf");
+        -:  343:    }
+        -:  344:};
+        -:  345:
+        -:  346:template <size_t InsertIndex, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEED2Ev called 21587 returned 100% blocks executed 100%
+    21587:  347:struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
+        -:  348:    : public level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
+        -:  349:{
+        -:  350:    typedef level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators> base;
+        -:  351:    typedef typename base::node node;
+        -:  352:    typedef typename base::internal_node internal_node;
+        -:  353:    typedef typename base::leaf leaf;
+        -:  354:
+        -:  355:    typedef typename Options::parameters_type parameters_type;
+        -:  356:
+        -:  357:    typedef typename Allocators::node_pointer node_pointer;
+        -:  358:    typedef typename Allocators::size_type size_type;
+        -:  359:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEC2ERPNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEERmRKSG_RKSJ_RKSV_RS10_m called 21588 returned 100% blocks executed 100%
+    21588:  360:    inline level_insert(node_pointer & root,
+        -:  361:                        size_type & leafs_level,
+        -:  362:                        Value const& v,
+        -:  363:                        parameters_type const& parameters,
+        -:  364:                        Translator const& translator,
+        -:  365:                        Allocators & allocators,
+        -:  366:                        size_type relative_level)
+    21588:  367:        : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
+    43176:  368:    {}
+        -:  369:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEclERNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EE called 21588 returned 99% blocks executed 62%
+    21588:  370:    inline void operator()(internal_node & n)
+        -:  371:    {
+    21588:  372:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
+branch  0 taken 100%
+branch  1 taken 0%
+    21588:  373:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  374:
+        -:  375:        // next traversing step
+    21588:  376:        base::traverse(*this, n);                                                                       // MAY THROW (V, E: alloc, copy, N: alloc)
+        -:  377:
+    21588:  378:        BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  379:        
+    21588:  380:        if ( base::m_traverse_data.current_level == base::m_level - 1 )
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  381:        {
+    21588:  382:            base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, copy, N: alloc)
+    21588:  383:        }
+        -:  384:
+    21586:  385:        base::recalculate_aabb_if_necessary(n);
+    21586:  386:    }
+        -:  387:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEclERNS3_12variant_leafISG_SJ_SE_S10_SO_EE called 21587 returned 100% blocks executed 54%
+    21587:  388:    inline void operator()(leaf & n)
+        -:  389:    {
+    21587:  390:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level,
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  391:                                    "unexpected level");
+    21588:  392:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+        -:  393:                                    base::m_level == (std::numeric_limits<size_t>::max)(),
+        -:  394:                                    "unexpected level");
+        -:  395:        
+    21588:  396:        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (V: alloc, copy)
+        -:  397:
+    21588:  398:        base::handle_possible_split(n);                                                                 // MAY THROW (V: alloc, copy, N: alloc)
+    21588:  399:    }
+        -:  400:};
+        -:  401:
+        -:  402:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEED2Ev called 68008 returned 100% blocks executed 100%
+    68008:  403:struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
+        -:  404:    : public level_insert_base<0, Value, Value, Options, Translator, Box, Allocators>
+        -:  405:{
+        -:  406:    typedef level_insert_base<0, Value, Value, Options, Translator, Box, Allocators> base;
+        -:  407:    typedef typename base::node node;
+        -:  408:    typedef typename base::internal_node internal_node;
+        -:  409:    typedef typename base::leaf leaf;
+        -:  410:
+        -:  411:    typedef typename Options::parameters_type parameters_type;
+        -:  412:
+        -:  413:    typedef typename Allocators::node_pointer node_pointer;
+        -:  414:    typedef typename Allocators::size_type size_type;
+        -:  415:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEC2ERPNS_7variantINS3_12variant_leafISG_SJ_SE_S10_SO_EEJNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EEEEERmRKSG_RKSJ_RKSV_RS10_m called 68008 returned 100% blocks executed 100%
+    68008:  416:    inline level_insert(node_pointer & root,
+        -:  417:                        size_type & leafs_level,
+        -:  418:                        Value const& v,
+        -:  419:                        parameters_type const& parameters,
+        -:  420:                        Translator const& translator,
+        -:  421:                        Allocators & allocators,
+        -:  422:                        size_type relative_level)
+    68008:  423:        : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
+   136016:  424:    {}
+        -:  425:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEclERNS3_21variant_internal_nodeISG_SJ_SE_S10_SO_EE called 41941 returned 100% blocks executed 60%
+    41941:  426:    inline void operator()(internal_node & n)
+        -:  427:    {
+    41941:  428:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level,
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  429:                                    "unexpected level");
+    41943:  430:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level,
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  431:                                    "unexpected level");
+        -:  432:
+        -:  433:        // next traversing step
+    41941:  434:        base::traverse(*this, n);                                                                       // MAY THROW (V: alloc, copy, N: alloc)
+        -:  435:
+    41941:  436:        base::recalculate_aabb_if_necessary(n);
+    41941:  437:    }
+        -:  438:
+function _ZN5boost8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS0_5model3boxINS8_5pointIfLm2ENS0_2cs9cartesianEEEEES7_ISD_SD_EESG_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISG_EENS1_8equal_toISG_EEEESE_NS3_10allocatorsINS_9container13new_allocatorISG_EESG_SJ_SE_SO_EEEclERNS3_12variant_leafISG_SJ_SE_S10_SO_EE called 68009 returned 100% blocks executed 54%
+    68009:  439:    inline void operator()(leaf & n)
+        -:  440:    {
+    68009:  441:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level,
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  442:                                    "unexpected level");
+    68009:  443:        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 never executed
+branch  3 never executed
+        -:  444:                                    base::m_level == (std::numeric_limits<size_t>::max)(),
+        -:  445:                                    "unexpected level");
+        -:  446:
+    68009:  447:        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (V: alloc, copy)
+        -:  448:
+    68009:  449:        base::handle_possible_reinsert_or_split_of_root(n);                                             // MAY THROW (V: alloc, copy, N: alloc)
+        -:  450:        
+    68009:  451:        base::recalculate_aabb_if_necessary(n);
+    68009:  452:    }
+        -:  453:};
+        -:  454:
+        -:  455:} // namespace rstar
+        -:  456:
+        -:  457:// R*-tree insert visitor
+        -:  458:// After passing the Element to insert visitor the Element is managed by the tree
+        -:  459:// I.e. one should not delete the node passed to the insert visitor after exception is thrown
+        -:  460:// because this visitor may delete it
+        -:  461:template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+        -:  462:class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinsert_tag>
+        -:  463:    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
+        -:  464:{
+        -:  465:    typedef typename Options::parameters_type parameters_type;
+        -:  466:
+        -:  467:    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:  468:    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:  469:    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:  470:
+        -:  471:    typedef typename Allocators::node_pointer node_pointer;
+        -:  472:    typedef typename Allocators::size_type size_type;
+        -:  473:
+        -:  474:public:
+function _ZN5boost8geometry5index6detail5rtree8visitors6insertISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EESF_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EESJ_EC2ERPNS_7variantINS3_12variant_leafISF_SI_SD_SZ_SN_EEJNS3_21variant_internal_nodeISF_SI_SD_SZ_SN_EEEEERmRKSF_RKSI_RKSU_RSZ_m called 68008 returned 100% blocks executed 100%
+    68008:  475:    inline insert(node_pointer & root,
+        -:  476:                  size_type & leafs_level,
+        -:  477:                  Element const& element,
+        -:  478:                  parameters_type const& parameters,
+        -:  479:                  Translator const& translator,
+        -:  480:                  Allocators & allocators,
+        -:  481:                  size_type relative_level = 0)
+    68008:  482:        : m_root(root), m_leafs_level(leafs_level), m_element(element)
+    68008:  483:        , m_parameters(parameters), m_translator(translator)
+    68008:  484:        , m_relative_level(relative_level), m_allocators(allocators)
+   136016:  485:    {}
+        -:  486:
+function _ZN5boost8geometry5index6detail5rtree8visitors6insertISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EESF_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EESJ_EclERNS3_21variant_internal_nodeISF_SI_SD_SZ_SN_EE called 41932 returned 100% blocks executed 68%
+    41932:  487:    inline void operator()(internal_node & n)
+        -:  488:    {
+    41932:  489:        boost::ignore_unused(n);
+    41932:  490:        BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root), "current node should be the root");
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  491:
+        -:  492:        // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one
+    41934:  493:        if ( m_parameters.get_reinserted_elements() > 0 )
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  494:        {
+    41933:  495:            rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+    41933:  496:                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+        -:  497:
+    41933:  498:            rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  499:
+    41932:  500:            if ( !lins_v.result_elements.empty() )
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 13%
+branch  3 taken 87%
+        -:  501:            {
+     5397:  502:                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                       // MAY THROW (V, E: alloc, copy, N: alloc)
+branch  0 taken 100%
+branch  1 taken 0%
+     5397:  503:            }
+    41935:  504:        }
+        -:  505:        else
+        -:  506:        {
+    #####:  507:            visitors::insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag> ins_v(
+    #####:  508:                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+        -:  509:
+    #####:  510:            rtree::apply_visitor(ins_v, *m_root); 
+        -:  511:        }
+    41935:  512:    }
+        -:  513:
+function _ZN5boost8geometry5index6detail5rtree8visitors6insertISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EESF_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EESJ_EclERNS3_12variant_leafISF_SI_SD_SZ_SN_EE called 26074 returned 100% blocks executed 58%
+    26074:  514:    inline void operator()(leaf & n)
+        -:  515:    {
+    26074:  516:        boost::ignore_unused(n);
+    26074:  517:        BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<leaf>(*m_root), "current node should be the root");
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  518:
+        -:  519:        // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one
+    26074:  520:        if ( m_parameters.get_reinserted_elements() > 0 )
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  521:        {
+    26074:  522:            rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+    26074:  523:                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+        -:  524:
+    26074:  525:            rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  526:
+        -:  527:            // we're in the root, so root should be split and there should be no elements to reinsert
+    26074:  528:            BOOST_GEOMETRY_INDEX_ASSERT(lins_v.result_elements.empty(), "unexpected state");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+    26074:  529:        }
+        -:  530:        else
+        -:  531:        {
+    #####:  532:            visitors::insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag> ins_v(
+    #####:  533:                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+        -:  534:
+    #####:  535:            rtree::apply_visitor(ins_v, *m_root); 
+        -:  536:        }
+    26074:  537:    }
+        -:  538:
+        -:  539:private:
+        -:  540:    template <typename Elements>
+function _ZN5boost8geometry5index6detail5rtree8visitors6insertISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EESF_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EESJ_E18recursive_reinsertINS2_6varrayISF_Lm17EEEEEvRT_m called 5397 returned 100% blocks executed 36%
+function _ZN5boost8geometry5index6detail5rtree8visitors6insertISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EESF_NS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EESJ_E18recursive_reinsertINS2_6varrayINS3_8ptr_pairISD_PNS_7variantINS3_12variant_leafISF_SI_SD_SZ_SN_EEJNS3_21variant_internal_nodeISF_SI_SD_SZ_SN_EEEEEEELm17EEEEEvRT_m called 0 returned 0% blocks executed 0%
+     5397:  541:    inline void recursive_reinsert(Elements & elements, size_t relative_level)
+        -:  542:    {
+        -:  543:        typedef typename Elements::value_type element_type;
+        -:  544:
+        -:  545:        // reinsert children starting from the minimum distance
+     5397:  546:        typename Elements::reverse_iterator it = elements.rbegin();
+    26985:  547:        for ( ; it != elements.rend() ; ++it)
+branch  0 taken 80%
+branch  1 taken 20%
+branch  2 never executed
+branch  3 never executed
+        -:  548:        {
+    21588:  549:            rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
+    21588:  550:                m_root, m_leafs_level, *it, m_parameters, m_translator, m_allocators, relative_level);
+        -:  551:
+        -:  552:            BOOST_TRY
+        -:  553:            {
+    21588:  554:                rtree::apply_visitor(lins_v, *m_root);                                                          // MAY THROW (V, E: alloc, copy, N: alloc)
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+    21588:  555:            }
+        -:  556:            BOOST_CATCH(...)
+        -:  557:            {
+    #####:  558:                ++it;
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  559:                for ( ; it != elements.rend() ; ++it)
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+branch  8 never executed
+branch  9 never executed
+branch 10 never executed
+branch 11 never executed
+branch 12 never executed
+branch 13 never executed
+branch 14 never executed
+branch 15 never executed
+    #####:  560:                    rtree::destroy_element<Value, Options, Translator, Box, Allocators>::apply(*it, m_allocators);
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    #####:  561:                BOOST_RETHROW                                                                                     // RETHROW
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  562:            }
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  563:            BOOST_CATCH_END
+        -:  564:
+    21587:  565:            BOOST_GEOMETRY_INDEX_ASSERT(relative_level + 1 == lins_v.result_relative_level, "unexpected level");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 never executed
+branch  3 never executed
+        -:  566:
+        -:  567:            // non-root relative level
+    21587:  568:            if ( lins_v.result_relative_level < m_leafs_level && !lins_v.result_elements.empty())
+branch  0 taken 1%
+branch  1 taken 99%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 taken 0%
+branch  5 taken 100%
+branch  6 never executed
+branch  7 never executed
+branch  8 never executed
+branch  9 never executed
+branch 10 never executed
+branch 11 never executed
+        -:  569:            {
+    #####:  570:                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                   // MAY THROW (V, E: alloc, copy, N: alloc)
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    #####:  571:            }
+    21587:  572:        }
+     5397:  573:    }
+        -:  574:
+        -:  575:    node_pointer & m_root;
+        -:  576:    size_type & m_leafs_level;
+        -:  577:    Element const& m_element;
+        -:  578:
+        -:  579:    parameters_type const& m_parameters;
+        -:  580:    Translator const& m_translator;
+        -:  581:
+        -:  582:    size_type m_relative_level;
+        -:  583:
+        -:  584:    Allocators & m_allocators;
+        -:  585:};
+        -:  586:
+        -:  587:}}} // namespace detail::rtree::visitors
+        -:  588:
+        -:  589:}}} // namespace boost::geometry::index
+        -:  590:
+        -:  591:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP

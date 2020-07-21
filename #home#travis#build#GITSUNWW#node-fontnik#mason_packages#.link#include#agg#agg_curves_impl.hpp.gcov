@@ -1,0 +1,754 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/agg/agg_curves_impl.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://----------------------------------------------------------------------------
+        -:    2:// Anti-Grain Geometry - Version 2.4
+        -:    3:// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+        -:    4://
+        -:    5:// Permission to copy, use, modify, sell and distribute this software
+        -:    6:// is granted provided this copyright notice appears in all copies.
+        -:    7:// This software is provided "as is" without express or implied
+        -:    8:// warranty, and with no claim as to its suitability for any purpose.
+        -:    9://
+        -:   10://----------------------------------------------------------------------------
+        -:   11:// Contact: mcseem@antigrain.com
+        -:   12://          mcseemagg@yahoo.com
+        -:   13://          http://www.antigrain.com
+        -:   14://----------------------------------------------------------------------------
+        -:   15:
+        -:   16:#include <math.h>
+        -:   17:#include "agg_curves.h"
+        -:   18:#include "agg_math.h"
+        -:   19:
+        -:   20:namespace agg_fontnik
+        -:   21:{
+        -:   22:
+        -:   23://------------------------------------------------------------------------
+        -:   24:const double curve_distance_epsilon                  = 1e-30;
+        -:   25:const double curve_collinearity_epsilon              = 1e-30;
+        -:   26:const double curve_angle_tolerance_epsilon           = 0.01;
+        -:   27:enum curve_recursion_limit_e { curve_recursion_limit = 32 };
+        -:   28:
+        -:   29:
+        -:   30:
+        -:   31://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_inc19approximation_scaleEd called 0 returned 0% blocks executed 0%
+    #####:   32:void curve3_inc::approximation_scale(double s)
+        -:   33:{
+    #####:   34:    m_scale = s;
+    #####:   35:}
+        -:   36:
+        -:   37://------------------------------------------------------------------------
+function _ZNK11agg_fontnik10curve3_inc19approximation_scaleEv called 0 returned 0% blocks executed 0%
+    #####:   38:double curve3_inc::approximation_scale() const
+        -:   39:{
+    #####:   40:    return m_scale;
+        -:   41:}
+        -:   42:
+        -:   43://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_inc4initEdddddd called 0 returned 0% blocks executed 0%
+    #####:   44:void curve3_inc::init(double x1, double y1,
+        -:   45:                      double x2, double y2,
+        -:   46:                      double x3, double y3)
+        -:   47:{
+    #####:   48:    m_start_x = x1;
+    #####:   49:    m_start_y = y1;
+    #####:   50:    m_end_x   = x3;
+    #####:   51:    m_end_y   = y3;
+        -:   52:
+    #####:   53:    double dx1 = x2 - x1;
+    #####:   54:    double dy1 = y2 - y1;
+    #####:   55:    double dx2 = x3 - x2;
+    #####:   56:    double dy2 = y3 - y2;
+        -:   57:
+    #####:   58:    double len = sqrt(dx1 * dx1 + dy1 * dy1) + sqrt(dx2 * dx2 + dy2 * dy2);
+        -:   59:
+    #####:   60:    m_num_steps = uround(len * 0.25 * m_scale);
+        -:   61:
+    #####:   62:    if(m_num_steps < 4)
+branch  0 never executed
+branch  1 never executed
+        -:   63:    {
+    #####:   64:        m_num_steps = 4;
+    #####:   65:    }
+        -:   66:
+    #####:   67:    double subdivide_step  = 1.0 / m_num_steps;
+    #####:   68:    double subdivide_step2 = subdivide_step * subdivide_step;
+        -:   69:
+    #####:   70:    double tmpx = (x1 - x2 * 2.0 + x3) * subdivide_step2;
+    #####:   71:    double tmpy = (y1 - y2 * 2.0 + y3) * subdivide_step2;
+        -:   72:
+    #####:   73:    m_saved_fx = m_fx = x1;
+    #####:   74:    m_saved_fy = m_fy = y1;
+        -:   75:
+    #####:   76:    m_saved_dfx = m_dfx = tmpx + (x2 - x1) * (2.0 * subdivide_step);
+    #####:   77:    m_saved_dfy = m_dfy = tmpy + (y2 - y1) * (2.0 * subdivide_step);
+        -:   78:
+    #####:   79:    m_ddfx = tmpx * 2.0;
+    #####:   80:    m_ddfy = tmpy * 2.0;
+        -:   81:
+    #####:   82:    m_step = m_num_steps;
+    #####:   83:}
+        -:   84:
+        -:   85://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_inc6rewindEj called 0 returned 0% blocks executed 0%
+    #####:   86:void curve3_inc::rewind(unsigned)
+        -:   87:{
+    #####:   88:    if(m_num_steps == 0)
+branch  0 never executed
+branch  1 never executed
+        -:   89:    {
+    #####:   90:        m_step = -1;
+    #####:   91:        return;
+        -:   92:    }
+    #####:   93:    m_step = m_num_steps;
+    #####:   94:    m_fx   = m_saved_fx;
+    #####:   95:    m_fy   = m_saved_fy;
+    #####:   96:    m_dfx  = m_saved_dfx;
+    #####:   97:    m_dfy  = m_saved_dfy;
+    #####:   98:}
+        -:   99:
+        -:  100://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_inc6vertexEPdS1_ called 0 returned 0% blocks executed 0%
+    #####:  101:unsigned curve3_inc::vertex(double* x, double* y)
+        -:  102:{
+    #####:  103:    if(m_step < 0) return path_cmd_stop;
+branch  0 never executed
+branch  1 never executed
+    #####:  104:    if(m_step == m_num_steps)
+branch  0 never executed
+branch  1 never executed
+        -:  105:    {
+    #####:  106:        *x = m_start_x;
+    #####:  107:        *y = m_start_y;
+    #####:  108:        --m_step;
+    #####:  109:        return path_cmd_move_to;
+        -:  110:    }
+    #####:  111:    if(m_step == 0)
+branch  0 never executed
+branch  1 never executed
+        -:  112:    {
+    #####:  113:        *x = m_end_x;
+    #####:  114:        *y = m_end_y;
+    #####:  115:        --m_step;
+    #####:  116:        return path_cmd_line_to;
+        -:  117:    }
+    #####:  118:    m_fx  += m_dfx;
+    #####:  119:    m_fy  += m_dfy;
+    #####:  120:    m_dfx += m_ddfx;
+    #####:  121:    m_dfy += m_ddfy;
+    #####:  122:    *x = m_fx;
+    #####:  123:    *y = m_fy;
+    #####:  124:    --m_step;
+    #####:  125:    return path_cmd_line_to;
+    #####:  126:}
+        -:  127:
+        -:  128://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_div4initEdddddd called 21910 returned 100% blocks executed 100%
+    21910:  129:void curve3_div::init(double x1, double y1,
+        -:  130:                      double x2, double y2,
+        -:  131:                      double x3, double y3)
+        -:  132:{
+    21910:  133:    m_points.remove_all();
+    21910:  134:    m_distance_tolerance_square = 0.5 / m_approximation_scale;
+    21910:  135:    m_distance_tolerance_square *= m_distance_tolerance_square;
+    21910:  136:    bezier(x1, y1, x2, y2, x3, y3);
+    21910:  137:    m_count = 0;
+    21910:  138:}
+        -:  139:
+        -:  140://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_div16recursive_bezierEddddddj called 38654 returned 100% blocks executed 43%
+    38654:  141:void curve3_div::recursive_bezier(double x1, double y1,
+        -:  142:                                  double x2, double y2,
+        -:  143:                                  double x3, double y3,
+        -:  144:                                  unsigned level)
+        -:  145:{
+    38654:  146:    if(level > curve_recursion_limit)
+branch  0 taken 0%
+branch  1 taken 100%
+        -:  147:    {
+    #####:  148:        return;
+        -:  149:    }
+        -:  150:
+        -:  151:    // Calculate all the mid-points of the line segments
+        -:  152:    //----------------------
+    38654:  153:    double x12   = (x1 + x2) / 2;
+    38654:  154:    double y12   = (y1 + y2) / 2;
+    38654:  155:    double x23   = (x2 + x3) / 2;
+    38654:  156:    double y23   = (y2 + y3) / 2;
+    38654:  157:    double x123  = (x12 + x23) / 2;
+    38654:  158:    double y123  = (y12 + y23) / 2;
+        -:  159:
+    38654:  160:    double dx = x3-x1;
+    38654:  161:    double dy = y3-y1;
+    38654:  162:    double d = fabs(((x2 - x3) * dy - (y2 - y3) * dx));
+        -:  163:    double da;
+        -:  164:
+    38654:  165:    if(d > curve_collinearity_epsilon)
+branch  0 taken 99%
+branch  1 taken 1%
+        -:  166:    {
+        -:  167:        // Regular case
+        -:  168:        //-----------------
+    38649:  169:        if(d * d <= m_distance_tolerance_square * (dx*dx + dy*dy))
+branch  0 taken 78%
+branch  1 taken 22%
+        -:  170:        {
+        -:  171:            // If the curvature doesn't exceed the distance_tolerance value
+        -:  172:            // we tend to finish subdivisions.
+        -:  173:            //----------------------
+    30277:  174:            if(m_angle_tolerance < curve_angle_tolerance_epsilon)
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  175:            {
+    30277:  176:                m_points.add(point_d(x123, y123));
+    30277:  177:                return;
+        -:  178:            }
+        -:  179:
+        -:  180:            // Angle & Cusp Condition
+        -:  181:            //----------------------
+    #####:  182:            da = fabs(atan2(y3 - y2, x3 - x2) - atan2(y2 - y1, x2 - x1));
+    #####:  183:            if(da >= pi) da = 2*pi - da;
+branch  0 never executed
+branch  1 never executed
+        -:  184:
+    #####:  185:            if(da < m_angle_tolerance)
+branch  0 never executed
+branch  1 never executed
+        -:  186:            {
+        -:  187:                // Finally we can stop the recursion
+        -:  188:                //----------------------
+    #####:  189:                m_points.add(point_d(x123, y123));
+    #####:  190:                return;
+        -:  191:            }
+    #####:  192:        }
+     8372:  193:    }
+        -:  194:    else
+        -:  195:    {
+        -:  196:        // Collinear case
+        -:  197:        //------------------
+        5:  198:        da = dx*dx + dy*dy;
+        5:  199:        if(da == 0)
+branch  0 taken 0%
+branch  1 taken 100%
+        -:  200:        {
+    #####:  201:            d = calc_sq_distance(x1, y1, x2, y2);
+    #####:  202:        }
+        -:  203:        else
+        -:  204:        {
+        5:  205:            d = ((x2 - x1)*dx + (y2 - y1)*dy) / da;
+        5:  206:            if(d > 0 && d < 1)
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+        -:  207:            {
+        -:  208:                // Simple collinear case, 1---2---3
+        -:  209:                // We can leave just two endpoints
+        5:  210:                return;
+        -:  211:            }
+    #####:  212:            if(d <= 0) d = calc_sq_distance(x2, y2, x1, y1);
+branch  0 never executed
+branch  1 never executed
+    #####:  213:            else if(d >= 1) d = calc_sq_distance(x2, y2, x3, y3);
+branch  0 never executed
+branch  1 never executed
+    #####:  214:            else            d = calc_sq_distance(x2, y2, x1 + d*dx, y1 + d*dy);
+        -:  215:        }
+    #####:  216:        if(d < m_distance_tolerance_square)
+branch  0 never executed
+branch  1 never executed
+        -:  217:        {
+    #####:  218:            m_points.add(point_d(x2, y2));
+    #####:  219:            return;
+        -:  220:        }
+        -:  221:    }
+        -:  222:
+        -:  223:    // Continue subdivision
+        -:  224:    //----------------------
+     8372:  225:    recursive_bezier(x1, y1, x12, y12, x123, y123, level + 1);
+     8372:  226:    recursive_bezier(x123, y123, x23, y23, x3, y3, level + 1);
+    38654:  227:}
+        -:  228:
+        -:  229://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve3_div6bezierEdddddd called 21910 returned 100% blocks executed 100%
+    21910:  230:void curve3_div::bezier(double x1, double y1,
+        -:  231:                        double x2, double y2,
+        -:  232:                        double x3, double y3)
+        -:  233:{
+    21910:  234:    m_points.add(point_d(x1, y1));
+    21910:  235:    recursive_bezier(x1, y1, x2, y2, x3, y3, 0);
+    21910:  236:    m_points.add(point_d(x3, y3));
+    21910:  237:}
+        -:  238:
+        -:  239:
+        -:  240:
+        -:  241:
+        -:  242:
+        -:  243://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_inc19approximation_scaleEd called 0 returned 0% blocks executed 0%
+    #####:  244:void curve4_inc::approximation_scale(double s)
+        -:  245:{
+    #####:  246:    m_scale = s;
+    #####:  247:}
+        -:  248:
+        -:  249://------------------------------------------------------------------------
+function _ZNK11agg_fontnik10curve4_inc19approximation_scaleEv called 0 returned 0% blocks executed 0%
+    #####:  250:double curve4_inc::approximation_scale() const
+        -:  251:{
+    #####:  252:    return m_scale;
+        -:  253:}
+        -:  254:
+        -:  255:#if defined(_MSC_VER) && _MSC_VER <= 1200
+        -:  256://------------------------------------------------------------------------
+        -:  257:static double MSC60_fix_ICE(double v) { return v; }
+        -:  258:#endif
+        -:  259:
+        -:  260://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_inc4initEdddddddd called 0 returned 0% blocks executed 0%
+    #####:  261:void curve4_inc::init(double x1, double y1,
+        -:  262:                      double x2, double y2,
+        -:  263:                      double x3, double y3,
+        -:  264:                      double x4, double y4)
+        -:  265:{
+    #####:  266:    m_start_x = x1;
+    #####:  267:    m_start_y = y1;
+    #####:  268:    m_end_x   = x4;
+    #####:  269:    m_end_y   = y4;
+        -:  270:
+    #####:  271:    double dx1 = x2 - x1;
+    #####:  272:    double dy1 = y2 - y1;
+    #####:  273:    double dx2 = x3 - x2;
+    #####:  274:    double dy2 = y3 - y2;
+    #####:  275:    double dx3 = x4 - x3;
+    #####:  276:    double dy3 = y4 - y3;
+        -:  277:
+    #####:  278:    double len = (sqrt(dx1 * dx1 + dy1 * dy1) +
+    #####:  279:                  sqrt(dx2 * dx2 + dy2 * dy2) +
+    #####:  280:                  sqrt(dx3 * dx3 + dy3 * dy3)) * 0.25 * m_scale;
+        -:  281:
+        -:  282:#if defined(_MSC_VER) && _MSC_VER <= 1200
+        -:  283:    m_num_steps = uround(MSC60_fix_ICE(len));
+        -:  284:#else
+    #####:  285:    m_num_steps = uround(len);
+        -:  286:#endif
+        -:  287:
+    #####:  288:    if(m_num_steps < 4)
+branch  0 never executed
+branch  1 never executed
+        -:  289:    {
+    #####:  290:        m_num_steps = 4;
+    #####:  291:    }
+        -:  292:
+    #####:  293:    double subdivide_step  = 1.0 / m_num_steps;
+    #####:  294:    double subdivide_step2 = subdivide_step * subdivide_step;
+    #####:  295:    double subdivide_step3 = subdivide_step * subdivide_step * subdivide_step;
+        -:  296:
+    #####:  297:    double pre1 = 3.0 * subdivide_step;
+    #####:  298:    double pre2 = 3.0 * subdivide_step2;
+    #####:  299:    double pre4 = 6.0 * subdivide_step2;
+    #####:  300:    double pre5 = 6.0 * subdivide_step3;
+        -:  301:
+    #####:  302:    double tmp1x = x1 - x2 * 2.0 + x3;
+    #####:  303:    double tmp1y = y1 - y2 * 2.0 + y3;
+        -:  304:
+    #####:  305:    double tmp2x = (x2 - x3) * 3.0 - x1 + x4;
+    #####:  306:    double tmp2y = (y2 - y3) * 3.0 - y1 + y4;
+        -:  307:
+    #####:  308:    m_saved_fx = m_fx = x1;
+    #####:  309:    m_saved_fy = m_fy = y1;
+        -:  310:
+    #####:  311:    m_saved_dfx = m_dfx = (x2 - x1) * pre1 + tmp1x * pre2 + tmp2x * subdivide_step3;
+    #####:  312:    m_saved_dfy = m_dfy = (y2 - y1) * pre1 + tmp1y * pre2 + tmp2y * subdivide_step3;
+        -:  313:
+    #####:  314:    m_saved_ddfx = m_ddfx = tmp1x * pre4 + tmp2x * pre5;
+    #####:  315:    m_saved_ddfy = m_ddfy = tmp1y * pre4 + tmp2y * pre5;
+        -:  316:
+    #####:  317:    m_dddfx = tmp2x * pre5;
+    #####:  318:    m_dddfy = tmp2y * pre5;
+        -:  319:
+    #####:  320:    m_step = m_num_steps;
+    #####:  321:}
+        -:  322:
+        -:  323://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_inc6rewindEj called 0 returned 0% blocks executed 0%
+    #####:  324:void curve4_inc::rewind(unsigned)
+        -:  325:{
+    #####:  326:    if(m_num_steps == 0)
+branch  0 never executed
+branch  1 never executed
+        -:  327:    {
+    #####:  328:        m_step = -1;
+    #####:  329:        return;
+        -:  330:    }
+    #####:  331:    m_step = m_num_steps;
+    #####:  332:    m_fx   = m_saved_fx;
+    #####:  333:    m_fy   = m_saved_fy;
+    #####:  334:    m_dfx  = m_saved_dfx;
+    #####:  335:    m_dfy  = m_saved_dfy;
+    #####:  336:    m_ddfx = m_saved_ddfx;
+    #####:  337:    m_ddfy = m_saved_ddfy;
+    #####:  338:}
+        -:  339:
+        -:  340://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_inc6vertexEPdS1_ called 0 returned 0% blocks executed 0%
+    #####:  341:unsigned curve4_inc::vertex(double* x, double* y)
+        -:  342:{
+    #####:  343:    if(m_step < 0) return path_cmd_stop;
+branch  0 never executed
+branch  1 never executed
+    #####:  344:    if(m_step == m_num_steps)
+branch  0 never executed
+branch  1 never executed
+        -:  345:    {
+    #####:  346:        *x = m_start_x;
+    #####:  347:        *y = m_start_y;
+    #####:  348:        --m_step;
+    #####:  349:        return path_cmd_move_to;
+        -:  350:    }
+        -:  351:
+    #####:  352:    if(m_step == 0)
+branch  0 never executed
+branch  1 never executed
+        -:  353:    {
+    #####:  354:        *x = m_end_x;
+    #####:  355:        *y = m_end_y;
+    #####:  356:        --m_step;
+    #####:  357:        return path_cmd_line_to;
+        -:  358:    }
+        -:  359:
+    #####:  360:    m_fx   += m_dfx;
+    #####:  361:    m_fy   += m_dfy;
+    #####:  362:    m_dfx  += m_ddfx;
+    #####:  363:    m_dfy  += m_ddfy;
+    #####:  364:    m_ddfx += m_dddfx;
+    #####:  365:    m_ddfy += m_dddfy;
+        -:  366:
+    #####:  367:    *x = m_fx;
+    #####:  368:    *y = m_fy;
+    #####:  369:    --m_step;
+    #####:  370:    return path_cmd_line_to;
+    #####:  371:}
+        -:  372:
+        -:  373:
+        -:  374:
+        -:  375:
+        -:  376://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_div4initEdddddddd called 0 returned 0% blocks executed 0%
+    #####:  377:void curve4_div::init(double x1, double y1,
+        -:  378:                      double x2, double y2,
+        -:  379:                      double x3, double y3,
+        -:  380:                      double x4, double y4)
+        -:  381:{
+    #####:  382:    m_points.remove_all();
+    #####:  383:    m_distance_tolerance_square = 0.5 / m_approximation_scale;
+    #####:  384:    m_distance_tolerance_square *= m_distance_tolerance_square;
+    #####:  385:    bezier(x1, y1, x2, y2, x3, y3, x4, y4);
+    #####:  386:    m_count = 0;
+    #####:  387:}
+        -:  388:
+        -:  389://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_div16recursive_bezierEddddddddj called 0 returned 0% blocks executed 0%
+    #####:  390:void curve4_div::recursive_bezier(double x1, double y1,
+        -:  391:                                  double x2, double y2,
+        -:  392:                                  double x3, double y3,
+        -:  393:                                  double x4, double y4,
+        -:  394:                                  unsigned level)
+        -:  395:{
+    #####:  396:    if(level > curve_recursion_limit)
+branch  0 never executed
+branch  1 never executed
+        -:  397:    {
+    #####:  398:        return;
+        -:  399:    }
+        -:  400:
+        -:  401:    // Calculate all the mid-points of the line segments
+        -:  402:    //----------------------
+    #####:  403:    double x12   = (x1 + x2) / 2;
+    #####:  404:    double y12   = (y1 + y2) / 2;
+    #####:  405:    double x23   = (x2 + x3) / 2;
+    #####:  406:    double y23   = (y2 + y3) / 2;
+    #####:  407:    double x34   = (x3 + x4) / 2;
+    #####:  408:    double y34   = (y3 + y4) / 2;
+    #####:  409:    double x123  = (x12 + x23) / 2;
+    #####:  410:    double y123  = (y12 + y23) / 2;
+    #####:  411:    double x234  = (x23 + x34) / 2;
+    #####:  412:    double y234  = (y23 + y34) / 2;
+    #####:  413:    double x1234 = (x123 + x234) / 2;
+    #####:  414:    double y1234 = (y123 + y234) / 2;
+        -:  415:
+        -:  416:
+        -:  417:    // Try to approximate the full cubic curve by a single straight line
+        -:  418:    //------------------
+    #####:  419:    double dx = x4-x1;
+    #####:  420:    double dy = y4-y1;
+        -:  421:
+    #####:  422:    double d2 = fabs(((x2 - x4) * dy - (y2 - y4) * dx));
+    #####:  423:    double d3 = fabs(((x3 - x4) * dy - (y3 - y4) * dx));
+        -:  424:    double da1, da2, k;
+        -:  425:
+    #####:  426:    switch((int(d2 > curve_collinearity_epsilon) << 1) +
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+branch  8 never executed
+branch  9 never executed
+    #####:  427:           int(d3 > curve_collinearity_epsilon))
+        -:  428:    {
+        -:  429:    case 0:
+        -:  430:        // All collinear OR p1==p4
+        -:  431:        //----------------------
+    #####:  432:        k = dx*dx + dy*dy;
+    #####:  433:        if(k == 0)
+branch  0 never executed
+branch  1 never executed
+        -:  434:        {
+    #####:  435:            d2 = calc_sq_distance(x1, y1, x2, y2);
+    #####:  436:            d3 = calc_sq_distance(x4, y4, x3, y3);
+    #####:  437:        }
+        -:  438:        else
+        -:  439:        {
+    #####:  440:            k   = 1 / k;
+    #####:  441:            da1 = x2 - x1;
+    #####:  442:            da2 = y2 - y1;
+    #####:  443:            d2  = k * (da1*dx + da2*dy);
+    #####:  444:            da1 = x3 - x1;
+    #####:  445:            da2 = y3 - y1;
+    #####:  446:            d3  = k * (da1*dx + da2*dy);
+    #####:  447:            if(d2 > 0 && d2 < 1 && d3 > 0 && d3 < 1)
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+        -:  448:            {
+        -:  449:                // Simple collinear case, 1---2---3---4
+        -:  450:                // We can leave just two endpoints
+    #####:  451:                return;
+        -:  452:            }
+    #####:  453:            if(d2 <= 0) d2 = calc_sq_distance(x2, y2, x1, y1);
+branch  0 never executed
+branch  1 never executed
+    #####:  454:            else if(d2 >= 1) d2 = calc_sq_distance(x2, y2, x4, y4);
+branch  0 never executed
+branch  1 never executed
+    #####:  455:            else             d2 = calc_sq_distance(x2, y2, x1 + d2*dx, y1 + d2*dy);
+        -:  456:
+    #####:  457:            if(d3 <= 0) d3 = calc_sq_distance(x3, y3, x1, y1);
+branch  0 never executed
+branch  1 never executed
+    #####:  458:            else if(d3 >= 1) d3 = calc_sq_distance(x3, y3, x4, y4);
+branch  0 never executed
+branch  1 never executed
+    #####:  459:            else             d3 = calc_sq_distance(x3, y3, x1 + d3*dx, y1 + d3*dy);
+        -:  460:        }
+    #####:  461:        if(d2 > d3)
+branch  0 never executed
+branch  1 never executed
+        -:  462:        {
+    #####:  463:            if(d2 < m_distance_tolerance_square)
+branch  0 never executed
+branch  1 never executed
+        -:  464:            {
+    #####:  465:                m_points.add(point_d(x2, y2));
+    #####:  466:                return;
+        -:  467:            }
+    #####:  468:        }
+        -:  469:        else
+        -:  470:        {
+    #####:  471:            if(d3 < m_distance_tolerance_square)
+branch  0 never executed
+branch  1 never executed
+        -:  472:            {
+    #####:  473:                m_points.add(point_d(x3, y3));
+    #####:  474:                return;
+        -:  475:            }
+        -:  476:        }
+    #####:  477:        break;
+        -:  478:
+        -:  479:    case 1:
+        -:  480:        // p1,p2,p4 are collinear, p3 is significant
+        -:  481:        //----------------------
+    #####:  482:        if(d3 * d3 <= m_distance_tolerance_square * (dx*dx + dy*dy))
+branch  0 never executed
+branch  1 never executed
+        -:  483:        {
+    #####:  484:            if(m_angle_tolerance < curve_angle_tolerance_epsilon)
+branch  0 never executed
+branch  1 never executed
+        -:  485:            {
+    #####:  486:                m_points.add(point_d(x23, y23));
+    #####:  487:                return;
+        -:  488:            }
+        -:  489:
+        -:  490:            // Angle Condition
+        -:  491:            //----------------------
+    #####:  492:            da1 = fabs(atan2(y4 - y3, x4 - x3) - atan2(y3 - y2, x3 - x2));
+    #####:  493:            if(da1 >= pi) da1 = 2*pi - da1;
+branch  0 never executed
+branch  1 never executed
+        -:  494:
+    #####:  495:            if(da1 < m_angle_tolerance)
+branch  0 never executed
+branch  1 never executed
+        -:  496:            {
+    #####:  497:                m_points.add(point_d(x2, y2));
+    #####:  498:                m_points.add(point_d(x3, y3));
+    #####:  499:                return;
+        -:  500:            }
+        -:  501:
+    #####:  502:            if(m_cusp_limit != 0.0)
+branch  0 never executed
+branch  1 never executed
+        -:  503:            {
+    #####:  504:                if(da1 > m_cusp_limit)
+branch  0 never executed
+branch  1 never executed
+        -:  505:                {
+    #####:  506:                    m_points.add(point_d(x3, y3));
+    #####:  507:                    return;
+        -:  508:                }
+    #####:  509:            }
+    #####:  510:        }
+    #####:  511:        break;
+        -:  512:
+        -:  513:    case 2:
+        -:  514:        // p1,p3,p4 are collinear, p2 is significant
+        -:  515:        //----------------------
+    #####:  516:        if(d2 * d2 <= m_distance_tolerance_square * (dx*dx + dy*dy))
+branch  0 never executed
+branch  1 never executed
+        -:  517:        {
+    #####:  518:            if(m_angle_tolerance < curve_angle_tolerance_epsilon)
+branch  0 never executed
+branch  1 never executed
+        -:  519:            {
+    #####:  520:                m_points.add(point_d(x23, y23));
+    #####:  521:                return;
+        -:  522:            }
+        -:  523:
+        -:  524:            // Angle Condition
+        -:  525:            //----------------------
+    #####:  526:            da1 = fabs(atan2(y3 - y2, x3 - x2) - atan2(y2 - y1, x2 - x1));
+    #####:  527:            if(da1 >= pi) da1 = 2*pi - da1;
+branch  0 never executed
+branch  1 never executed
+        -:  528:
+    #####:  529:            if(da1 < m_angle_tolerance)
+branch  0 never executed
+branch  1 never executed
+        -:  530:            {
+    #####:  531:                m_points.add(point_d(x2, y2));
+    #####:  532:                m_points.add(point_d(x3, y3));
+    #####:  533:                return;
+        -:  534:            }
+        -:  535:
+    #####:  536:            if(m_cusp_limit != 0.0)
+branch  0 never executed
+branch  1 never executed
+        -:  537:            {
+    #####:  538:                if(da1 > m_cusp_limit)
+branch  0 never executed
+branch  1 never executed
+        -:  539:                {
+    #####:  540:                    m_points.add(point_d(x2, y2));
+    #####:  541:                    return;
+        -:  542:                }
+    #####:  543:            }
+    #####:  544:        }
+    #####:  545:        break;
+        -:  546:
+        -:  547:    case 3:
+        -:  548:        // Regular case
+        -:  549:        //-----------------
+    #####:  550:        if((d2 + d3)*(d2 + d3) <= m_distance_tolerance_square * (dx*dx + dy*dy))
+branch  0 never executed
+branch  1 never executed
+        -:  551:        {
+        -:  552:            // If the curvature doesn't exceed the distance_tolerance value
+        -:  553:            // we tend to finish subdivisions.
+        -:  554:            //----------------------
+    #####:  555:            if(m_angle_tolerance < curve_angle_tolerance_epsilon)
+branch  0 never executed
+branch  1 never executed
+        -:  556:            {
+    #####:  557:                m_points.add(point_d(x23, y23));
+    #####:  558:                return;
+        -:  559:            }
+        -:  560:
+        -:  561:            // Angle & Cusp Condition
+        -:  562:            //----------------------
+    #####:  563:            k   = atan2(y3 - y2, x3 - x2);
+    #####:  564:            da1 = fabs(k - atan2(y2 - y1, x2 - x1));
+    #####:  565:            da2 = fabs(atan2(y4 - y3, x4 - x3) - k);
+    #####:  566:            if(da1 >= pi) da1 = 2*pi - da1;
+branch  0 never executed
+branch  1 never executed
+    #####:  567:            if(da2 >= pi) da2 = 2*pi - da2;
+branch  0 never executed
+branch  1 never executed
+        -:  568:
+    #####:  569:            if(da1 + da2 < m_angle_tolerance)
+branch  0 never executed
+branch  1 never executed
+        -:  570:            {
+        -:  571:                // Finally we can stop the recursion
+        -:  572:                //----------------------
+    #####:  573:                m_points.add(point_d(x23, y23));
+    #####:  574:                return;
+        -:  575:            }
+        -:  576:
+    #####:  577:            if(m_cusp_limit != 0.0)
+branch  0 never executed
+branch  1 never executed
+        -:  578:            {
+    #####:  579:                if(da1 > m_cusp_limit)
+branch  0 never executed
+branch  1 never executed
+        -:  580:                {
+    #####:  581:                    m_points.add(point_d(x2, y2));
+    #####:  582:                    return;
+        -:  583:                }
+        -:  584:
+    #####:  585:                if(da2 > m_cusp_limit)
+branch  0 never executed
+branch  1 never executed
+        -:  586:                {
+    #####:  587:                    m_points.add(point_d(x3, y3));
+    #####:  588:                    return;
+        -:  589:                }
+    #####:  590:            }
+    #####:  591:        }
+    #####:  592:        break;
+        -:  593:    }
+        -:  594:
+        -:  595:    // Continue subdivision
+        -:  596:    //----------------------
+    #####:  597:    recursive_bezier(x1, y1, x12, y12, x123, y123, x1234, y1234, level + 1);
+    #####:  598:    recursive_bezier(x1234, y1234, x234, y234, x34, y34, x4, y4, level + 1);
+    #####:  599:}
+        -:  600:
+        -:  601://------------------------------------------------------------------------
+function _ZN11agg_fontnik10curve4_div6bezierEdddddddd called 0 returned 0% blocks executed 0%
+    #####:  602:void curve4_div::bezier(double x1, double y1,
+        -:  603:                        double x2, double y2,
+        -:  604:                        double x3, double y3,
+        -:  605:                        double x4, double y4)
+        -:  606:{
+    #####:  607:    m_points.add(point_d(x1, y1));
+    #####:  608:    recursive_bezier(x1, y1, x2, y2, x3, y3, x4, y4, 0);
+    #####:  609:    m_points.add(point_d(x4, y4));
+    #####:  610:}
+        -:  611:
+        -:  612:}
+        -:  613:

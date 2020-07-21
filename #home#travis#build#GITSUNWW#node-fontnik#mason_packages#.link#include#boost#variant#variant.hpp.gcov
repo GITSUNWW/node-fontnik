@@ -1,0 +1,2683 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/variant/variant.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://-----------------------------------------------------------------------------
+        -:    2:// boost variant/variant.hpp header file
+        -:    3:// See http://www.boost.org for updates, documentation, and revision history.
+        -:    4://-----------------------------------------------------------------------------
+        -:    5://
+        -:    6:// Copyright (c) 2002-2003 Eric Friedman, Itay Maman
+        -:    7:// Copyright (c) 2012-2016 Antony Polukhin
+        -:    8://
+        -:    9:// Distributed under the Boost Software License, Version 1.0. (See
+        -:   10:// accompanying file LICENSE_1_0.txt or copy at
+        -:   11:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   12:
+        -:   13:// Thanks to Adam Romanek for providing patches for exception-disabled env.
+        -:   14:
+        -:   15:#ifndef BOOST_VARIANT_VARIANT_HPP
+        -:   16:#define BOOST_VARIANT_VARIANT_HPP
+        -:   17:
+        -:   18:#include <cstddef> // for std::size_t
+        -:   19:#include <new> // for placement new
+        -:   20:
+        -:   21:#include <boost/type_index.hpp>
+        -:   22:
+        -:   23:#include <boost/variant/detail/config.hpp>
+        -:   24:#include <boost/mpl/aux_/value_wknd.hpp>
+        -:   25:
+        -:   26:#include <boost/variant/variant_fwd.hpp>
+        -:   27:#include <boost/variant/detail/backup_holder.hpp>
+        -:   28:#include <boost/variant/detail/enable_recursive_fwd.hpp>
+        -:   29:#include <boost/variant/detail/forced_return.hpp>
+        -:   30:#include <boost/variant/detail/initializer.hpp>
+        -:   31:#include <boost/variant/detail/make_variant_list.hpp>
+        -:   32:#include <boost/variant/detail/over_sequence.hpp>
+        -:   33:#include <boost/variant/detail/visitation_impl.hpp>
+        -:   34:#include <boost/variant/detail/hash_variant.hpp>
+        -:   35:
+        -:   36:#include <boost/variant/detail/generic_result_type.hpp>
+        -:   37:#include <boost/variant/detail/move.hpp>
+        -:   38:
+        -:   39:#include <boost/detail/no_exceptions_support.hpp>
+        -:   40:#include <boost/detail/reference_content.hpp>
+        -:   41:#include <boost/aligned_storage.hpp>
+        -:   42:#include <boost/blank.hpp>
+        -:   43:#include <boost/integer/common_factor_ct.hpp>
+        -:   44:#include <boost/static_assert.hpp>
+        -:   45:#include <boost/preprocessor/cat.hpp>
+        -:   46:#include <boost/preprocessor/repeat.hpp>
+        -:   47:#include <boost/type_traits/alignment_of.hpp>
+        -:   48:#include <boost/type_traits/add_const.hpp>
+        -:   49:#include <boost/type_traits/has_nothrow_constructor.hpp>
+        -:   50:#include <boost/type_traits/has_nothrow_copy.hpp>
+        -:   51:#include <boost/type_traits/is_nothrow_move_assignable.hpp>
+        -:   52:#include <boost/type_traits/is_nothrow_move_constructible.hpp>
+        -:   53:#include <boost/type_traits/is_const.hpp>
+        -:   54:#include <boost/type_traits/is_same.hpp>
+        -:   55:#include <boost/type_traits/is_rvalue_reference.hpp>
+        -:   56:#include <boost/type_traits/is_constructible.hpp>
+        -:   57:#include <boost/type_traits/add_lvalue_reference.hpp>
+        -:   58:#include <boost/utility/enable_if.hpp>
+        -:   59:#include <boost/utility/declval.hpp>
+        -:   60:#include <boost/variant/recursive_wrapper_fwd.hpp>
+        -:   61:#include <boost/variant/static_visitor.hpp>
+        -:   62:
+        -:   63:#include <boost/mpl/assert.hpp>
+        -:   64:#include <boost/mpl/begin_end.hpp>
+        -:   65:#include <boost/mpl/bool.hpp>
+        -:   66:#include <boost/mpl/deref.hpp>
+        -:   67:#include <boost/mpl/empty.hpp>
+        -:   68:#include <boost/mpl/eval_if.hpp>
+        -:   69:#include <boost/mpl/find_if.hpp>
+        -:   70:#include <boost/mpl/fold.hpp>
+        -:   71:#include <boost/mpl/front.hpp>
+        -:   72:#include <boost/mpl/identity.hpp>
+        -:   73:#include <boost/mpl/if.hpp>
+        -:   74:#include <boost/mpl/insert_range.hpp>
+        -:   75:#include <boost/mpl/int.hpp>
+        -:   76:#include <boost/mpl/is_sequence.hpp>
+        -:   77:#include <boost/mpl/iterator_range.hpp>
+        -:   78:#include <boost/mpl/iter_fold_if.hpp>
+        -:   79:#include <boost/mpl/list.hpp>
+        -:   80:#include <boost/mpl/logical.hpp>
+        -:   81:#include <boost/mpl/max_element.hpp>
+        -:   82:#include <boost/mpl/next.hpp>
+        -:   83:#include <boost/mpl/not.hpp>
+        -:   84:#include <boost/mpl/pair.hpp>
+        -:   85:#include <boost/mpl/protect.hpp>
+        -:   86:#include <boost/mpl/push_front.hpp>
+        -:   87:#include <boost/mpl/same_as.hpp>
+        -:   88:#include <boost/mpl/size_t.hpp>
+        -:   89:#include <boost/mpl/sizeof.hpp>
+        -:   90:#include <boost/mpl/transform.hpp>
+        -:   91:
+        -:   92:///////////////////////////////////////////////////////////////////////////////
+        -:   93:// Implementation Macros:
+        -:   94://
+        -:   95:// BOOST_VARIANT_VISITATION_UNROLLING_LIMIT
+        -:   96://   Defined in boost/variant/detail/visitation_impl.hpp.
+        -:   97://
+        -:   98:// BOOST_VARIANT_MINIMIZE_SIZE
+        -:   99://   When #defined, implementation employs all known means to minimize the
+        -:  100://   size of variant obje   cts. However, often unsuccessful due to alignment
+        -:  101://   issues, and potentially harmful to runtime speed, so not enabled by
+        -:  102://   default. (TODO: Investigate further.)
+        -:  103:
+        -:  104:#if defined(BOOST_VARIANT_MINIMIZE_SIZE)
+        -:  105:#   include <climits> // for SCHAR_MAX
+        -:  106:#   include <boost/mpl/eval_if.hpp>
+        -:  107:#   include <boost/mpl/equal_to.hpp>
+        -:  108:#   include <boost/mpl/identity.hpp>
+        -:  109:#   include <boost/mpl/int.hpp>
+        -:  110:#   include <boost/mpl/if.hpp>
+        -:  111:#   include <boost/mpl/less.hpp>
+        -:  112:#   include <boost/mpl/long.hpp>
+        -:  113:#   include <boost/mpl/O1_size.hpp>
+        -:  114:#endif
+        -:  115:
+        -:  116:
+        -:  117:namespace boost {
+        -:  118:
+        -:  119:namespace detail { namespace variant {
+        -:  120:
+        -:  121:///////////////////////////////////////////////////////////////////////////////
+        -:  122:// (detail) metafunction max_value
+        -:  123://
+        -:  124:// Finds the maximum value of the unary metafunction F over Sequence.
+        -:  125://
+        -:  126:template <typename Sequence, typename F>
+        -:  127:struct max_value
+        -:  128:{
+        -:  129:private: // helpers, for metafunction result (below)
+        -:  130:
+        -:  131:    typedef typename mpl::transform1<Sequence, F>::type transformed_;
+        -:  132:    typedef typename mpl::max_element<transformed_
+        -:  133:          
+        -:  134:        >::type max_it;
+        -:  135:
+        -:  136:public: // metafunction result
+        -:  137:
+        -:  138:    typedef typename mpl::deref<max_it>::type
+        -:  139:        type;
+        -:  140:
+        -:  141:};
+        -:  142:
+        -:  143:struct add_alignment
+        -:  144:{
+        -:  145:    template <typename State, typename Item>
+        -:  146:    struct apply
+        -:  147:        : mpl::size_t<
+        -:  148:              ::boost::integer::static_lcm<
+        -:  149:                  BOOST_MPL_AUX_VALUE_WKND(State)::value
+        -:  150:                , ::boost::alignment_of<Item>::value
+        -:  151:                >::value
+        -:  152:            >
+        -:  153:    {};
+        -:  154:};
+        -:  155:
+        -:  156:///////////////////////////////////////////////////////////////////////////////
+        -:  157:// (detail) metafunction find_fallback_type
+        -:  158://
+        -:  159:// Provides a fallback (i.e., nothrow default-constructible) type from the
+        -:  160:// specified sequence, or no_fallback_type if not found.
+        -:  161://
+        -:  162:// This implementation is designed to prefer boost::blank over other potential
+        -:  163:// fallback types, regardless of its position in the specified sequence.
+        -:  164://
+        -:  165:
+        -:  166:class no_fallback_type;
+        -:  167:
+        -:  168:struct find_fallback_type_pred
+        -:  169:{
+        -:  170:    template <typename Iterator>
+        -:  171:    struct apply
+        -:  172:    {
+        -:  173:    private:
+        -:  174:        typedef typename mpl::deref<Iterator>::type t_;
+        -:  175:
+        -:  176:    public:
+        -:  177:        typedef mpl::not_< has_nothrow_constructor<t_> > type;
+        -:  178:    };
+        -:  179:};
+        -:  180:
+        -:  181:template <typename Types>
+        -:  182:struct find_fallback_type
+        -:  183:{
+        -:  184:private: // helpers, for metafunction result (below)
+        -:  185:
+        -:  186:    typedef typename mpl::end<Types>::type end_it;
+        -:  187:
+        -:  188:    // [Find the first suitable fallback type...]
+        -:  189:
+        -:  190:    typedef typename mpl::iter_fold_if<
+        -:  191:          Types
+        -:  192:        , mpl::int_<0>, mpl::protect< mpl::next<> >
+        -:  193:        , mpl::protect< find_fallback_type_pred >
+        -:  194:        >::type first_result_;
+        -:  195:
+        -:  196:    typedef typename first_result_::first first_result_index;
+        -:  197:    typedef typename first_result_::second first_result_it;
+        -:  198:
+        -:  199:    // [...now search the rest of the sequence for boost::blank...]
+        -:  200:
+        -:  201:    typedef typename mpl::iter_fold_if<
+        -:  202:          mpl::iterator_range< first_result_it,end_it >
+        -:  203:        , first_result_index, mpl::protect< mpl::next<> >
+        -:  204:        , mpl::protect< mpl::not_same_as<boost::blank> >
+        -:  205:        >::type second_result_;
+        -:  206:
+        -:  207:    typedef typename second_result_::second second_result_it;
+        -:  208:
+        -:  209:public: // metafunction result
+        -:  210:
+        -:  211:    // [...and return the results of the search:]
+        -:  212:    typedef typename mpl::eval_if<
+        -:  213:          is_same< second_result_it,end_it >
+        -:  214:        , mpl::if_<
+        -:  215:              is_same< first_result_it,end_it >
+        -:  216:            , mpl::pair< no_fallback_type,no_fallback_type >
+        -:  217:            , first_result_
+        -:  218:            >
+        -:  219:        , mpl::identity< second_result_ >
+        -:  220:        >::type type;
+        -:  221:
+        -:  222:};
+        -:  223:
+        -:  224:#ifndef BOOST_NO_CXX11_NOEXCEPT
+        -:  225:///////////////////////////////////////////////////////////////////////////////
+        -:  226:// (detail) metafunction is_variant_move_noexcept_constructible
+        -:  227://
+        -:  228:// Returns true_type if all the types are nothrow move constructible.
+        -:  229://
+        -:  230:template <class Types>
+        -:  231:struct is_variant_move_noexcept_constructible {
+        -:  232:    typedef typename boost::mpl::find_if<
+        -:  233:        Types, mpl::not_<boost::is_nothrow_move_constructible<boost::mpl::_1> >
+        -:  234:    >::type iterator_t;
+        -:  235:
+        -:  236:    typedef typename boost::mpl::end<Types>::type end_t;
+        -:  237:    typedef typename boost::is_same<
+        -:  238:        iterator_t, end_t
+        -:  239:    >::type type;
+        -:  240:};
+        -:  241:
+        -:  242:///////////////////////////////////////////////////////////////////////////////
+        -:  243:// (detail) metafunction is_variant_move_noexcept_assignable
+        -:  244://
+        -:  245:// Returns true_type if all the types are nothrow move constructible.
+        -:  246://
+        -:  247:template <class Types>
+        -:  248:struct is_variant_move_noexcept_assignable {
+        -:  249:    typedef typename boost::mpl::find_if<
+        -:  250:        Types, mpl::not_<boost::is_nothrow_move_assignable<boost::mpl::_1> >
+        -:  251:    >::type iterator_t;
+        -:  252:
+        -:  253:    typedef typename boost::mpl::end<Types>::type end_t;
+        -:  254:    typedef typename boost::is_same<
+        -:  255:        iterator_t, end_t
+        -:  256:    >::type type;
+        -:  257:};
+        -:  258:#endif // BOOST_NO_CXX11_NOEXCEPT
+        -:  259:
+        -:  260:///////////////////////////////////////////////////////////////////////////////
+        -:  261:// (detail) metafunction is_variant_constructible_from
+        -:  262://
+        -:  263:// Derives from true_type if at least one variant's type is constructible from T.
+        -:  264://
+        -:  265:template <class T1, class T2>
+        -:  266:struct is_constructible_ext:
+        -:  267:    boost::mpl::or_<
+        -:  268:        boost::is_constructible<
+        -:  269:            T1,
+        -:  270:            T2
+        -:  271:        >,
+        -:  272:        boost::is_constructible<
+        -:  273:            T1,
+        -:  274:            typename boost::add_lvalue_reference<T2>::type
+        -:  275:        >
+        -:  276:    >
+        -:  277:{};
+        -:  278:
+        -:  279:template <class T, class Types>
+        -:  280:struct is_variant_constructible_from:
+        -:  281:    boost::mpl::not_< boost::is_same<
+        -:  282:        typename boost::mpl::find_if<
+        -:  283:            Types,
+        -:  284:            is_constructible_ext<boost::mpl::_1, T>
+        -:  285:        >::type,
+        -:  286:        typename boost::mpl::end<Types>::type
+        -:  287:    > >
+        -:  288:{};
+        -:  289:
+        -:  290:template <BOOST_VARIANT_ENUM_PARAMS(typename T), class Types>
+        -:  291:struct is_variant_constructible_from< boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Types >:
+        -:  292:    boost::is_same<
+        -:  293:        typename boost::mpl::find_if<
+        -:  294:            typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::recursive_enabled_types,
+        -:  295:            mpl::not_< is_variant_constructible_from< boost::mpl::_1, Types> >
+        -:  296:        >::type,
+        -:  297:        typename boost::mpl::end< typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::recursive_enabled_types >::type
+        -:  298:    >
+        -:  299:{};
+        -:  300:
+        -:  301:template <BOOST_VARIANT_ENUM_PARAMS(typename T), class Types>
+        -:  302:struct is_variant_constructible_from< const boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& , Types >:
+        -:  303:    is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Types >
+        -:  304:{};
+        -:  305:
+        -:  306:template <BOOST_VARIANT_ENUM_PARAMS(typename T), class Types>
+        -:  307:struct is_variant_constructible_from< boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& , Types >:
+        -:  308:    is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Types >
+        -:  309:{};
+        -:  310:
+        -:  311:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  312:
+        -:  313:template <BOOST_VARIANT_ENUM_PARAMS(typename T), class Types>
+        -:  314:struct is_variant_constructible_from< boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>&& , Types >:
+        -:  315:    is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Types >
+        -:  316:{};
+        -:  317:
+        -:  318:template <BOOST_VARIANT_ENUM_PARAMS(typename T), class Types>
+        -:  319:struct is_variant_constructible_from< boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const && , Types >:
+        -:  320:    is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Types >
+        -:  321:{};
+        -:  322:
+        -:  323:#endif // #ifndef BOOST_NO_CXX11_RVALUE_REFERENCE
+        -:  324:
+        -:  325:
+        -:  326:///////////////////////////////////////////////////////////////////////////////
+        -:  327:// (detail) metafunction make_storage
+        -:  328://
+        -:  329:// Provides an aligned storage type capable of holding any of the types
+        -:  330:// specified in the given type-sequence.
+        -:  331://
+        -:  332:
+        -:  333:template <typename Types, typename NeverUsesBackupFlag>
+        -:  334:struct make_storage
+        -:  335:{
+        -:  336:private: // helpers, for metafunction result (below)
+        -:  337:
+        -:  338:    typedef typename mpl::eval_if<
+        -:  339:          NeverUsesBackupFlag
+        -:  340:        , mpl::identity< Types >
+        -:  341:        , mpl::push_front<
+        -:  342:              Types, backup_holder<void*>
+        -:  343:            >
+        -:  344:        >::type types;
+        -:  345:
+        -:  346:    typedef typename max_value<
+        -:  347:          types, mpl::sizeof_<mpl::_1>
+        -:  348:        >::type max_size;
+        -:  349:
+        -:  350:#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0551))
+        -:  351:
+        -:  352:    typedef typename mpl::fold<
+        -:  353:          types
+        -:  354:        , mpl::size_t<1>
+        -:  355:        , add_alignment
+        -:  356:        >::type max_alignment;
+        -:  357:
+        -:  358:#else // borland
+        -:  359:
+        -:  360:    // temporary workaround -- use maximal alignment
+        -:  361:    typedef mpl::size_t< -1 > max_alignment;
+        -:  362:
+        -:  363:#endif // borland workaround
+        -:  364:
+        -:  365:public: // metafunction result
+        -:  366:
+        -:  367:    typedef ::boost::aligned_storage<
+        -:  368:          BOOST_MPL_AUX_VALUE_WKND(max_size)::value
+        -:  369:        , BOOST_MPL_AUX_VALUE_WKND(max_alignment)::value
+        -:  370:        > type;
+        -:  371:};
+        -:  372:
+        -:  373:///////////////////////////////////////////////////////////////////////////////
+        -:  374:// (detail) class destroyer
+        -:  375://
+        -:  376:// Internal visitor that destroys the value it visits.
+        -:  377://
+        -:  378:struct destroyer
+        -:  379:    : public static_visitor<>
+        -:  380:{
+        -:  381:public: // visitor interfaces
+        -:  382:
+        -:  383:    template <typename T>
+        -:  384:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+function _ZNK5boost6detail7variant9destroyer14internal_visitINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEEvRT_i called 6627 returned 100% blocks executed 100%
+function _ZNK5boost6detail7variant9destroyer14internal_visitINS1_13backup_holderINS_8geometry5index6detail5rtree12variant_leafISt4pairINS5_5model3boxINSB_5pointIfLm2ENS5_2cs9cartesianEEEEESA_ISG_SG_EENS6_5rstarILm16ELm4ELm4ELm32EEESH_NS8_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SH_NS8_23node_variant_static_tagEEESQ_EEEEEEvRT_i called 0 returned 0% blocks executed 0%
+function _ZNK5boost6detail7variant9destroyer14internal_visitINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEEvRT_i called 1323 returned 100% blocks executed 100%
+function _ZNK5boost6detail7variant9destroyer14internal_visitINS1_13backup_holderINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS5_5model3boxINSB_5pointIfLm2ENS5_2cs9cartesianEEEEESA_ISG_SG_EENS6_5rstarILm16ELm4ELm4ELm32EEESH_NS8_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SH_NS8_23node_variant_static_tagEEESQ_EEEEEEvRT_i called 0 returned 0% blocks executed 0%
+     7950:  385:    internal_visit(T& operand, int) const BOOST_NOEXCEPT
+        -:  386:    {
+     7950:  387:        operand.~T(); // must be noexcept
+        -:  388:
+        -:  389:#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0551)) || \
+        -:  390:    BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -:  391:        (void)operand; // suppresses warnings
+        -:  392:#endif
+        -:  393:
+        -:  394:        BOOST_VARIANT_AUX_RETURN_VOID;
+     7950:  395:    }
+        -:  396:
+        -:  397:};
+        -:  398:
+        -:  399:///////////////////////////////////////////////////////////////////////////////
+        -:  400:// (detail) class template known_get
+        -:  401://
+        -:  402:// Visitor that returns a reference to content of the specified type.
+        -:  403://
+        -:  404:// Precondition: visited variant MUST contain logical content of type T.
+        -:  405://
+        -:  406:template <typename T>
+        -:  407:class known_get
+        -:  408:    : public static_visitor<T&>
+        -:  409:{
+        -:  410:
+        -:  411:public: // visitor interface
+        -:  412:
+        -:  413:    T& operator()(T& operand) const BOOST_NOEXCEPT
+        -:  414:    {
+        -:  415:        return operand;
+        -:  416:    }
+        -:  417:
+        -:  418:    template <typename U>
+        -:  419:    T& operator()(U&) const
+        -:  420:    {
+        -:  421:        // logical error to be here: see precondition above
+        -:  422:        return ::boost::detail::variant::forced_return< T& >();
+        -:  423:    }
+        -:  424:};
+        -:  425:
+        -:  426:///////////////////////////////////////////////////////////////////////////////
+        -:  427:// (detail) class copy_into
+        -:  428://
+        -:  429:// Internal visitor that copies the value it visits into the given buffer.
+        -:  430://
+        -:  431:class copy_into
+        -:  432:    : public static_visitor<>
+        -:  433:{
+        -:  434:private: // representation
+        -:  435:
+        -:  436:    void* storage_;
+        -:  437:
+        -:  438:public: // structors
+        -:  439:
+        -:  440:    explicit copy_into(void* storage) BOOST_NOEXCEPT
+        -:  441:        : storage_(storage)
+        -:  442:    {
+        -:  443:    }
+        -:  444:
+        -:  445:public: // internal visitor interface
+        -:  446:
+        -:  447:    template <typename T>
+        -:  448:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  449:    internal_visit(boost::detail::variant::backup_holder<T>& operand, long) const
+        -:  450:    {
+        -:  451:        new(storage_) T( operand.get() );
+        -:  452:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  453:    }
+        -:  454:
+        -:  455:    template <typename T>
+        -:  456:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  457:    internal_visit(const boost::detail::variant::backup_holder<T>& operand, long) const
+        -:  458:    {
+        -:  459:        new(storage_) T( operand.get() );
+        -:  460:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  461:    }
+        -:  462:
+        -:  463:    template <typename T>
+        -:  464:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  465:    internal_visit(const T& operand, int) const
+        -:  466:    {
+        -:  467:        new(storage_) T(operand);
+        -:  468:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  469:    }
+        -:  470:
+        -:  471:};
+        -:  472:
+        -:  473:///////////////////////////////////////////////////////////////////////////////
+        -:  474:// (detail) class move_into
+        -:  475://
+        -:  476:// Internal visitor that moves the value it visits into the given buffer.
+        -:  477://
+        -:  478:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  479:class move_into
+        -:  480:    : public static_visitor<>
+        -:  481:{
+        -:  482:private: // representation
+        -:  483:
+        -:  484:    void* storage_;
+        -:  485:
+        -:  486:public: // structors
+        -:  487:
+        -:  488:    explicit move_into(void* storage) BOOST_NOEXCEPT
+        -:  489:        : storage_(storage)
+        -:  490:    {
+        -:  491:    }
+        -:  492:
+        -:  493:public: // internal visitor interface
+        -:  494:
+        -:  495:    template <typename T>
+        -:  496:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  497:    internal_visit(boost::detail::variant::backup_holder<T>& operand, long) const
+        -:  498:    {
+        -:  499:        new(storage_) T( ::boost::detail::variant::move(operand.get()) );
+        -:  500:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  501:    }
+        -:  502:
+        -:  503:    template <typename T>
+        -:  504:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  505:    internal_visit(T& operand, int) const BOOST_NOEXCEPT_IF(BOOST_NOEXCEPT_EXPR(T(boost::declval<T>())))
+        -:  506:    {
+        -:  507:        new(storage_) T(::boost::detail::variant::move(operand));
+        -:  508:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  509:    }
+        -:  510:};
+        -:  511:#endif
+        -:  512:
+        -:  513:///////////////////////////////////////////////////////////////////////////////
+        -:  514:// (detail) class assign_storage
+        -:  515://
+        -:  516:// Internal visitor that assigns the given storage (which must be a
+        -:  517:// constructed value of the same type) to the value it visits.
+        -:  518://
+        -:  519:struct assign_storage
+        -:  520:    : public static_visitor<>
+        -:  521:{
+        -:  522:private: // representation
+        -:  523:
+        -:  524:    const void* rhs_storage_;
+        -:  525:
+        -:  526:public: // structors
+        -:  527:
+        -:  528:    explicit assign_storage(const void* rhs_storage) BOOST_NOEXCEPT
+        -:  529:        : rhs_storage_(rhs_storage)
+        -:  530:    {
+        -:  531:    }
+        -:  532:
+        -:  533:public: // internal visitor interfaces
+        -:  534:
+        -:  535:    template <typename T>
+        -:  536:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  537:    internal_visit(backup_holder<T>& lhs_content, long) const
+        -:  538:    {
+        -:  539:        lhs_content.get()
+        -:  540:            = static_cast< const backup_holder<T>* >(rhs_storage_)->get();
+        -:  541:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  542:    }
+        -:  543:
+        -:  544:    template <typename T>
+        -:  545:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  546:    internal_visit(const backup_holder<T>& lhs_content, long) const
+        -:  547:    {
+        -:  548:        lhs_content.get()
+        -:  549:            = static_cast< const backup_holder<T>* >(rhs_storage_)->get();
+        -:  550:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  551:    }
+        -:  552:
+        -:  553:    template <typename T>
+        -:  554:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  555:    internal_visit(T& lhs_content, int) const
+        -:  556:    {
+        -:  557:        // NOTE TO USER :
+        -:  558:        // Compile error here indicates one of variant's bounded types does
+        -:  559:        // not meet the requirements of the Assignable concept. Thus,
+        -:  560:        // variant is not Assignable.
+        -:  561:        //
+        -:  562:        // Hint: Are any of the bounded types const-qualified or references?
+        -:  563:        //
+        -:  564:        lhs_content = *static_cast< const T* >(rhs_storage_);
+        -:  565:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  566:    }
+        -:  567:
+        -:  568:};
+        -:  569:
+        -:  570:///////////////////////////////////////////////////////////////////////////////
+        -:  571:// (detail) class move_storage
+        -:  572://
+        -:  573:// Internal visitor that moves the given storage (which must be a
+        -:  574:// constructed value of the same type) to the value it visits.
+        -:  575://
+        -:  576:struct move_storage
+        -:  577:    : public static_visitor<>
+        -:  578:{
+        -:  579:private: // representation
+        -:  580:
+        -:  581:    void* rhs_storage_;
+        -:  582:
+        -:  583:public: // structors
+        -:  584:
+        -:  585:    explicit move_storage(void* rhs_storage) BOOST_NOEXCEPT
+        -:  586:        : rhs_storage_(rhs_storage)
+        -:  587:    {
+        -:  588:    }
+        -:  589:
+        -:  590:public: // internal visitor interfaces
+        -:  591:
+        -:  592:    template <typename T>
+        -:  593:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  594:    internal_visit(backup_holder<T>& lhs_content, long) const
+        -:  595:    {
+        -:  596:        lhs_content.get()
+        -:  597:            = ::boost::detail::variant::move(static_cast<backup_holder<T>* >(rhs_storage_)->get());
+        -:  598:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  599:    }
+        -:  600:
+        -:  601:    template <typename T>
+        -:  602:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  603:    internal_visit(const backup_holder<T>& lhs_content, long) const
+        -:  604:    {
+        -:  605:        lhs_content.get()
+        -:  606:            = ::boost::detail::variant::move(static_cast<backup_holder<T>* >(rhs_storage_)->get());
+        -:  607:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  608:    }
+        -:  609:
+        -:  610:    template <typename T>
+        -:  611:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  612:    internal_visit(T& lhs_content, int) const
+        -:  613:    {
+        -:  614:        // NOTE TO USER :
+        -:  615:        // Compile error here indicates one of variant's bounded types does
+        -:  616:        // not meet the requirements of the Assignable concept. Thus,
+        -:  617:        // variant is not Assignable.
+        -:  618:        //
+        -:  619:        // Hint: Are any of the bounded types const-qualified or references?
+        -:  620:        //
+        -:  621:        lhs_content = ::boost::detail::variant::move(*static_cast<T* >(rhs_storage_));
+        -:  622:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  623:    }
+        -:  624:
+        -:  625:};
+        -:  626:
+        -:  627:///////////////////////////////////////////////////////////////////////////////
+        -:  628:// (detail) class direct_assigner
+        -:  629://
+        -:  630:// Generic static visitor that: if and only if the visited value is of the
+        -:  631:// specified type, assigns the given value to the visited value and returns
+        -:  632:// true; else returns false.
+        -:  633://
+        -:  634:template <typename T>
+        -:  635:class direct_assigner
+        -:  636:    : public static_visitor<bool>
+        -:  637:{
+        -:  638:private: // representation
+        -:  639:
+        -:  640:    const T& rhs_;
+        -:  641:
+        -:  642:public: // structors
+        -:  643:
+        -:  644:    explicit direct_assigner(const T& rhs) BOOST_NOEXCEPT
+        -:  645:        : rhs_(rhs)
+        -:  646:    {
+        -:  647:    }
+        -:  648:
+        -:  649:public: // visitor interface
+        -:  650:
+        -:  651:    bool operator()(T& lhs)
+        -:  652:    {
+        -:  653:        lhs = rhs_;
+        -:  654:        return true;
+        -:  655:    }
+        -:  656:
+        -:  657:    template <typename U>
+        -:  658:    bool operator()(U&) BOOST_NOEXCEPT
+        -:  659:    {
+        -:  660:        return false;
+        -:  661:    }
+        -:  662:
+        -:  663:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -:  664:private:
+        -:  665:    // silence MSVC warning C4512: assignment operator could not be generated
+        -:  666:    direct_assigner& operator= (direct_assigner const&);
+        -:  667:#endif
+        -:  668:};
+        -:  669:
+        -:  670:///////////////////////////////////////////////////////////////////////////////
+        -:  671:// (detail) class direct_mover
+        -:  672://
+        -:  673:// Generic static visitor that: if and only if the visited value is of the
+        -:  674:// specified type, move assigns the given value to the visited value and returns
+        -:  675:// true; else returns false.
+        -:  676://
+        -:  677:template <typename T>
+        -:  678:class direct_mover
+        -:  679:    : public static_visitor<bool>
+        -:  680:{
+        -:  681:private: // representation
+        -:  682:
+        -:  683:    T& rhs_;
+        -:  684:
+        -:  685:public: // structors
+        -:  686:
+        -:  687:    explicit direct_mover(T& rhs) BOOST_NOEXCEPT
+        -:  688:        : rhs_(rhs)
+        -:  689:    {
+        -:  690:    }
+        -:  691:
+        -:  692:public: // visitor interface
+        -:  693:
+        -:  694:    bool operator()(T& lhs)
+        -:  695:    {
+        -:  696:        lhs = ::boost::detail::variant::move(rhs_);
+        -:  697:        return true;
+        -:  698:    }
+        -:  699:
+        -:  700:    template <typename U>
+        -:  701:    bool operator()(U&) BOOST_NOEXCEPT
+        -:  702:    {
+        -:  703:        return false;
+        -:  704:    }
+        -:  705:
+        -:  706:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -:  707:private:
+        -:  708:    // silence MSVC warning C4512: assignment operator could not be generated
+        -:  709:    direct_mover& operator= (direct_mover const&);
+        -:  710:#endif
+        -:  711:};
+        -:  712:
+        -:  713:
+        -:  714:///////////////////////////////////////////////////////////////////////////////
+        -:  715:// (detail) class backup_assigner
+        -:  716://
+        -:  717:// Internal visitor that "assigns" the given value to the visited value,
+        -:  718:// using backup to recover if the destroy-copy sequence fails.
+        -:  719://
+        -:  720:// NOTE: This needs to be a friend of variant, as it needs access to
+        -:  721:// indicate_which, indicate_backup_which, etc.
+        -:  722://
+        -:  723:template <typename Variant>
+        -:  724:class backup_assigner
+        -:  725:    : public static_visitor<>
+        -:  726:{
+        -:  727:private: // representation
+        -:  728:
+        -:  729:    Variant& lhs_;
+        -:  730:    int rhs_which_;
+        -:  731:    const void* rhs_content_;
+        -:  732:    void (*copy_rhs_content_)(void*, const void*);
+        -:  733:
+        -:  734:public: // structors
+        -:  735:
+        -:  736:    template<class RhsT>
+        -:  737:    backup_assigner(Variant& lhs, int rhs_which, const RhsT& rhs_content)
+        -:  738:        : lhs_(lhs)
+        -:  739:        , rhs_which_(rhs_which)
+        -:  740:        , rhs_content_(&rhs_content)
+        -:  741:        , copy_rhs_content_(&construct_impl<RhsT>)
+        -:  742:    {
+        -:  743:    }
+        -:  744:
+        -:  745:private: // helpers, for visitor interface (below)
+        -:  746:
+        -:  747:    template<class RhsT>
+        -:  748:    static void construct_impl(void* addr, const void* obj)
+        -:  749:    {
+        -:  750:        new(addr) RhsT(*static_cast<const RhsT*>(obj));
+        -:  751:    }
+        -:  752:
+        -:  753:    template <typename LhsT>
+        -:  754:    void backup_assign_impl(
+        -:  755:          backup_holder<LhsT>& lhs_content
+        -:  756:        , mpl::false_ // is_nothrow_move_constructible
+        -:  757:        , long
+        -:  758:        )
+        -:  759:    {
+        -:  760:        // Move lhs content to backup...
+        -:  761:        backup_holder<LhsT> backup_lhs_content(0);
+        -:  762:        backup_lhs_content.swap(lhs_content); // nothrow
+        -:  763:
+        -:  764:        // ...destroy lhs content...
+        -:  765:        lhs_content.~backup_holder<LhsT>(); // nothrow
+        -:  766:
+        -:  767:        BOOST_TRY
+        -:  768:        {
+        -:  769:            // ...and attempt to copy rhs content into lhs storage:
+        -:  770:            copy_rhs_content_(lhs_.storage_.address(), rhs_content_);
+        -:  771:        }
+        -:  772:        BOOST_CATCH (...)
+        -:  773:        {
+        -:  774:            // In case of failure, copy backup pointer to lhs storage...
+        -:  775:            new(lhs_.storage_.address())
+        -:  776:                    backup_holder<LhsT>( 0 ); // nothrow
+        -:  777:
+        -:  778:            static_cast<backup_holder<LhsT>* >(lhs_.storage_.address())
+        -:  779:                    ->swap(backup_lhs_content); // nothrow
+        -:  780:
+        -:  781:            // ...and rethrow:
+        -:  782:            BOOST_RETHROW;
+        -:  783:        }
+        -:  784:        BOOST_CATCH_END
+        -:  785:
+        -:  786:        // In case of success, indicate new content type:
+        -:  787:        lhs_.indicate_which(rhs_which_); // nothrow
+        -:  788:    }
+        -:  789:
+        -:  790:    template <typename LhsT>
+        -:  791:    void backup_assign_impl(
+        -:  792:          LhsT& lhs_content
+        -:  793:        , mpl::true_ // is_nothrow_move_constructible
+        -:  794:        , int
+        -:  795:        )
+        -:  796:    {
+        -:  797:        // Move lhs content to backup...
+        -:  798:        LhsT backup_lhs_content(
+        -:  799:              ::boost::detail::variant::move(lhs_content)
+        -:  800:            ); // nothrow
+        -:  801:
+        -:  802:        // ...destroy lhs content...
+        -:  803:        lhs_content.~LhsT(); // nothrow
+        -:  804:
+        -:  805:        BOOST_TRY
+        -:  806:        {
+        -:  807:            // ...and attempt to copy rhs content into lhs storage:
+        -:  808:            copy_rhs_content_(lhs_.storage_.address(), rhs_content_);
+        -:  809:        }
+        -:  810:        BOOST_CATCH (...)
+        -:  811:        {
+        -:  812:            // In case of failure, restore backup content to lhs storage...
+        -:  813:            new(lhs_.storage_.address())
+        -:  814:                LhsT(
+        -:  815:                      ::boost::detail::variant::move(backup_lhs_content)
+        -:  816:                    ); // nothrow
+        -:  817:
+        -:  818:            // ...and rethrow:
+        -:  819:            BOOST_RETHROW;
+        -:  820:        }
+        -:  821:        BOOST_CATCH_END
+        -:  822:
+        -:  823:        // In case of success, indicate new content type:
+        -:  824:        lhs_.indicate_which(rhs_which_); // nothrow
+        -:  825:    }
+        -:  826:
+        -:  827:    template <typename LhsT>
+        -:  828:    void backup_assign_impl(
+        -:  829:          LhsT& lhs_content
+        -:  830:        , mpl::false_ // is_nothrow_move_constructible
+        -:  831:        , int
+        -:  832:        )
+        -:  833:    {
+        -:  834:        // Backup lhs content...
+        -:  835:        LhsT* backup_lhs_ptr = new LhsT(lhs_content);
+        -:  836:
+        -:  837:        // ...destroy lhs content...
+        -:  838:        lhs_content.~LhsT(); // nothrow
+        -:  839:
+        -:  840:        BOOST_TRY
+        -:  841:        {
+        -:  842:            // ...and attempt to copy rhs content into lhs storage:
+        -:  843:            copy_rhs_content_(lhs_.storage_.address(), rhs_content_);
+        -:  844:        }
+        -:  845:        BOOST_CATCH (...)
+        -:  846:        {
+        -:  847:            // In case of failure, copy backup pointer to lhs storage...
+        -:  848:            new(lhs_.storage_.address())
+        -:  849:                backup_holder<LhsT>( backup_lhs_ptr ); // nothrow
+        -:  850:
+        -:  851:            // ...indicate now using backup...
+        -:  852:            lhs_.indicate_backup_which( lhs_.which() ); // nothrow
+        -:  853:
+        -:  854:            // ...and rethrow:
+        -:  855:            BOOST_RETHROW;
+        -:  856:        }
+        -:  857:        BOOST_CATCH_END
+        -:  858:
+        -:  859:        // In case of success, indicate new content type...
+        -:  860:        lhs_.indicate_which(rhs_which_); // nothrow
+        -:  861:
+        -:  862:        // ...and delete backup:
+        -:  863:        delete backup_lhs_ptr; // nothrow
+        -:  864:    }
+        -:  865:
+        -:  866:public: // visitor interface
+        -:  867:
+        -:  868:    template <typename LhsT>
+        -:  869:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -:  870:    internal_visit(LhsT& lhs_content, int)
+        -:  871:    {
+        -:  872:        typedef typename is_nothrow_move_constructible<LhsT>::type
+        -:  873:            nothrow_move;
+        -:  874:
+        -:  875:        backup_assign_impl( lhs_content, nothrow_move(), 1L);
+        -:  876:
+        -:  877:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -:  878:    }
+        -:  879:
+        -:  880:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -:  881:private:
+        -:  882:    // silence MSVC warning C4512: assignment operator could not be generated
+        -:  883:    backup_assigner& operator= (backup_assigner const&);
+        -:  884:#endif
+        -:  885:};
+        -:  886:
+        -:  887:///////////////////////////////////////////////////////////////////////////////
+        -:  888:// (detail) class swap_with
+        -:  889://
+        -:  890:// Visitor that swaps visited value with content of given variant.
+        -:  891://
+        -:  892:// Precondition: Given variant MUST have same logical type as visited value.
+        -:  893://
+        -:  894:template <typename Variant>
+        -:  895:struct swap_with
+        -:  896:    : public static_visitor<>
+        -:  897:{
+        -:  898:private: // representation
+        -:  899:
+        -:  900:    Variant& toswap_;
+        -:  901:
+        -:  902:public: // structors
+        -:  903:
+        -:  904:    explicit swap_with(Variant& toswap) BOOST_NOEXCEPT
+        -:  905:        : toswap_(toswap)
+        -:  906:    {
+        -:  907:    }
+        -:  908:
+        -:  909:public: // internal visitor interfaces
+        -:  910:
+        -:  911:    template <typename T>
+        -:  912:    void operator()(T& operand) const
+        -:  913:    {
+        -:  914:        // Since the precondition ensures types are same, get T...
+        -:  915:        known_get<T> getter;
+        -:  916:        T& other = toswap_.apply_visitor(getter);
+        -:  917:
+        -:  918:        // ...and swap:
+        -:  919:        ::boost::detail::variant::move_swap( operand, other );
+        -:  920:    }
+        -:  921:
+        -:  922:private:
+        -:  923:    swap_with& operator=(const swap_with&);
+        -:  924:
+        -:  925:};
+        -:  926:
+        -:  927:///////////////////////////////////////////////////////////////////////////////
+        -:  928:// (detail) class reflect
+        -:  929://
+        -:  930:// Generic static visitor that performs a typeid on the value it visits.
+        -:  931://
+        -:  932:
+        -:  933:class reflect
+        -:  934:    : public static_visitor<const boost::typeindex::type_info&>
+        -:  935:{
+        -:  936:public: // visitor interfaces
+        -:  937:
+        -:  938:    template <typename T>
+        -:  939:    const boost::typeindex::type_info& operator()(const T&) const BOOST_NOEXCEPT
+        -:  940:    {
+        -:  941:        return boost::typeindex::type_id<T>().type_info();
+        -:  942:    }
+        -:  943:
+        -:  944:};
+        -:  945:
+        -:  946:///////////////////////////////////////////////////////////////////////////////
+        -:  947:// (detail) class comparer
+        -:  948://
+        -:  949:// Generic static visitor that compares the content of the given lhs variant
+        -:  950:// with the visited rhs content using Comp.
+        -:  951://
+        -:  952:// Precondition: lhs.which() == rhs.which()
+        -:  953://
+        -:  954:template <typename Variant, typename Comp>
+        -:  955:class comparer
+        -:  956:    : public static_visitor<bool>
+        -:  957:{
+        -:  958:private: // representation
+        -:  959:
+        -:  960:    const Variant& lhs_;
+        -:  961:
+        -:  962:public: // structors
+        -:  963:
+        -:  964:    explicit comparer(const Variant& lhs) BOOST_NOEXCEPT
+        -:  965:        : lhs_(lhs)
+        -:  966:    {
+        -:  967:    }
+        -:  968:
+        -:  969:public: // visitor interfaces
+        -:  970:
+        -:  971:    template <typename T>
+        -:  972:    bool operator()(T& rhs_content) const
+        -:  973:    {
+        -:  974:        // Since the precondition ensures lhs and rhs types are same, get T...
+        -:  975:        known_get<T> getter;
+        -:  976:        const T& lhs_content = lhs_.apply_visitor(getter);
+        -:  977:
+        -:  978:        // ...and compare lhs and rhs contents:
+        -:  979:        return Comp()(lhs_content, rhs_content);
+        -:  980:    }
+        -:  981:
+        -:  982:private:
+        -:  983:    comparer& operator=(const comparer&);
+        -:  984:
+        -:  985:};
+        -:  986:
+        -:  987:///////////////////////////////////////////////////////////////////////////////
+        -:  988:// (detail) class equal_comp
+        -:  989://
+        -:  990:// Generic function object compares lhs with rhs using operator==.
+        -:  991://
+        -:  992:struct equal_comp
+        -:  993:{
+        -:  994:    template <typename T>
+        -:  995:    bool operator()(const T& lhs, const T& rhs) const
+        -:  996:    {
+        -:  997:        return lhs == rhs;
+        -:  998:    }
+        -:  999:};
+        -: 1000:
+        -: 1001:///////////////////////////////////////////////////////////////////////////////
+        -: 1002:// (detail) class less_comp
+        -: 1003://
+        -: 1004:// Generic function object compares lhs with rhs using operator<.
+        -: 1005://
+        -: 1006:struct less_comp
+        -: 1007:{
+        -: 1008:    template <typename T>
+        -: 1009:    bool operator()(const T& lhs, const T& rhs) const
+        -: 1010:    {
+        -: 1011:        return lhs < rhs;
+        -: 1012:    }
+        -: 1013:};
+        -: 1014:
+        -: 1015:///////////////////////////////////////////////////////////////////////////////
+        -: 1016:// (detail) class template invoke_visitor
+        -: 1017://
+        -: 1018:// Internal visitor that invokes the given visitor using:
+        -: 1019://  * for wrappers (e.g., recursive_wrapper), the wrapper's held value.
+        -: 1020://  * for all other values, the value itself.
+        -: 1021://
+        -: 1022:template <typename Visitor, bool MoveSemantics>
+        -: 1023:class invoke_visitor
+        -: 1024:{
+        -: 1025:private: // representation
+        -: 1026:
+        -: 1027:    Visitor& visitor_;
+        -: 1028:
+        -: 1029:public: // visitor typedefs
+        -: 1030:
+        -: 1031:    typedef typename Visitor::result_type
+        -: 1032:        result_type;
+        -: 1033:
+        -: 1034:public: // structors
+        -: 1035:
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS5_10predicates17spatial_predicateISG_NS13_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISI_SaISI_EEEEELb0EEC2ERS1C_ called 2603717 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors7destroyISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EEEELb0EEC2ERS13_ called 7950 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EEC2ERSS_ called 40292 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EEC2ERSS_ called 45888 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EESM_EELb0EEC2ERS13_ called 68008 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EEC2ERS14_ called 109951 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS6_18insert_default_tagEEELb0EEC2ERS14_ called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EEC2ERS14_ called 43176 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS6_8ptr_pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISH_SK_ISG_SG_EENS4_5rstarILm16ELm4ELm4ELm32EEESH_NS6_10allocatorsINS_9container13new_allocatorISM_EESM_SO_SH_NS6_23node_variant_static_tagEEEST_EEJNS6_21variant_internal_nodeISM_SO_SH_SU_ST_EEEEEEESM_NS6_7optionsISO_NS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagEST_EENS5_10translatorINS4_9indexableISM_EENS4_8equal_toISM_EEEESH_SU_EELb0EEC2ERS1D_ called 0 returned 0% blocks executed 0%
+  2918982: 1036:    explicit invoke_visitor(Visitor& visitor) BOOST_NOEXCEPT
+  2918982: 1037:        : visitor_(visitor)
+        -: 1038:    {
+  2918982: 1039:    }
+        -: 1040:
+        -: 1041:#if !defined(BOOST_NO_VOID_RETURNS)
+        -: 1042:
+        -: 1043:public: // internal visitor interfaces
+        -: 1044:
+        -: 1045:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1046:
+        -: 1047:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1048:    template <typename T>
+        -: 1049:    typename enable_if_c<MoveSemantics && is_same<T, T>::value, result_type>::type internal_visit(T&& operand, int)
+        -: 1050:    {
+        -: 1051:        return visitor_(::boost::move<T>(operand));
+        -: 1052:    }
+        -: 1053:
+        -: 1054:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1055:    template <typename T>
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS5_10predicates17spatial_predicateISG_NS13_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISI_SaISI_EEEEELb0EE14internal_visitIRNS6_12variant_leafISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1J_EE5valueEvE4typeEOS1J_i called 2014569 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS5_10predicates17spatial_predicateISG_NS13_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISI_SaISI_EEEEELb0EE14internal_visitIRNS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1J_EE5valueEvE4typeEOS1J_i called 589137 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors7destroyISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EEEELb0EE14internal_visitIRNS6_12variant_leafISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1A_EE5valueEvE4typeEOS1A_i called 6627 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitIRSR_EENS_12disable_if_cIXaaLb0Esr7is_sameIT_SX_EE5valueEPSR_E4typeEOSX_i called 40292 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitIRNS7_21variant_internal_nodeISI_SK_SG_SQ_SP_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_SZ_EE5valueEPSR_E4typeEOSZ_i called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors7destroyISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EEEELb0EE14internal_visitIRNS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1A_EE5valueEvE4typeEOS1A_i called 1323 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitIRNS7_12variant_leafISI_SK_SG_SQ_SP_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_SZ_EE5valueEPSR_E4typeEOSZ_i called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitIRSR_EENS_12disable_if_cIXaaLb0Esr7is_sameIT_SX_EE5valueEPSR_E4typeEOSX_i called 45904 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EESM_EELb0EE14internal_visitIRNS6_12variant_leafISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1A_EE5valueEvE4typeEOS1A_i called 26074 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitIRNS6_12variant_leafISJ_SM_SH_S13_SR_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 68009 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitIRNS6_21variant_internal_nodeISJ_SM_SH_S13_SR_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 41941 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS6_18insert_default_tagEEELb0EE14internal_visitIRNS6_12variant_leafISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS6_18insert_default_tagEEELb0EE14internal_visitIRNS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EESM_EELb0EE14internal_visitIRNS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1A_EE5valueEvE4typeEOS1A_i called 41932 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitIRNS6_12variant_leafISJ_SM_SH_S13_SR_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 21587 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitIRNS6_21variant_internal_nodeISJ_SM_SH_S13_SR_EEEENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1B_EE5valueEvE4typeEOS1B_i called 21588 returned 100% blocks executed 100%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS6_8ptr_pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISH_SK_ISG_SG_EENS4_5rstarILm16ELm4ELm4ELm32EEESH_NS6_10allocatorsINS_9container13new_allocatorISM_EESM_SO_SH_NS6_23node_variant_static_tagEEEST_EEJNS6_21variant_internal_nodeISM_SO_SH_SU_ST_EEEEEEESM_NS6_7optionsISO_NS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagEST_EENS5_10translatorINS4_9indexableISM_EENS4_8equal_toISM_EEEESH_SU_EELb0EE14internal_visitIRSV_EENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1I_EE5valueEvE4typeEOS1I_i called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS6_8ptr_pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISH_SK_ISG_SG_EENS4_5rstarILm16ELm4ELm4ELm32EEESH_NS6_10allocatorsINS_9container13new_allocatorISM_EESM_SO_SH_NS6_23node_variant_static_tagEEEST_EEJNS6_21variant_internal_nodeISM_SO_SH_SU_ST_EEEEEEESM_NS6_7optionsISO_NS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagEST_EENS5_10translatorINS4_9indexableISM_EENS4_8equal_toISM_EEEESH_SU_EELb0EE14internal_visitIRSX_EENS_12disable_if_cIXaaLb0Esr7is_sameIT_S1I_EE5valueEvE4typeEOS1I_i called 0 returned 0% blocks executed 0%
+  2918983: 1056:    typename disable_if_c<MoveSemantics && is_same<T, T>::value, result_type>::type internal_visit(T&& operand, int)
+        -: 1057:    {
+  2918983: 1058:        return visitor_(operand);
+        -: 1059:    }
+        -: 1060:
+        -: 1061:#else
+        -: 1062:
+        -: 1063:    template <typename T>
+        -: 1064:    result_type internal_visit(T& operand, int)
+        -: 1065:    {
+        -: 1066:        return visitor_(operand);
+        -: 1067:    }
+        -: 1068:
+        -: 1069:#   if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0564))
+        -: 1070:    template <typename T>
+        -: 1071:    result_type internal_visit(const T& operand, int)
+        -: 1072:    {
+        -: 1073:        return visitor_(operand);
+        -: 1074:    }
+        -: 1075:#   endif //BORLAND
+        -: 1076:
+        -: 1077:#endif //RVALUE REFERENCES
+        -: 1078:
+        -: 1079:#else // defined(BOOST_NO_VOID_RETURNS)
+        -: 1080:
+        -: 1081:private: // helpers, for internal visitor interfaces (below)
+        -: 1082:
+        -: 1083:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1084:
+        -: 1085:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1086:    template <typename T>
+        -: 1087:        typename enable_if<mpl::and_<MoveSemantics && is_same<T, T>::value>, BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)>::type
+        -: 1088:    visit_impl(T&& operand, mpl::false_)
+        -: 1089:    {
+        -: 1090:        return visitor_(::boost::move(operand));
+        -: 1091:    }
+        -: 1092:
+        -: 1093:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1094:    template <typename T>
+        -: 1095:        typename enable_if_c<MoveSemantics && is_same<T, T>::value, BOOST_VARIANT_AUX_RETURN_VOID_TYPE>::type
+        -: 1096:    visit_impl(T&& operand, mpl::true_)
+        -: 1097:    {
+        -: 1098:        visitor_(::boost::move(operand));
+        -: 1099:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -: 1100:    }
+        -: 1101:
+        -: 1102:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1103:    template <typename T>
+        -: 1104:        typename disable_if_c<MoveSemantics && is_same<T, T>::value, BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)>::type
+        -: 1105:    visit_impl(T&& operand, mpl::false_)
+        -: 1106:    {
+        -: 1107:        return visitor_(operand);
+        -: 1108:    }
+        -: 1109:
+        -: 1110:    //using workaround with is_same<T, T> to prenvent compilation error, because we need to use T in enable_if to make SFINAE work
+        -: 1111:    template <typename T>
+        -: 1112:        typename disable_if<MoveSemantics && is_same<T, T>::value, BOOST_VARIANT_AUX_RETURN_VOID_TYPE>::type
+        -: 1113:    visit_impl(T&& operand, mpl::true_)
+        -: 1114:    {
+        -: 1115:        visitor_(operand);
+        -: 1116:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -: 1117:    }
+        -: 1118:
+        -: 1119:#else
+        -: 1120:
+        -: 1121:    template <typename T>
+        -: 1122:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1123:    visit_impl(T& operand, mpl::false_)
+        -: 1124:    {
+        -: 1125:        return visitor_(operand);
+        -: 1126:    }
+        -: 1127:
+        -: 1128:    template <typename T>
+        -: 1129:        BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -: 1130:    visit_impl(T& operand, mpl::true_)
+        -: 1131:    {
+        -: 1132:        visitor_(operand);
+        -: 1133:        BOOST_VARIANT_AUX_RETURN_VOID;
+        -: 1134:    }
+        -: 1135:
+        -: 1136:#endif //RVALUE_REFERENCES
+        -: 1137:
+        -: 1138:public: // internal visitor interfaces
+        -: 1139:
+        -: 1140:    template <typename T>
+        -: 1141:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1142:    internal_visit(T& operand, int)
+        -: 1143:    {
+        -: 1144:        typedef typename is_same<result_type, void>::type
+        -: 1145:            has_void_result_type;
+        -: 1146:
+        -: 1147:        return visit_impl(operand, has_void_result_type());
+        -: 1148:    }
+        -: 1149:
+        -: 1150:#endif // BOOST_NO_VOID_RETURNS) workaround
+        -: 1151:
+        -: 1152:public: // internal visitor interfaces, cont.
+        -: 1153:
+        -: 1154:    template <typename T>
+        -: 1155:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1156:    internal_visit(boost::recursive_wrapper<T>& operand, long)
+        -: 1157:    {
+        -: 1158:        return internal_visit( operand.get(), 1L );
+        -: 1159:    }
+        -: 1160:
+        -: 1161:    template <typename T>
+        -: 1162:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1163:    internal_visit(const boost::recursive_wrapper<T>& operand, long)
+        -: 1164:    {
+        -: 1165:        return internal_visit( operand.get(), 1L );
+        -: 1166:    }
+        -: 1167:
+        -: 1168:    template <typename T>
+        -: 1169:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1170:    internal_visit(boost::detail::reference_content<T>& operand, long)
+        -: 1171:    {
+        -: 1172:        return internal_visit( operand.get(), 1L );
+        -: 1173:    }
+        -: 1174:
+        -: 1175:    template <typename T>
+        -: 1176:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1177:    internal_visit(const boost::detail::reference_content<T>& operand, long)
+        -: 1178:    {
+        -: 1179:        return internal_visit( operand.get(), 1L );
+        -: 1180:    }
+        -: 1181:
+        -: 1182:    template <typename T>
+        -: 1183:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS5_10predicates17spatial_predicateISG_NS13_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISI_SaISI_EEEEELb0EE14internal_visitINS6_12variant_leafISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS5_10predicates17spatial_predicateISG_NS13_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISI_SaISI_EEEEELb0EE14internal_visitINS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors7destroyISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EEEELb0EE14internal_visitINS6_12variant_leafISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitISR_EEPSR_RNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitINS7_21variant_internal_nodeISI_SK_SG_SQ_SP_EEEEPSR_RNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors7destroyISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EENS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EEEELb0EE14internal_visitINS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitINS7_12variant_leafISI_SK_SG_SQ_SP_EEEEPSR_RNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS1_11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS4_5model3boxINSA_5pointIfLm2ENS4_2cs9cartesianEEEEES9_ISF_SF_EENS5_5rstarILm16ELm4ELm4ELm32EEESG_NS7_10allocatorsINS_9container13new_allocatorISI_EESI_SK_SG_NS7_23node_variant_static_tagEEESP_EEEELb0EE14internal_visitISR_EEPSR_RNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EESM_EELb0EE14internal_visitINS6_12variant_leafISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitINS6_12variant_leafISJ_SM_SH_S13_SR_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm0ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitINS6_21variant_internal_nodeISJ_SM_SH_S13_SR_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS6_18insert_default_tagEEELb0EE14internal_visitINS6_12variant_leafISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EENS6_18insert_default_tagEEELb0EE14internal_visitINS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors6insertISt4pairINS3_5model3boxINSA_5pointIfLm2ENS3_2cs9cartesianEEEEES9_ISF_SF_EESI_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISI_EENS4_8equal_toISI_EEEESG_NS6_10allocatorsINS_9container13new_allocatorISI_EESI_SL_SG_SQ_EESM_EELb0EE14internal_visitINS6_21variant_internal_nodeISI_SL_SG_S12_SQ_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitINS6_12variant_leafISJ_SM_SH_S13_SR_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ESt4pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEESA_ISG_SG_EESJ_NS6_7optionsINS4_5rstarILm16ELm4ELm4ELm32EEENS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagENS6_23node_variant_static_tagEEENS5_10translatorINS4_9indexableISJ_EENS4_8equal_toISJ_EEEESH_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SM_SH_SR_EEEELb0EE14internal_visitINS6_21variant_internal_nodeISJ_SM_SH_S13_SR_EEEEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS6_8ptr_pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISH_SK_ISG_SG_EENS4_5rstarILm16ELm4ELm4ELm32EEESH_NS6_10allocatorsINS_9container13new_allocatorISM_EESM_SO_SH_NS6_23node_variant_static_tagEEEST_EEJNS6_21variant_internal_nodeISM_SO_SH_SU_ST_EEEEEEESM_NS6_7optionsISO_NS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagEST_EENS5_10translatorINS4_9indexableISM_EENS4_8equal_toISM_EEEESH_SU_EELb0EE14internal_visitISV_EEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+function _ZN5boost6detail7variant14invoke_visitorINS_8geometry5index6detail5rtree8visitors5rstar12level_insertILm1ENS6_8ptr_pairINS3_5model3boxINSB_5pointIfLm2ENS3_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISH_SK_ISG_SG_EENS4_5rstarILm16ELm4ELm4ELm32EEESH_NS6_10allocatorsINS_9container13new_allocatorISM_EESM_SO_SH_NS6_23node_variant_static_tagEEEST_EEJNS6_21variant_internal_nodeISM_SO_SH_SU_ST_EEEEEEESM_NS6_7optionsISO_NS6_19insert_reinsert_tagENS6_26choose_by_overlap_diff_tagENS6_17split_default_tagENS6_9rstar_tagEST_EENS5_10translatorINS4_9indexableISM_EENS4_8equal_toISM_EEEESH_SU_EELb0EE14internal_visitISX_EEvRNS1_13backup_holderIT_EEl called 0 returned 0% blocks executed 0%
+    #####: 1184:    internal_visit(boost::detail::variant::backup_holder<T>& operand, long)
+        -: 1185:    {
+    #####: 1186:        return internal_visit( operand.get(), 1L );
+        -: 1187:    }
+        -: 1188:
+        -: 1189:    template <typename T>
+        -: 1190:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
+        -: 1191:    internal_visit(const boost::detail::variant::backup_holder<T>& operand, long)
+        -: 1192:    {
+        -: 1193:        return internal_visit( operand.get(), 1L );
+        -: 1194:    }
+        -: 1195:
+        -: 1196:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -: 1197:private:
+        -: 1198:    // silence MSVC warning C4512: assignment operator could not be generated
+        -: 1199:    invoke_visitor& operator= (invoke_visitor const&);
+        -: 1200:#endif
+        -: 1201:};
+        -: 1202:
+        -: 1203:}} // namespace detail::variant
+        -: 1204:
+        -: 1205:///////////////////////////////////////////////////////////////////////////////
+        -: 1206:// class template variant (concept inspired by Andrei Alexandrescu)
+        -: 1207://
+        -: 1208:// See docs and boost/variant/variant_fwd.hpp for more information.
+        -: 1209://
+        -: 1210:template <
+        -: 1211:      typename T0_
+        -: 1212:    , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(typename T)
+        -: 1213:    >
+        -: 1214:class variant
+        -: 1215:{
+        -: 1216:private: // helpers, for typedefs (below)
+        -: 1217:
+        -: 1218:    typedef variant wknd_self_t;
+        -: 1219:
+        -: 1220:    struct is_recursive_
+        -: 1221:        : detail::variant::is_recursive_flag<T0_>
+        -: 1222:    {
+        -: 1223:    };
+        -: 1224:
+        -: 1225:    typedef typename mpl::eval_if<
+        -: 1226:          is_recursive_
+        -: 1227:        , T0_
+        -: 1228:        , mpl::identity< T0_ >
+        -: 1229:        >::type unwrapped_T0_;
+        -: 1230:
+        -: 1231:    struct is_sequence_based_
+        -: 1232:        : detail::variant::is_over_sequence<unwrapped_T0_>
+        -: 1233:    {
+        -: 1234:    };
+        -: 1235:
+        -: 1236:#if !defined(BOOST_VARIANT_NO_TYPE_SEQUENCE_SUPPORT)
+        -: 1237:
+        -: 1238:private: // helpers, for typedefs (below)
+        -: 1239:
+        -: 1240:    typedef typename mpl::eval_if<
+        -: 1241:          is_sequence_based_
+        -: 1242:        , unwrapped_T0_ // over_sequence<...>::type
+        -: 1243:        , detail::variant::make_variant_list<
+        -: 1244:              unwrapped_T0_
+        -: 1245:            , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
+        -: 1246:            >
+        -: 1247:        >::type specified_types;
+        -: 1248:
+        -: 1249:    BOOST_STATIC_ASSERT((
+        -: 1250:          ::boost::mpl::not_< mpl::empty<specified_types> >::value
+        -: 1251:        ));
+        -: 1252:
+        -: 1253:public: // public typedefs
+        -: 1254:    typedef typename mpl::eval_if<
+        -: 1255:          is_recursive_
+        -: 1256:        , mpl::transform<
+        -: 1257:              specified_types
+        -: 1258:            , mpl::protect<
+        -: 1259:                  detail::variant::quoted_enable_recursive<wknd_self_t>
+        -: 1260:                >
+        -: 1261:            >
+        -: 1262:        , mpl::identity< specified_types >
+        -: 1263:        >::type recursive_enabled_types;    // used by is_variant_constructible_from<> trait
+        -: 1264:
+        -: 1265:    typedef typename mpl::transform<
+        -: 1266:          recursive_enabled_types
+        -: 1267:        , unwrap_recursive<mpl::_1>
+        -: 1268:        >::type types;
+        -: 1269:
+        -: 1270:private: // internal typedefs
+        -: 1271:
+        -: 1272:    typedef typename mpl::transform<
+        -: 1273:          recursive_enabled_types
+        -: 1274:        , mpl::protect< detail::make_reference_content<> >
+        -: 1275:        >::type internal_types;
+        -: 1276:
+        -: 1277:    typedef typename mpl::front<
+        -: 1278:          internal_types
+        -: 1279:        >::type internal_T0;
+        -: 1280:
+        -: 1281:#else // defined(BOOST_VARIANT_NO_TYPE_SEQUENCE_SUPPORT)
+        -: 1282:
+        -: 1283:private: // helpers, for typedefs (below)
+        -: 1284:
+        -: 1285:    typedef unwrapped_T0_ T0;
+        -: 1286:
+        -: 1287:    #define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_TYPEDEFS(z,N,_) \
+        -: 1288:        typedef typename mpl::eval_if< \
+        -: 1289:              is_recursive_ \
+        -: 1290:            , detail::variant::enable_recursive< \
+        -: 1291:                  BOOST_PP_CAT(T,N) \
+        -: 1292:                , wknd_self_t \
+        -: 1293:                > \
+        -: 1294:            , mpl::identity< BOOST_PP_CAT(T,N) > \
+        -: 1295:            >::type BOOST_PP_CAT(recursive_enabled_T,N); \
+        -: 1296:        /**/
+        -: 1297:
+        -: 1298:    BOOST_PP_REPEAT(
+        -: 1299:          BOOST_VARIANT_LIMIT_TYPES
+        -: 1300:        , BOOST_VARIANT_AUX_ENABLE_RECURSIVE_TYPEDEFS
+        -: 1301:        , _
+        -: 1302:        )
+        -: 1303:
+        -: 1304:    #undef BOOST_VARIANT_AUX_ENABLE_RECURSIVE_TYPEDEFS
+        -: 1305:
+        -: 1306:    #define BOOST_VARIANT_AUX_UNWRAP_RECURSIVE_TYPEDEFS(z,N,_) \
+        -: 1307:        typedef typename unwrap_recursive< \
+        -: 1308:              BOOST_PP_CAT(recursive_enabled_T,N) \
+        -: 1309:            >::type BOOST_PP_CAT(public_T,N); \
+        -: 1310:        /**/
+        -: 1311:
+        -: 1312:    BOOST_PP_REPEAT(
+        -: 1313:          BOOST_VARIANT_LIMIT_TYPES
+        -: 1314:        , BOOST_VARIANT_AUX_UNWRAP_RECURSIVE_TYPEDEFS
+        -: 1315:        , _
+        -: 1316:        )
+        -: 1317:
+        -: 1318:    #undef BOOST_VARIANT_AUX_UNWRAP_RECURSIVE_TYPEDEFS
+        -: 1319:
+        -: 1320:public: // public typedefs
+        -: 1321:
+        -: 1322:    typedef typename detail::variant::make_variant_list<
+        -: 1323:          BOOST_VARIANT_ENUM_PARAMS(public_T)
+        -: 1324:        >::type types;
+        -: 1325:
+        -: 1326:private: // helpers, for internal typedefs (below)
+        -: 1327:
+        -: 1328:    #define BOOST_VARIANT_AUX_MAKE_REFERENCE_CONTENT_TYPEDEFS(z,N,_) \
+        -: 1329:        typedef detail::make_reference_content< \
+        -: 1330:              BOOST_PP_CAT(recursive_enabled_T,N) \
+        -: 1331:            >::type BOOST_PP_CAT(internal_T,N); \
+        -: 1332:        /**/
+        -: 1333:
+        -: 1334:    BOOST_PP_REPEAT(
+        -: 1335:          BOOST_VARIANT_LIMIT_TYPES
+        -: 1336:        , BOOST_VARIANT_AUX_MAKE_REFERENCE_CONTENT_TYPEDEFS
+        -: 1337:        , _
+        -: 1338:        )
+        -: 1339:
+        -: 1340:    #undef BOOST_VARIANT_AUX_MAKE_REFERENCE_CONTENT_TYPEDEFS
+        -: 1341:
+        -: 1342:private: // internal typedefs
+        -: 1343:
+        -: 1344:    typedef typename detail::variant::make_variant_list<
+        -: 1345:          BOOST_VARIANT_ENUM_PARAMS(internal_T)
+        -: 1346:        >::type internal_types;
+        -: 1347:
+        -: 1348:private: // static precondition assertions
+        -: 1349:
+        -: 1350:    // NOTE TO USER :
+        -: 1351:    // variant< type-sequence > syntax is not supported on this compiler!
+        -: 1352:    //
+        -: 1353:    BOOST_MPL_ASSERT_NOT(( is_sequence_based_ ));
+        -: 1354:
+        -: 1355:#endif // BOOST_VARIANT_NO_TYPE_SEQUENCE_SUPPORT workaround
+        -: 1356:
+        -: 1357:private: // helpers, for representation (below)
+        -: 1358:
+        -: 1359:    typedef typename detail::variant::find_fallback_type<
+        -: 1360:          internal_types
+        -: 1361:        >::type fallback_type_result_;
+        -: 1362:
+        -: 1363:    typedef typename fallback_type_result_::first
+        -: 1364:        fallback_type_index_;
+        -: 1365:    typedef typename fallback_type_result_::second
+        -: 1366:        fallback_type_;
+        -: 1367:
+        -: 1368:    struct has_fallback_type_
+        -: 1369:        : mpl::not_<
+        -: 1370:              is_same< fallback_type_, detail::variant::no_fallback_type >
+        -: 1371:            >
+        -: 1372:    {
+        -: 1373:    };
+        -: 1374:
+        -: 1375:    typedef has_fallback_type_
+        -: 1376:        never_uses_backup_flag;
+        -: 1377:
+        -: 1378:    typedef typename detail::variant::make_storage<
+        -: 1379:          internal_types, never_uses_backup_flag
+        -: 1380:        >::type storage_t;
+        -: 1381:
+        -: 1382:#ifndef BOOST_NO_CXX11_NOEXCEPT
+        -: 1383:    typedef typename detail::variant::is_variant_move_noexcept_constructible<
+        -: 1384:        internal_types
+        -: 1385:    > variant_move_noexcept_constructible;
+        -: 1386:
+        -: 1387:    typedef typename detail::variant::is_variant_move_noexcept_assignable<
+        -: 1388:        internal_types
+        -: 1389:    > variant_move_noexcept_assignable;
+        -: 1390:
+        -: 1391:#endif
+        -: 1392:
+        -: 1393:private: // helpers, for representation (below)
+        -: 1394:
+        -: 1395:    // which_ on:
+        -: 1396:    // * [0,  size<internal_types>) indicates stack content
+        -: 1397:    // * [-size<internal_types>, 0) indicates pointer to heap backup
+        -: 1398:    // if which_ >= 0:
+        -: 1399:    // * then which() -> which_
+        -: 1400:    // * else which() -> -(which_ + 1)
+        -: 1401:
+        -: 1402:#if !defined(BOOST_VARIANT_MINIMIZE_SIZE)
+        -: 1403:
+        -: 1404:    typedef int which_t;
+        -: 1405:
+        -: 1406:#else // defined(BOOST_VARIANT_MINIMIZE_SIZE)
+        -: 1407:
+        -: 1408:    // [if O1_size available, then attempt which_t size optimization...]
+        -: 1409:    // [select signed char if fewer than SCHAR_MAX types, else signed int:]
+        -: 1410:    typedef typename mpl::eval_if<
+        -: 1411:          mpl::equal_to< mpl::O1_size<internal_types>, mpl::long_<-1> >
+        -: 1412:        , mpl::identity< int >
+        -: 1413:        , mpl::if_<
+        -: 1414:              mpl::less< mpl::O1_size<internal_types>, mpl::int_<SCHAR_MAX> >
+        -: 1415:            , signed char
+        -: 1416:            , int
+        -: 1417:            >
+        -: 1418:        >::type which_t;
+        -: 1419:
+        -: 1420:#endif // BOOST_VARIANT_MINIMIZE_SIZE switch
+        -: 1421:
+        -: 1422:// representation -- private when possible
+        -: 1423:#if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+        -: 1424:    private:
+        -: 1425:#else
+        -: 1426:    public:
+        -: 1427:#endif
+        -: 1428:
+        -: 1429:    which_t which_;
+        -: 1430:    storage_t storage_;
+        -: 1431:
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE14indicate_whichEi called 7950 returned 100% blocks executed 100%
+     7950: 1432:    void indicate_which(int which_arg) BOOST_NOEXCEPT
+        -: 1433:    {
+     7950: 1434:        which_ = static_cast<which_t>( which_arg );
+     7950: 1435:    }
+        -: 1436:
+        -: 1437:    void indicate_backup_which(int which_arg) BOOST_NOEXCEPT
+        -: 1438:    {
+        -: 1439:        which_ = static_cast<which_t>( -(which_arg + 1) );
+        -: 1440:    }
+        -: 1441:
+        -: 1442:private: // helpers, for queries (below)
+        -: 1443:
+function _ZNK5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE12using_backupEv called 2926881 returned 100% blocks executed 100%
+  2926881: 1444:    bool using_backup() const BOOST_NOEXCEPT
+        -: 1445:    {
+  2926881: 1446:        return which_ < 0;
+        -: 1447:    }
+        -: 1448:
+        -: 1449:public: // queries
+        -: 1450:
+function _ZNK5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE5whichEv called 2926921 returned 100% blocks executed 80%
+  2926921: 1451:    int which() const BOOST_NOEXCEPT
+        -: 1452:    {
+        -: 1453:        // If using heap backup...
+  2926921: 1454:        if (using_backup())
+branch  0 taken 0%
+branch  1 taken 100%
+        -: 1455:            // ...then return adjusted which_:
+    #####: 1456:            return -(which_ + 1);
+        -: 1457:
+        -: 1458:        // Otherwise, return which_ directly:
+  2926944: 1459:        return which_;
+  2927005: 1460:    }
+        -: 1461:
+        -: 1462:private: // helpers, for structors (below)
+        -: 1463:
+        -: 1464:    struct initializer
+        -: 1465:        : BOOST_VARIANT_AUX_INITIALIZER_T(
+        -: 1466:              recursive_enabled_types, recursive_enabled_T
+        -: 1467:            )
+        -: 1468:    {
+        -: 1469:    };
+        -: 1470:
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE15destroy_contentEv called 7950 returned 100% blocks executed 75%
+     7950: 1471:    void destroy_content() BOOST_NOEXCEPT
+        -: 1472:    {
+        -: 1473:        detail::variant::destroyer visitor;
+     7950: 1474:        this->internal_apply_visitor(visitor);
+branch  0 taken 100%
+branch  1 taken 0%
+     7950: 1475:    }
+        -: 1476:
+        -: 1477:public: // structors
+        -: 1478:
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEED2Ev called 7950 returned 100% blocks executed 100%
+     7950: 1479:    ~variant() BOOST_NOEXCEPT
+        -: 1480:    {
+     7950: 1481:        destroy_content();
+     7950: 1482:    }
+        -: 1483:
+        -: 1484:    variant() 
+        -: 1485:#if !(defined(__SUNPRO_CC) && BOOST_WORKAROUND(__SUNPRO_CC, <= 0x5130))
+        -: 1486:              BOOST_NOEXCEPT_IF(boost::has_nothrow_constructor<internal_T0>::value)
+        -: 1487:#endif
+        -: 1488:    {
+        -: 1489:#ifdef _MSC_VER
+        -: 1490:#pragma warning( push )
+        -: 1491:// behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized 
+        -: 1492:#pragma warning( disable : 4345 ) 
+        -: 1493:#endif
+        -: 1494:        // NOTE TO USER :
+        -: 1495:        // Compile error from here indicates that the first bound
+        -: 1496:        // type is not default-constructible, and so variant cannot
+        -: 1497:        // support its own default-construction.
+        -: 1498:        //
+        -: 1499:        new( storage_.address() ) internal_T0();
+        -: 1500:        indicate_which(0); // zero is the index of the first bounded type
+        -: 1501:#ifdef _MSC_VER
+        -: 1502:#pragma warning( pop )
+        -: 1503:#endif
+        -: 1504:    }
+        -: 1505:
+        -: 1506:private: // helpers, for structors, cont. (below)
+        -: 1507:
+        -: 1508:    class convert_copy_into
+        -: 1509:        : public static_visitor<int>
+        -: 1510:    {
+        -: 1511:    private: // representation
+        -: 1512:
+        -: 1513:        void* storage_;
+        -: 1514:
+        -: 1515:    public: // structors
+        -: 1516:
+        -: 1517:        explicit convert_copy_into(void* storage) BOOST_NOEXCEPT
+        -: 1518:            : storage_(storage)
+        -: 1519:        {
+        -: 1520:        }
+        -: 1521:
+        -: 1522:    public: // internal visitor interfaces (below)
+        -: 1523:
+        -: 1524:        template <typename T>
+        -: 1525:        int internal_visit(T& operand, int) const
+        -: 1526:        {
+        -: 1527:            // NOTE TO USER :
+        -: 1528:            // Compile error here indicates one of the source variant's types 
+        -: 1529:            // cannot be unambiguously converted to the destination variant's
+        -: 1530:            // types (or that no conversion exists).
+        -: 1531:            //
+        -: 1532:            return initializer::initialize(storage_, operand);
+        -: 1533:        }
+        -: 1534:
+        -: 1535:#   if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0564))
+        -: 1536:        template <typename T>
+        -: 1537:        result_type internal_visit(const T& operand, int) const
+        -: 1538:        {
+        -: 1539:            return initializer::initialize(storage_, operand);
+        -: 1540:        }
+        -: 1541:#   endif
+        -: 1542:
+        -: 1543:        template <typename T>
+        -: 1544:        int internal_visit(boost::detail::reference_content<T>& operand, long) const
+        -: 1545:        {
+        -: 1546:            return internal_visit( operand.get(), 1L );
+        -: 1547:        }
+        -: 1548:
+        -: 1549:        template <typename T>
+        -: 1550:        int internal_visit(const boost::detail::reference_content<T>& operand, long) const
+        -: 1551:        {
+        -: 1552:            return internal_visit( operand.get(), 1L );
+        -: 1553:        }
+        -: 1554:
+        -: 1555:        template <typename T>
+        -: 1556:        int internal_visit(boost::detail::variant::backup_holder<T>& operand, long) const
+        -: 1557:        {
+        -: 1558:            return internal_visit( operand.get(), 1L );
+        -: 1559:        }
+        -: 1560:
+        -: 1561:        template <typename T>
+        -: 1562:        int internal_visit(const boost::detail::variant::backup_holder<T>& operand, long) const
+        -: 1563:        {
+        -: 1564:            return internal_visit( operand.get(), 1L );
+        -: 1565:        }
+        -: 1566:
+        -: 1567:        template <typename T>
+        -: 1568:        int internal_visit(boost::recursive_wrapper<T>& operand, long) const
+        -: 1569:        {
+        -: 1570:            return internal_visit( operand.get(), 1L );
+        -: 1571:        }
+        -: 1572:
+        -: 1573:        template <typename T>
+        -: 1574:        int internal_visit(const boost::recursive_wrapper<T>& operand, long) const
+        -: 1575:        {
+        -: 1576:            return internal_visit( operand.get(), 1L );
+        -: 1577:        }
+        -: 1578:
+        -: 1579:    };
+        -: 1580:
+        -: 1581:    friend class convert_copy_into;
+        -: 1582:
+        -: 1583:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1584:    class convert_move_into
+        -: 1585:        : public static_visitor<int>
+        -: 1586:    {
+        -: 1587:    private: // representation
+        -: 1588:
+        -: 1589:        void* storage_;
+        -: 1590:
+        -: 1591:    public: // structors
+        -: 1592:
+        -: 1593:        explicit convert_move_into(void* storage) BOOST_NOEXCEPT
+        -: 1594:            : storage_(storage)
+        -: 1595:        {
+        -: 1596:        }
+        -: 1597:
+        -: 1598:    public: // internal visitor interfaces (below)
+        -: 1599:
+        -: 1600:        template <typename T>
+        -: 1601:        int internal_visit(T& operand, int) const
+        -: 1602:        {
+        -: 1603:            // NOTE TO USER :
+        -: 1604:            // Compile error here indicates one of the source variant's types 
+        -: 1605:            // cannot be unambiguously converted to the destination variant's
+        -: 1606:            // types (or that no conversion exists).
+        -: 1607:            //
+        -: 1608:            return initializer::initialize(storage_, detail::variant::move(operand) );
+        -: 1609:        }
+        -: 1610:
+        -: 1611:        template <typename T>
+        -: 1612:        int internal_visit(boost::detail::reference_content<T>& operand, long) const
+        -: 1613:        {
+        -: 1614:            return internal_visit( operand.get(), 1L );
+        -: 1615:        }
+        -: 1616:
+        -: 1617:        template <typename T>
+        -: 1618:        int internal_visit(const boost::detail::reference_content<T>& operand, long) const
+        -: 1619:        {
+        -: 1620:            return internal_visit( operand.get(), 1L );
+        -: 1621:        }
+        -: 1622:
+        -: 1623:        template <typename T>
+        -: 1624:        int internal_visit(boost::detail::variant::backup_holder<T>& operand, long) const
+        -: 1625:        {
+        -: 1626:            return internal_visit( operand.get(), 1L );
+        -: 1627:        }
+        -: 1628:
+        -: 1629:        template <typename T>
+        -: 1630:        int internal_visit(const boost::detail::variant::backup_holder<T>& operand, long) const
+        -: 1631:        {
+        -: 1632:            return internal_visit( operand.get(), 1L );
+        -: 1633:        }
+        -: 1634:
+        -: 1635:        template <typename T>
+        -: 1636:        int internal_visit(boost::recursive_wrapper<T>& operand, long) const
+        -: 1637:        {
+        -: 1638:            return internal_visit( operand.get(), 1L );
+        -: 1639:        }
+        -: 1640:
+        -: 1641:        template <typename T>
+        -: 1642:        int internal_visit(const boost::recursive_wrapper<T>& operand, long) const
+        -: 1643:        {
+        -: 1644:            return internal_visit( operand.get(), 1L );
+        -: 1645:        }
+        -: 1646:    };
+        -: 1647:
+        -: 1648:    friend class convert_move_into;
+        -: 1649:#endif
+        -: 1650:
+        -: 1651:private: // helpers, for structors, below 
+        -: 1652:
+        -: 1653:    template <typename T>
+        -: 1654:    void convert_construct(
+        -: 1655:          T& operand
+        -: 1656:        , int
+        -: 1657:        , mpl::false_ = mpl::false_() // is_foreign_variant
+        -: 1658:        )
+        -: 1659:    {
+        -: 1660:        // NOTE TO USER :
+        -: 1661:        // Compile error here indicates that the given type is not 
+        -: 1662:        // unambiguously convertible to one of the variant's types
+        -: 1663:        // (or that no conversion exists).
+        -: 1664:        //
+        -: 1665:        indicate_which(
+        -: 1666:              initializer::initialize(
+        -: 1667:                  storage_.address()
+        -: 1668:                , operand
+        -: 1669:                )
+        -: 1670:            );
+        -: 1671:    }
+        -: 1672:
+        -: 1673:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1674:    template <typename T>
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE17convert_constructISO_EENS_9enable_ifINS_19is_rvalue_referenceIOT_EEvE4typeESW_iN4mpl_5bool_ILb0EEE called 6627 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE17convert_constructISQ_EENS_9enable_ifINS_19is_rvalue_referenceIOT_EEvE4typeESW_iN4mpl_5bool_ILb0EEE called 1323 returned 100% blocks executed 100%
+     7950: 1675:    typename boost::enable_if<boost::is_rvalue_reference<T&&> >::type convert_construct(
+        -: 1676:          T&& operand
+        -: 1677:        , int
+        -: 1678:        , mpl::false_ = mpl::false_() // is_foreign_variant
+        -: 1679:        )
+        -: 1680:    {
+        -: 1681:        // NOTE TO USER :
+        -: 1682:        // Compile error here indicates that the given type is not 
+        -: 1683:        // unambiguously convertible to one of the variant's types
+        -: 1684:        // (or that no conversion exists).
+        -: 1685:        //
+     7950: 1686:        indicate_which(
+     7950: 1687:              initializer::initialize(
+     7950: 1688:                  storage_.address()
+     7950: 1689:                , detail::variant::move(operand)
+        -: 1690:                )
+        -: 1691:            );
+     7950: 1692:    }
+        -: 1693:#endif
+        -: 1694:
+        -: 1695:    template <typename Variant>
+        -: 1696:    void convert_construct(
+        -: 1697:          Variant& operand
+        -: 1698:        , long
+        -: 1699:        , mpl::true_// is_foreign_variant
+        -: 1700:        )
+        -: 1701:    {
+        -: 1702:        convert_copy_into visitor(storage_.address());
+        -: 1703:        indicate_which(
+        -: 1704:              operand.internal_apply_visitor(visitor)
+        -: 1705:            );
+        -: 1706:    }
+        -: 1707:
+        -: 1708:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1709:    template <typename Variant>
+        -: 1710:    typename boost::enable_if<boost::is_rvalue_reference<Variant&&> >::type convert_construct(
+        -: 1711:          Variant&& operand
+        -: 1712:        , long
+        -: 1713:        , mpl::true_// is_foreign_variant
+        -: 1714:        )
+        -: 1715:    {
+        -: 1716:        convert_move_into visitor(storage_.address());
+        -: 1717:        indicate_which(
+        -: 1718:              operand.internal_apply_visitor(visitor)
+        -: 1719:            );
+        -: 1720:    }
+        -: 1721:#endif
+        -: 1722:
+        -: 1723:    template <typename Variant>
+        -: 1724:    void convert_construct_variant(Variant& operand)
+        -: 1725:    {
+        -: 1726:        // [Determine if the given variant is itself a bounded type, or if its
+        -: 1727:        //  content needs to be converted (i.e., it is a 'foreign' variant):]
+        -: 1728:        //
+        -: 1729:
+        -: 1730:        typedef typename mpl::find_if<
+        -: 1731:              types
+        -: 1732:            , is_same<
+        -: 1733:                  add_const<mpl::_1>
+        -: 1734:                , const Variant
+        -: 1735:                >
+        -: 1736:            >::type found_it;
+        -: 1737:
+        -: 1738:        typedef typename mpl::end<types>::type not_found;
+        -: 1739:        typedef typename is_same<
+        -: 1740:              found_it, not_found
+        -: 1741:            >::type is_foreign_variant;
+        -: 1742:
+        -: 1743:        // Convert construct from operand:
+        -: 1744:        convert_construct(
+        -: 1745:              operand, 1L
+        -: 1746:            , is_foreign_variant()
+        -: 1747:            );
+        -: 1748:    }
+        -: 1749:
+        -: 1750:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1751:    template <typename Variant>
+        -: 1752:    typename boost::enable_if<boost::is_rvalue_reference<Variant&&> >::type convert_construct_variant(Variant&& operand)
+        -: 1753:    {
+        -: 1754:        // [Determine if the given variant is itself a bounded type, or if its
+        -: 1755:        //  content needs to be converted (i.e., it is a 'foreign' variant):]
+        -: 1756:        //
+        -: 1757:
+        -: 1758:        typedef typename mpl::find_if<
+        -: 1759:              types
+        -: 1760:            , is_same<
+        -: 1761:                  add_const<mpl::_1>
+        -: 1762:                , const Variant
+        -: 1763:                >
+        -: 1764:            >::type found_it;
+        -: 1765:
+        -: 1766:        typedef typename mpl::end<types>::type not_found;
+        -: 1767:        typedef typename is_same<
+        -: 1768:              found_it, not_found
+        -: 1769:            >::type is_foreign_variant;
+        -: 1770:
+        -: 1771:        // Convert move construct from operand:
+        -: 1772:        convert_construct(
+        -: 1773:              detail::variant::move(operand), 1L
+        -: 1774:            , is_foreign_variant()
+        -: 1775:            );
+        -: 1776:    }
+        -: 1777:#endif
+        -: 1778:
+        -: 1779:    template <BOOST_VARIANT_ENUM_PARAMS(typename U)>
+        -: 1780:    typename boost::enable_if<mpl::or_<
+        -: 1781:        boost::is_same<boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>, variant>,
+        -: 1782:        boost::detail::variant::is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>&, internal_types>
+        -: 1783:    > >::type convert_construct(
+        -: 1784:          boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>& operand
+        -: 1785:        , long
+        -: 1786:        )
+        -: 1787:    {
+        -: 1788:        convert_construct_variant(operand);
+        -: 1789:    }
+        -: 1790:
+        -: 1791:    template <BOOST_VARIANT_ENUM_PARAMS(typename U)>
+        -: 1792:    typename boost::enable_if<mpl::or_<
+        -: 1793:        boost::is_same<boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>, variant>,
+        -: 1794:        boost::detail::variant::is_variant_constructible_from<const boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>&, internal_types>
+        -: 1795:    > >::type convert_construct(
+        -: 1796:          const boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>& operand
+        -: 1797:        , long
+        -: 1798:        )
+        -: 1799:    {
+        -: 1800:        convert_construct_variant(operand);    
+        -: 1801:    }
+        -: 1802:
+        -: 1803:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1804:    template <BOOST_VARIANT_ENUM_PARAMS(typename U)>
+        -: 1805:    typename boost::enable_if<mpl::or_<
+        -: 1806:        boost::is_same<boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>, variant>,
+        -: 1807:        boost::detail::variant::is_variant_constructible_from<boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>&&, internal_types>
+        -: 1808:    > >::type convert_construct(
+        -: 1809:          boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>&& operand
+        -: 1810:        , long
+        -: 1811:        )
+        -: 1812:    {
+        -: 1813:        convert_construct_variant( detail::variant::move(operand) );    
+        -: 1814:    }
+        -: 1815:#endif
+        -: 1816:
+        -: 1817:public: // structors, cont.
+        -: 1818:
+        -: 1819:    template <typename T>
+        -: 1820:    variant(const T& operand,
+        -: 1821:        typename boost::enable_if<mpl::or_<
+        -: 1822:            mpl::and_<
+        -: 1823:                mpl::not_< boost::is_same<T, variant> >,
+        -: 1824:                boost::detail::variant::is_variant_constructible_from<const T&, internal_types>
+        -: 1825:            >, 
+        -: 1826:            boost::is_same<T, boost::recursive_variant_> > >::type* = 0)
+        -: 1827:    {
+        -: 1828:        convert_construct(operand, 1L);
+        -: 1829:    }
+        -: 1830:
+        -: 1831:    template <typename T>
+        -: 1832:    variant(
+        -: 1833:          T& operand
+        -: 1834:        , typename boost::enable_if<mpl::or_<
+        -: 1835:            mpl::and_<
+        -: 1836:                mpl::not_< is_const<T> >,
+        -: 1837:                mpl::not_< boost::is_same<T, variant> >,
+        -: 1838:                boost::detail::variant::is_variant_constructible_from<T&, internal_types>
+        -: 1839:            >,
+        -: 1840:            boost::is_same<T, boost::recursive_variant_> > >::type* = 0
+        -: 1841:        )
+        -: 1842:    {
+        -: 1843:        convert_construct(operand, 1L);
+        -: 1844:    }
+        -: 1845:
+        -: 1846:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1847:    template <class T>
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEC2ISO_EEOT_PNS_9enable_ifINS_3mpl3or_INSW_4and_INS_19is_rvalue_referenceISU_EENSW_4not_INS_8is_constIST_EEEENS11_INS_7is_sameIST_SR_EEEENS_6detail7variant29is_variant_constructible_fromISU_NSW_6l_itemIN4mpl_5long_ILl2EEESO_NS1B_INS1D_ILl1EEESQ_NSW_5l_endEEEEEEENS1C_5bool_ILb1EEEEENS15_IST_NS_18recursive_variant_EEENS1K_ILb0EEES1P_S1P_EEvE4typeE called 6627 returned 100% blocks executed 60%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEC2ISQ_EEOT_PNS_9enable_ifINS_3mpl3or_INSW_4and_INS_19is_rvalue_referenceISU_EENSW_4not_INS_8is_constIST_EEEENS11_INS_7is_sameIST_SR_EEEENS_6detail7variant29is_variant_constructible_fromISU_NSW_6l_itemIN4mpl_5long_ILl2EEESO_NS1B_INS1D_ILl1EEESQ_NSW_5l_endEEEEEEENS1C_5bool_ILb1EEEEENS15_IST_NS_18recursive_variant_EEENS1K_ILb0EEES1P_S1P_EEvE4typeE called 1323 returned 100% blocks executed 60%
+     7950: 1848:    variant(T&& operand,
+        -: 1849:        typename boost::enable_if<mpl::or_<
+        -: 1850:            mpl::and_<
+        -: 1851:                boost::is_rvalue_reference<T&&>,
+        -: 1852:                mpl::not_< boost::is_const<T> >,
+        -: 1853:                mpl::not_< boost::is_same<T, variant> >,
+        -: 1854:                boost::detail::variant::is_variant_constructible_from<T&&, internal_types>
+        -: 1855:            >,
+        -: 1856:            boost::is_same<T, boost::recursive_variant_> > >::type* = 0)
+        -: 1857:    {
+     7950: 1858:        convert_construct( detail::variant::move(operand), 1L);
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+     7950: 1859:    }
+        -: 1860:#endif
+        -: 1861:
+        -: 1862:public: // structors, cont.
+        -: 1863:
+        -: 1864:    // [MSVC6 requires copy constructor appear after template constructors]
+        -: 1865:    variant(const variant& operand)
+        -: 1866:    {
+        -: 1867:        // Copy the value of operand into *this...
+        -: 1868:        detail::variant::copy_into visitor( storage_.address() );
+        -: 1869:        operand.internal_apply_visitor(visitor);
+        -: 1870:
+        -: 1871:        // ...and activate the *this's primary storage on success:
+        -: 1872:        indicate_which(operand.which());
+        -: 1873:    }
+        -: 1874:
+        -: 1875:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1876:    variant(variant&& operand) BOOST_NOEXCEPT_IF(variant_move_noexcept_constructible::type::value)
+        -: 1877:    {
+        -: 1878:        // Move the value of operand into *this...
+        -: 1879:        detail::variant::move_into visitor( storage_.address() );
+        -: 1880:        operand.internal_apply_visitor(visitor);
+        -: 1881:
+        -: 1882:        // ...and activate the *this's primary storage on success:
+        -: 1883:        indicate_which(operand.which());
+        -: 1884:    }
+        -: 1885:#endif
+        -: 1886:
+        -: 1887:private: // helpers, for modifiers (below)
+        -: 1888:
+        -: 1889:#   if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+        -: 1890:    template <typename Variant>
+        -: 1891:    friend class detail::variant::backup_assigner;
+        -: 1892:#   endif
+        -: 1893:
+        -: 1894:    // class assigner
+        -: 1895:    //
+        -: 1896:    // Internal visitor that "assigns" the visited value to the given variant
+        -: 1897:    // by appropriate destruction and copy-construction.
+        -: 1898:    //
+        -: 1899:
+        -: 1900:    class assigner
+        -: 1901:        : public static_visitor<>
+        -: 1902:    {
+        -: 1903:    protected: // representation
+        -: 1904:
+        -: 1905:        variant& lhs_;
+        -: 1906:        const int rhs_which_;
+        -: 1907:
+        -: 1908:    public: // structors
+        -: 1909:
+        -: 1910:        assigner(variant& lhs, int rhs_which) BOOST_NOEXCEPT
+        -: 1911:            : lhs_(lhs)
+        -: 1912:            , rhs_which_(rhs_which)
+        -: 1913:        {
+        -: 1914:        }
+        -: 1915:
+        -: 1916:    protected: // helpers, for internal visitor interface (below)
+        -: 1917:
+        -: 1918:        template <typename RhsT, typename B1, typename B2>
+        -: 1919:        void assign_impl(
+        -: 1920:              const RhsT& rhs_content
+        -: 1921:            , mpl::true_ // has_nothrow_copy
+        -: 1922:            , B1 // is_nothrow_move_constructible
+        -: 1923:            , B2 // has_fallback_type
+        -: 1924:            ) const BOOST_NOEXCEPT
+        -: 1925:        {
+        -: 1926:            // Destroy lhs's content...
+        -: 1927:            lhs_.destroy_content(); // nothrow
+        -: 1928:
+        -: 1929:            // ...copy rhs content into lhs's storage...
+        -: 1930:            new(lhs_.storage_.address())
+        -: 1931:                RhsT( rhs_content ); // nothrow
+        -: 1932:
+        -: 1933:            // ...and indicate new content type:
+        -: 1934:            lhs_.indicate_which(rhs_which_); // nothrow
+        -: 1935:        }
+        -: 1936:
+        -: 1937:        template <typename RhsT, typename B>
+        -: 1938:        void assign_impl(
+        -: 1939:              const RhsT& rhs_content
+        -: 1940:            , mpl::false_ // has_nothrow_copy
+        -: 1941:            , mpl::true_ // is_nothrow_move_constructible
+        -: 1942:            , B // has_fallback_type
+        -: 1943:            ) const
+        -: 1944:        {
+        -: 1945:            // Attempt to make a temporary copy (so as to move it below)...
+        -: 1946:            RhsT temp(rhs_content);
+        -: 1947:
+        -: 1948:            // ...and upon success destroy lhs's content...
+        -: 1949:            lhs_.destroy_content(); // nothrow
+        -: 1950:
+        -: 1951:            // ...move the temporary copy into lhs's storage...
+        -: 1952:            new(lhs_.storage_.address())
+        -: 1953:                RhsT( detail::variant::move(temp) ); // nothrow
+        -: 1954:
+        -: 1955:            // ...and indicate new content type:
+        -: 1956:            lhs_.indicate_which(rhs_which_); // nothrow
+        -: 1957:        }
+        -: 1958:
+        -: 1959:        void construct_fallback() const BOOST_NOEXCEPT {
+        -: 1960:            // In case of failure, default-construct fallback type in lhs's storage...
+        -: 1961:            new (lhs_.storage_.address())
+        -: 1962:                fallback_type_; // nothrow
+        -: 1963:
+        -: 1964:            // ...indicate construction of fallback type...
+        -: 1965:            lhs_.indicate_which(
+        -: 1966:                  BOOST_MPL_AUX_VALUE_WKND(fallback_type_index_)::value
+        -: 1967:                ); // nothrow
+        -: 1968:        }
+        -: 1969:
+        -: 1970:        template <typename RhsT>
+        -: 1971:        void assign_impl(
+        -: 1972:              const RhsT& rhs_content
+        -: 1973:            , mpl::false_ // has_nothrow_copy
+        -: 1974:            , mpl::false_ // is_nothrow_move_constructible
+        -: 1975:            , mpl::true_ // has_fallback_type
+        -: 1976:            ) const
+        -: 1977:        {
+        -: 1978:            // Destroy lhs's content...
+        -: 1979:            lhs_.destroy_content(); // nothrow
+        -: 1980:
+        -: 1981:            BOOST_TRY
+        -: 1982:            {
+        -: 1983:                // ...and attempt to copy rhs's content into lhs's storage:
+        -: 1984:                new(lhs_.storage_.address())
+        -: 1985:                    RhsT( rhs_content );
+        -: 1986:            }
+        -: 1987:            BOOST_CATCH (...)
+        -: 1988:            {
+        -: 1989:                construct_fallback();
+        -: 1990:
+        -: 1991:                // ...and rethrow:
+        -: 1992:                BOOST_RETHROW;
+        -: 1993:            }
+        -: 1994:            BOOST_CATCH_END
+        -: 1995:
+        -: 1996:            // In the event of success, indicate new content type:
+        -: 1997:            lhs_.indicate_which(rhs_which_); // nothrow
+        -: 1998:        }
+        -: 1999:
+        -: 2000:        template <typename RhsT>
+        -: 2001:        void assign_impl(
+        -: 2002:              const RhsT& rhs_content
+        -: 2003:            , mpl::false_ // has_nothrow_copy
+        -: 2004:            , mpl::false_ // is_nothrow_move_constructible
+        -: 2005:            , mpl::false_ // has_fallback_type
+        -: 2006:            ) const
+        -: 2007:        {
+        -: 2008:            detail::variant::backup_assigner<wknd_self_t>
+        -: 2009:                visitor(lhs_, rhs_which_, rhs_content);
+        -: 2010:            lhs_.internal_apply_visitor(visitor);
+        -: 2011:        }
+        -: 2012:
+        -: 2013:    public: // internal visitor interfaces
+        -: 2014:
+        -: 2015:        template <typename RhsT>
+        -: 2016:            BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -: 2017:        internal_visit(const RhsT& rhs_content, int) const
+        -: 2018:        {
+        -: 2019:            typedef typename has_nothrow_copy<RhsT>::type
+        -: 2020:                nothrow_copy;
+        -: 2021:            typedef typename mpl::or_< // reduces compile-time
+        -: 2022:                  nothrow_copy
+        -: 2023:                , is_nothrow_move_constructible<RhsT>
+        -: 2024:                >::type nothrow_move_constructor;
+        -: 2025:
+        -: 2026:            assign_impl(
+        -: 2027:                  rhs_content
+        -: 2028:                , nothrow_copy()
+        -: 2029:                , nothrow_move_constructor()
+        -: 2030:                , has_fallback_type_()
+        -: 2031:                );
+        -: 2032:
+        -: 2033:            BOOST_VARIANT_AUX_RETURN_VOID;
+        -: 2034:        }
+        -: 2035:
+        -: 2036:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -: 2037:    private:
+        -: 2038:        // silence MSVC warning C4512: assignment operator could not be generated
+        -: 2039:        assigner& operator= (assigner const&);
+        -: 2040:#endif
+        -: 2041:    };
+        -: 2042:    
+        -: 2043:    friend class assigner;
+        -: 2044:   
+        -: 2045:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2046:    // class move_assigner
+        -: 2047:    //
+        -: 2048:    // Internal visitor that "move assigns" the visited value to the given variant
+        -: 2049:    // by appropriate destruction and move-construction.
+        -: 2050:    //
+        -: 2051:
+        -: 2052:    class move_assigner
+        -: 2053:        : public assigner
+        -: 2054:    {
+        -: 2055:    public: // structors
+        -: 2056:
+        -: 2057:        move_assigner(variant& lhs, int rhs_which) BOOST_NOEXCEPT
+        -: 2058:            : assigner(lhs, rhs_which)
+        -: 2059:        {
+        -: 2060:        }
+        -: 2061:
+        -: 2062:    private: // helpers, for internal visitor interface (below)
+        -: 2063:        
+        -: 2064:        template <typename RhsT, typename B2>
+        -: 2065:        void assign_impl(
+        -: 2066:              RhsT& rhs_content
+        -: 2067:            , mpl::true_ // has_nothrow_copy
+        -: 2068:            , mpl::false_ // is_nothrow_move_constructible
+        -: 2069:            , B2 // has_fallback_type
+        -: 2070:            ) const BOOST_NOEXCEPT
+        -: 2071:        {
+        -: 2072:            assigner::assign_impl(rhs_content, mpl::true_(), mpl::false_(), B2());
+        -: 2073:        }
+        -: 2074:
+        -: 2075:        template <typename RhsT, typename B, typename B2>
+        -: 2076:        void assign_impl(
+        -: 2077:              RhsT& rhs_content
+        -: 2078:            , B // has_nothrow_copy
+        -: 2079:            , mpl::true_ // is_nothrow_move_constructible
+        -: 2080:            , B2 // has_fallback_type
+        -: 2081:            ) const BOOST_NOEXCEPT
+        -: 2082:        {
+        -: 2083:            // ...destroy lhs's content...
+        -: 2084:            assigner::lhs_.destroy_content(); // nothrow
+        -: 2085:
+        -: 2086:            // ...move the rhs_content into lhs's storage...
+        -: 2087:            new(assigner::lhs_.storage_.address())
+        -: 2088:                RhsT( detail::variant::move(rhs_content) ); // nothrow
+        -: 2089:
+        -: 2090:            // ...and indicate new content type:
+        -: 2091:            assigner::lhs_.indicate_which(assigner::rhs_which_); // nothrow
+        -: 2092:        }
+        -: 2093:
+        -: 2094:        template <typename RhsT>
+        -: 2095:        void assign_impl(
+        -: 2096:              RhsT& rhs_content
+        -: 2097:            , mpl::false_ // has_nothrow_copy
+        -: 2098:            , mpl::false_ // is_nothrow_move_constructible
+        -: 2099:            , mpl::true_ // has_fallback_type
+        -: 2100:            ) const
+        -: 2101:        {
+        -: 2102:            // Destroy lhs's content...
+        -: 2103:            assigner::lhs_.destroy_content(); // nothrow
+        -: 2104:
+        -: 2105:            BOOST_TRY
+        -: 2106:            {
+        -: 2107:                // ...and attempt to copy rhs's content into lhs's storage:
+        -: 2108:                new(assigner::lhs_.storage_.address())
+        -: 2109:                    RhsT( detail::variant::move(rhs_content) );
+        -: 2110:            }
+        -: 2111:            BOOST_CATCH (...)
+        -: 2112:            {
+        -: 2113:                assigner::construct_fallback();
+        -: 2114:
+        -: 2115:                // ...and rethrow:
+        -: 2116:                BOOST_RETHROW;
+        -: 2117:            }
+        -: 2118:            BOOST_CATCH_END
+        -: 2119:
+        -: 2120:            // In the event of success, indicate new content type:
+        -: 2121:            assigner::lhs_.indicate_which(assigner::rhs_which_); // nothrow
+        -: 2122:        }
+        -: 2123:        
+        -: 2124:        template <typename RhsT>
+        -: 2125:        void assign_impl(
+        -: 2126:              RhsT& rhs_content
+        -: 2127:            , mpl::false_ // has_nothrow_copy
+        -: 2128:            , mpl::false_ // is_nothrow_move_constructible
+        -: 2129:            , mpl::false_ // has_fallback_type
+        -: 2130:            ) const
+        -: 2131:        {
+        -: 2132:            assigner::assign_impl(rhs_content, mpl::false_(), mpl::false_(), mpl::false_());
+        -: 2133:        }
+        -: 2134:
+        -: 2135:    public: // internal visitor interfaces
+        -: 2136:
+        -: 2137:        template <typename RhsT>
+        -: 2138:            BOOST_VARIANT_AUX_RETURN_VOID_TYPE
+        -: 2139:        internal_visit(RhsT& rhs_content, int) const
+        -: 2140:        {
+        -: 2141:            typedef typename is_nothrow_move_constructible<RhsT>::type
+        -: 2142:                nothrow_move_constructor;
+        -: 2143:            typedef typename mpl::or_< // reduces compile-time
+        -: 2144:                  nothrow_move_constructor
+        -: 2145:                , has_nothrow_copy<RhsT>
+        -: 2146:                >::type nothrow_copy;
+        -: 2147:
+        -: 2148:            assign_impl(
+        -: 2149:                  rhs_content
+        -: 2150:                , nothrow_copy()
+        -: 2151:                , nothrow_move_constructor()
+        -: 2152:                , has_fallback_type_()
+        -: 2153:                );
+        -: 2154:
+        -: 2155:            BOOST_VARIANT_AUX_RETURN_VOID;
+        -: 2156:        }
+        -: 2157:
+        -: 2158:#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+        -: 2159:    private:
+        -: 2160:        // silence MSVC warning C4512: assignment operator could not be generated
+        -: 2161:        move_assigner& operator= (move_assigner const&);
+        -: 2162:#endif
+        -: 2163:    };
+        -: 2164:
+        -: 2165:    friend class move_assigner;
+        -: 2166:#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2167:
+        -: 2168:    void variant_assign(const variant& rhs)
+        -: 2169:    {
+        -: 2170:        // If the contained types are EXACTLY the same...
+        -: 2171:        if (which_ == rhs.which_)
+        -: 2172:        {
+        -: 2173:            // ...then assign rhs's storage to lhs's content:
+        -: 2174:            detail::variant::assign_storage visitor(rhs.storage_.address());
+        -: 2175:            this->internal_apply_visitor(visitor);
+        -: 2176:        }
+        -: 2177:        else
+        -: 2178:        {
+        -: 2179:            // Otherwise, perform general (copy-based) variant assignment:
+        -: 2180:            assigner visitor(*this, rhs.which());
+        -: 2181:            rhs.internal_apply_visitor(visitor); 
+        -: 2182:        }
+        -: 2183:    }
+        -: 2184:
+        -: 2185:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2186:    void variant_assign(variant&& rhs)
+        -: 2187:    {
+        -: 2188:        // If the contained types are EXACTLY the same...
+        -: 2189:        if (which_ == rhs.which_)
+        -: 2190:        {
+        -: 2191:            // ...then move rhs's storage to lhs's content:
+        -: 2192:            detail::variant::move_storage visitor(rhs.storage_.address());
+        -: 2193:            this->internal_apply_visitor(visitor);
+        -: 2194:        }
+        -: 2195:        else
+        -: 2196:        {
+        -: 2197:            // Otherwise, perform general (move-based) variant assignment:
+        -: 2198:            move_assigner visitor(*this, rhs.which());
+        -: 2199:            rhs.internal_apply_visitor(visitor); 
+        -: 2200:        }
+        -: 2201:    }
+        -: 2202:#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2203:
+        -: 2204:private: // helpers, for modifiers (below)
+        -: 2205:
+        -: 2206:    template <typename T>
+        -: 2207:    void assign(const T& rhs)
+        -: 2208:    {
+        -: 2209:        // If direct T-to-T assignment is not possible...
+        -: 2210:        detail::variant::direct_assigner<T> direct_assign(rhs);
+        -: 2211:        if (this->apply_visitor(direct_assign) == false)
+        -: 2212:        {
+        -: 2213:            // ...then convert rhs to variant and assign:
+        -: 2214:            //
+        -: 2215:            // While potentially inefficient, the following construction of a
+        -: 2216:            // variant allows T as any type convertible to one of the bounded
+        -: 2217:            // types without excessive code redundancy.
+        -: 2218:            //
+        -: 2219:            variant temp(rhs);
+        -: 2220:            variant_assign( detail::variant::move(temp) );
+        -: 2221:        }
+        -: 2222:    }
+        -: 2223:
+        -: 2224:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2225:    template <typename T>
+        -: 2226:    void move_assign(T&& rhs)
+        -: 2227:    {
+        -: 2228:        // If direct T-to-T move assignment is not possible...
+        -: 2229:        detail::variant::direct_mover<T> direct_move(rhs);
+        -: 2230:        if (this->apply_visitor(direct_move) == false)
+        -: 2231:        {
+        -: 2232:            // ...then convert rhs to variant and assign:
+        -: 2233:            //
+        -: 2234:            // While potentially inefficient, the following construction of a
+        -: 2235:            // variant allows T as any type convertible to one of the bounded
+        -: 2236:            // types without excessive code redundancy.
+        -: 2237:            //
+        -: 2238:            variant temp( detail::variant::move(rhs) );
+        -: 2239:            variant_assign( detail::variant::move(temp) );
+        -: 2240:        }
+        -: 2241:    }
+        -: 2242:#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2243:
+        -: 2244:public: // modifiers
+        -: 2245:
+        -: 2246:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2247:    template <class T>
+        -: 2248:    typename boost::enable_if<
+        -: 2249:        boost::mpl::and_<
+        -: 2250:            boost::is_rvalue_reference<T&&>,
+        -: 2251:            mpl::not_< boost::is_const<T> >,
+        -: 2252:            boost::detail::variant::is_variant_constructible_from<T&&, internal_types>
+        -: 2253:        >,
+        -: 2254:        variant&
+        -: 2255:    >::type operator=(T&& rhs) 
+        -: 2256:    {
+        -: 2257:        move_assign( detail::variant::move(rhs) );
+        -: 2258:        return *this;
+        -: 2259:    }
+        -: 2260:#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2261:
+        -: 2262:    template <typename T>
+        -: 2263:    typename boost::enable_if<
+        -: 2264:        mpl::or_<
+        -: 2265:            boost::is_same<T, variant>,
+        -: 2266:            boost::detail::variant::is_variant_constructible_from<const T&, internal_types>
+        -: 2267:        >,
+        -: 2268:        variant&
+        -: 2269:    >::type operator=(const T& rhs)
+        -: 2270:    {
+        -: 2271:        assign(rhs);
+        -: 2272:        return *this;
+        -: 2273:    }
+        -: 2274:
+        -: 2275:    // [MSVC6 requires copy assign appear after templated operator=]
+        -: 2276:    variant& operator=(const variant& rhs)
+        -: 2277:    {
+        -: 2278:        variant_assign(rhs);
+        -: 2279:        return *this;
+        -: 2280:    }
+        -: 2281:
+        -: 2282:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2283:    variant& operator=(variant&& rhs) 
+        -: 2284:#if !defined(__GNUC__) || (__GNUC__ != 4) || (__GNUC_MINOR__ > 6) || defined(__clang__)
+        -: 2285:        BOOST_NOEXCEPT_IF(variant_move_noexcept_constructible::type::value && variant_move_noexcept_assignable::type::value)
+        -: 2286:#endif
+        -: 2287:    {
+        -: 2288:        variant_assign( detail::variant::move(rhs) );
+        -: 2289:        return *this;
+        -: 2290:    }
+        -: 2291:#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 2292:
+        -: 2293:    void swap(variant& rhs)
+        -: 2294:    {
+        -: 2295:        // If the contained types are the same...
+        -: 2296:        if (which() == rhs.which())
+        -: 2297:        {
+        -: 2298:            // ...then swap the values directly:
+        -: 2299:            detail::variant::swap_with<variant> visitor(rhs);
+        -: 2300:            this->apply_visitor(visitor);
+        -: 2301:        }
+        -: 2302:        else
+        -: 2303:        {
+        -: 2304:            // ...otherwise, perform general variant swap:
+        -: 2305:            variant tmp( detail::variant::move(rhs) );
+        -: 2306:            rhs = detail::variant::move(*this);
+        -: 2307:            *this = detail::variant::move(tmp);
+        -: 2308:        }
+        -: 2309:    }
+        -: 2310:
+        -: 2311:public: // queries
+        -: 2312:
+        -: 2313:    //
+        -: 2314:    // NOTE: member which() defined above.
+        -: 2315:    //
+        -: 2316:
+        -: 2317:    bool empty() const BOOST_NOEXCEPT
+        -: 2318:    {
+        -: 2319:        return false;
+        -: 2320:    }
+        -: 2321:
+        -: 2322:    const boost::typeindex::type_info& type() const
+        -: 2323:    {
+        -: 2324:        detail::variant::reflect visitor;
+        -: 2325:        return this->apply_visitor(visitor);
+        -: 2326:    }
+        -: 2327:
+        -: 2328:public: // prevent comparison with foreign types
+        -: 2329:
+        -: 2330:    template <typename U>
+        -: 2331:    void operator==(const U&) const
+        -: 2332:    {
+        -: 2333:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2334:    }
+        -: 2335:
+        -: 2336:    template <typename U>
+        -: 2337:    void operator<(const U&) const
+        -: 2338:    {
+        -: 2339:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2340:    }
+        -: 2341:
+        -: 2342:    template <typename U>
+        -: 2343:    void operator!=(const U&) const
+        -: 2344:    {
+        -: 2345:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2346:    }
+        -: 2347:
+        -: 2348:    template <typename U>
+        -: 2349:    void operator>(const U&) const
+        -: 2350:    {
+        -: 2351:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2352:    }
+        -: 2353:
+        -: 2354:    template <typename U>
+        -: 2355:    void operator<=(const U&) const
+        -: 2356:    {
+        -: 2357:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2358:    }
+        -: 2359:
+        -: 2360:    template <typename U>
+        -: 2361:    void operator>=(const U&) const
+        -: 2362:    {
+        -: 2363:        BOOST_STATIC_ASSERT( false && sizeof(U) );
+        -: 2364:    }
+        -: 2365:
+        -: 2366:public: // comparison operators
+        -: 2367:
+        -: 2368:    // [MSVC6 requires these operators appear after template operators]
+        -: 2369:
+        -: 2370:    bool operator==(const variant& rhs) const
+        -: 2371:    {
+        -: 2372:        if (this->which() != rhs.which())
+        -: 2373:            return false;
+        -: 2374:
+        -: 2375:        detail::variant::comparer<
+        -: 2376:              variant, detail::variant::equal_comp
+        -: 2377:            > visitor(*this);
+        -: 2378:        return rhs.apply_visitor(visitor);
+        -: 2379:    }
+        -: 2380:
+        -: 2381:    bool operator<(const variant& rhs) const
+        -: 2382:    {
+        -: 2383:        //
+        -: 2384:        // Dirk Schreib suggested this collating order.
+        -: 2385:        //
+        -: 2386:
+        -: 2387:        if (this->which() != rhs.which())
+        -: 2388:            return this->which() < rhs.which();
+        -: 2389:
+        -: 2390:        detail::variant::comparer<
+        -: 2391:              variant, detail::variant::less_comp
+        -: 2392:            > visitor(*this);
+        -: 2393:        return rhs.apply_visitor(visitor);
+        -: 2394:    }
+        -: 2395:
+        -: 2396:    ///////////////////////////////////////////////////////////////////////////////
+        -: 2397:    // comparison operators != > <= >=
+        -: 2398:    inline bool operator!=(const variant& rhs) const
+        -: 2399:    {
+        -: 2400:        return !(*this == rhs);
+        -: 2401:    }
+        -: 2402:
+        -: 2403:    inline bool operator>(const variant& rhs) const
+        -: 2404:    {
+        -: 2405:        return rhs < *this;
+        -: 2406:    }
+        -: 2407:
+        -: 2408:    inline bool operator<=(const variant& rhs) const
+        -: 2409:    {
+        -: 2410:        return !(*this > rhs);
+        -: 2411:    }
+        -: 2412:
+        -: 2413:    inline bool operator>=(const variant& rhs) const
+        -: 2414:    {
+        -: 2415:        return !(*this < rhs);
+        -: 2416:    }
+        -: 2417:
+        -: 2418:// helpers, for visitation support (below) -- private when possible
+        -: 2419:#if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+        -: 2420:
+        -: 2421:    template < BOOST_VARIANT_ENUM_PARAMS(typename U) >
+        -: 2422:    friend class variant;
+        -: 2423:
+        -: 2424:private:
+        -: 2425:
+        -: 2426:#else// defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+        -: 2427:
+        -: 2428:public:
+        -: 2429:
+        -: 2430:#endif// !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+        -: 2431:
+        -: 2432:    template <typename Visitor, typename VoidPtrCV>
+        -: 2433:    static
+        -: 2434:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2435:              typename Visitor::result_type
+        -: 2436:            )
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors13spatial_queryISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS3_10predicates17spatial_predicateISD_NS1A_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEELb0EEEPvEENT_11result_typeEiiRS1M_T0_ called 2603770 returned 99% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors7destroyISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEPvEENT_11result_typeEiiRS1D_T0_ called 7950 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINSU_11get_visitorISO_EELb0EEEPvEENT_11result_typeEiiRS10_T0_ called 40292 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant9destroyerEPvEENT_11result_typeEiiRSX_T0_ called 7950 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINSU_11get_visitorISQ_EELb0EEEPvEENT_11result_typeEiiRS10_T0_ called 45906 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_SZ_EELb0EEEPvEENT_11result_typeEiiRS1D_T0_ called 68009 returned 99% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm0ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEPvEENT_11result_typeEiiRS1E_T0_ called 109951 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS4_18insert_default_tagEEELb0EEEPvEENT_11result_typeEiiRS1E_T0_ called 0 returned 0% blocks executed 0%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm1ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEPvEENT_11result_typeEiiRS1E_T0_ called 43176 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE27internal_apply_visitor_implINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm1ENS4_8ptr_pairISD_PSR_EESF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEPvEENT_11result_typeEiiRS1H_T0_ called 0 returned 0% blocks executed 0%
+  2927004: 2437:    internal_apply_visitor_impl(
+        -: 2438:          int internal_which
+        -: 2439:        , int logical_which
+        -: 2440:        , Visitor& visitor
+        -: 2441:        , VoidPtrCV storage
+        -: 2442:        )
+        -: 2443:    {
+        -: 2444:        typedef mpl::int_<0> first_which;
+        -: 2445:        typedef typename mpl::begin<internal_types>::type first_it;
+        -: 2446:        typedef typename mpl::end<internal_types>::type last_it;
+        -: 2447:
+        -: 2448:        typedef detail::variant::visitation_impl_step<
+        -: 2449:              first_it, last_it
+        -: 2450:            > first_step;
+        -: 2451:
+  2927004: 2452:        return detail::variant::visitation_impl(
+  2927004: 2453:              internal_which, logical_which
+  2927004: 2454:            , visitor, storage, mpl::false_()
+        -: 2455:            , never_uses_backup_flag()
+        -: 2456:            , static_cast<first_which*>(0), static_cast<first_step*>(0)
+        -: 2457:            );
+        -: 2458:    }
+        -: 2459:
+        -: 2460:    template <typename Visitor>
+        -: 2461:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2462:              typename Visitor::result_type
+        -: 2463:            )
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors13spatial_queryISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS3_10predicates17spatial_predicateISD_NS1A_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEELb0EEEEENT_11result_typeERS1L_ called 2602530 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors7destroyISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEEENT_11result_typeERS1C_ called 7950 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINSU_11get_visitorISO_EELb0EEEEENT_11result_typeERSZ_ called 40291 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant9destroyerEEENT_11result_typeERSW_ called 7950 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINSU_11get_visitorISQ_EELb0EEEEENT_11result_typeERSZ_ called 45904 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_SZ_EELb0EEEEENT_11result_typeERS1C_ called 68008 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm0ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEEENT_11result_typeERS1D_ called 109950 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS4_18insert_default_tagEEELb0EEEEENT_11result_typeERS1D_ called 0 returned 0% blocks executed 0%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm1ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEEENT_11result_typeERS1D_ called 43176 returned 100% blocks executed 100%
+function _ZN5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE22internal_apply_visitorINS_6detail7variant14invoke_visitorINS4_8visitors5rstar12level_insertILm1ENS4_8ptr_pairISD_PSR_EESF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EELb0EEEEENT_11result_typeERS1G_ called 0 returned 0% blocks executed 0%
+  2925759: 2464:    internal_apply_visitor(Visitor& visitor)
+        -: 2465:    {
+  2925759: 2466:        return internal_apply_visitor_impl(
+  2925759: 2467:              which_, which(), visitor, storage_.address()
+        -: 2468:            );
+        -: 2469:    }
+        -: 2470:
+        -: 2471:    template <typename Visitor>
+        -: 2472:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2473:              typename Visitor::result_type
+        -: 2474:            )
+        -: 2475:    internal_apply_visitor(Visitor& visitor) const
+        -: 2476:    {
+        -: 2477:        return internal_apply_visitor_impl(
+        -: 2478:              which_, which(), visitor, storage_.address()
+        -: 2479:            );
+        -: 2480:    }
+        -: 2481:
+        -: 2482:public: // visitation support
+        -: 2483:
+        -: 2484:#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+        -: 2485:
+        -: 2486:    template <typename Visitor>
+        -: 2487:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2488:              typename Visitor::result_type
+        -: 2489:            )
+        -: 2490:    apply_visitor(Visitor& visitor) &&
+        -: 2491:    {
+        -: 2492:        detail::variant::invoke_visitor<Visitor, true> invoker(visitor);
+        -: 2493:        return this->internal_apply_visitor(invoker);
+        -: 2494:    }
+        -: 2495:
+        -: 2496:    template <typename Visitor>
+        -: 2497:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2498:              typename Visitor::result_type
+        -: 2499:            )
+        -: 2500:    apply_visitor(Visitor& visitor) const&&
+        -: 2501:    {
+        -: 2502:        detail::variant::invoke_visitor<Visitor, true> invoker(visitor);
+        -: 2503:        return this->internal_apply_visitor(invoker);
+        -: 2504:    }
+        -: 2505:
+        -: 2506:#endif
+        -: 2507:
+        -: 2508:    template <typename Visitor>
+        -: 2509:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2510:              typename Visitor::result_type
+        -: 2511:            )
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors13spatial_queryISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS3_10predicates17spatial_predicateISD_NS17_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEEEENT_11result_typeERS1H_ called 2602918 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors7destroyISF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EEEENT_11result_typeERS18_ called 7950 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS_6detail7variant11get_visitorISO_EEEENT_11result_typeERSX_ called 40292 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS_6detail7variant11get_visitorISQ_EEEENT_11result_typeERSX_ called 45904 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_SW_EEEENT_11result_typeERS18_ called 68008 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors5rstar12level_insertILm0ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EEEENT_11result_typeERS19_ called 109950 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors6insertISF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_NS4_18insert_default_tagEEEEENT_11result_typeERS19_ called 0 returned 0% blocks executed 0%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors5rstar12level_insertILm1ESF_SF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EEEENT_11result_typeERS19_ called 43176 returned 100% blocks executed 100%
+function _ZNR5boost7variantINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EEJNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEE13apply_visitorINS4_8visitors5rstar12level_insertILm1ENS4_8ptr_pairISD_PSR_EESF_NS4_7optionsISH_NS4_19insert_reinsert_tagENS4_26choose_by_overlap_diff_tagENS4_17split_default_tagENS4_9rstar_tagESM_EENS3_10translatorINS2_9indexableISF_EENS2_8equal_toISF_EEEESD_SN_EEEENT_11result_typeERS1C_ called 0 returned 0% blocks executed 0%
+  2918198: 2512:    apply_visitor(Visitor& visitor)
+        -: 2513:#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+        -: 2514:    &
+        -: 2515:#endif
+        -: 2516:    {
+  2918198: 2517:        detail::variant::invoke_visitor<Visitor, false> invoker(visitor);
+  2918198: 2518:        return this->internal_apply_visitor(invoker);
+        -: 2519:    }
+        -: 2520:
+        -: 2521:    template <typename Visitor>
+        -: 2522:        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
+        -: 2523:              typename Visitor::result_type
+        -: 2524:            )
+        -: 2525:    apply_visitor(Visitor& visitor) const
+        -: 2526:#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+        -: 2527:    &
+        -: 2528:#endif
+        -: 2529:    {
+        -: 2530:        detail::variant::invoke_visitor<Visitor, false> invoker(visitor);
+        -: 2531:        return this->internal_apply_visitor(invoker);
+        -: 2532:    }
+        -: 2533:
+        -: 2534:}; // class variant
+        -: 2535:
+        -: 2536:///////////////////////////////////////////////////////////////////////////////
+        -: 2537:// metafunction make_variant_over
+        -: 2538://
+        -: 2539:// See docs and boost/variant/variant_fwd.hpp for more information.
+        -: 2540://
+        -: 2541:template <typename Types>
+        -: 2542:struct make_variant_over
+        -: 2543:{
+        -: 2544:private: // precondition assertions
+        -: 2545:
+        -: 2546:    BOOST_STATIC_ASSERT(( ::boost::mpl::is_sequence<Types>::value ));
+        -: 2547:    typedef typename boost::mpl::insert_range<
+        -: 2548:      boost::mpl::list<>
+        -: 2549:    , boost::mpl::end< boost::mpl::list<> >::type
+        -: 2550:    , Types
+        -: 2551:    >::type copied_sequence_t;
+        -: 2552:
+        -: 2553:public: // metafunction result
+        -: 2554:
+        -: 2555:    typedef variant<
+        -: 2556:          detail::variant::over_sequence<copied_sequence_t>
+        -: 2557:        > type;
+        -: 2558:
+        -: 2559:};
+        -: 2560:
+        -: 2561:///////////////////////////////////////////////////////////////////////////////
+        -: 2562:// function template swap
+        -: 2563://
+        -: 2564:// Swaps two variants of the same type (i.e., identical specification).
+        -: 2565://
+        -: 2566:template < BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -: 2567:inline void swap(
+        -: 2568:      variant< BOOST_VARIANT_ENUM_PARAMS(T) >& lhs
+        -: 2569:    , variant< BOOST_VARIANT_ENUM_PARAMS(T) >& rhs
+        -: 2570:    )
+        -: 2571:{
+        -: 2572:    lhs.swap(rhs);
+        -: 2573:}
+        -: 2574:
+        -: 2575:} // namespace boost
+        -: 2576:
+        -: 2577:// implementation additions
+        -: 2578:
+        -: 2579:#if !defined(BOOST_NO_IOSTREAM)
+        -: 2580:#include <boost/variant/detail/variant_io.hpp>
+        -: 2581:#endif // BOOST_NO_IOSTREAM
+        -: 2582:
+        -: 2583:#endif // BOOST_VARIANT_VARIANT_HPP

@@ -1,0 +1,230 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/visitors/spatial_query.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree spatial query visitor implementation
+        -:    4://
+        -:    5:// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_SPATIAL_QUERY_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_SPATIAL_QUERY_HPP
+        -:   13:
+        -:   14:namespace boost { namespace geometry { namespace index {
+        -:   15:
+        -:   16:namespace detail { namespace rtree { namespace visitors {
+        -:   17:
+        -:   18:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, typename OutIter>
+        -:   19:struct spatial_query
+        -:   20:    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+        -:   21:{
+        -:   22:    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:   23:    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:   24:    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:   25:
+        -:   26:    typedef typename Allocators::size_type size_type;
+        -:   27:
+        -:   28:    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+        -:   29:
+function _ZN5boost8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EENS2_10predicates17spatial_predicateISD_NS10_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEC2ERKSU_RKS13_S18_ called 693834 returned 100% blocks executed 100%
+   693834:   30:    inline spatial_query(Translator const& t, Predicates const& p, OutIter out_it)
+   693834:   31:        : tr(t), pred(p), out_iter(out_it), found_count(0)
+  1387668:   32:    {}
+        -:   33:
+function _ZN5boost8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EENS2_10predicates17spatial_predicateISD_NS10_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEclERKNS3_21variant_internal_nodeISF_SI_SD_SZ_SN_EE called 589143 returned 100% blocks executed 100%
+   589143:   34:    inline void operator()(internal_node const& n)
+        -:   35:    {
+        -:   36:        typedef typename rtree::elements_type<internal_node>::type elements_type;
+   589143:   37:        elements_type const& elements = rtree::elements(n);
+        -:   38:
+        -:   39:        // traverse nodes meeting predicates
+  3493309:   40:        for (typename elements_type::const_iterator it = elements.begin();
+branch  0 taken 83%
+branch  1 taken 17%
+  3493359:   41:            it != elements.end(); ++it)
+        -:   42:        {
+        -:   43:            // if node meets predicates
+        -:   44:            // 0 - dummy value
+  2904339:   45:            if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(pred, 0, it->first) )
+branch  0 taken 66%
+branch  1 taken 34%
+  1909877:   46:                rtree::apply_visitor(*this, *it->second);
+  2903993:   47:        }
+   589210:   48:    }
+        -:   49:
+function _ZN5boost8geometry5index6detail5rtree8visitors13spatial_queryISt4pairINS0_5model3boxINS7_5pointIfLm2ENS0_2cs9cartesianEEEEES6_ISC_SC_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISF_EENS1_8equal_toISF_EEEESD_NS3_10allocatorsINS_9container13new_allocatorISF_EESF_SI_SD_SN_EENS2_10predicates17spatial_predicateISD_NS10_14intersects_tagELb0EEESt20back_insert_iteratorISt6vectorISF_SaISF_EEEEclERKNS3_12variant_leafISF_SI_SD_SZ_SN_EE called 2014578 returned 100% blocks executed 100%
+  2014578:   50:    inline void operator()(leaf const& n)
+        -:   51:    {
+        -:   52:        typedef typename rtree::elements_type<leaf>::type elements_type;
+  2014578:   53:        elements_type const& elements = rtree::elements(n);
+        -:   54:
+        -:   55:        // get all values meeting predicates
+ 23052559:   56:        for (typename elements_type::const_iterator it = elements.begin();
+branch  0 taken 91%
+branch  1 taken 9%
+ 23051659:   57:            it != elements.end(); ++it)
+        -:   58:        {
+        -:   59:            // if value meets predicates
+ 21038210:   60:            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, *it, tr(*it)) )
+branch  0 taken 69%
+branch  1 taken 31%
+        -:   61:            {
+ 14420838:   62:                *out_iter = *it;
+ 14420838:   63:                ++out_iter;
+        -:   64:
+ 14420838:   65:                ++found_count;
+ 14420838:   66:            }
+ 21042727:   67:        }
+  2014583:   68:    }
+        -:   69:
+        -:   70:    Translator const& tr;
+        -:   71:
+        -:   72:    Predicates pred;
+        -:   73:
+        -:   74:    OutIter out_iter;
+        -:   75:    size_type found_count;
+        -:   76:};
+        -:   77:
+        -:   78:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates>
+        -:   79:class spatial_query_incremental
+        -:   80:    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+        -:   81:{
+        -:   82:public:
+        -:   83:    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:   84:    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:   85:    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:   86:
+        -:   87:    typedef typename Allocators::size_type size_type;
+        -:   88:    typedef typename Allocators::const_reference const_reference;
+        -:   89:    typedef typename Allocators::node_pointer node_pointer;
+        -:   90:
+        -:   91:    typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
+        -:   92:    typedef typename rtree::elements_type<leaf>::type leaf_elements;
+        -:   93:    typedef typename rtree::elements_type<leaf>::type::const_iterator leaf_iterator;
+        -:   94:
+        -:   95:    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+        -:   96:
+        -:   97:    inline spatial_query_incremental()
+        -:   98:        : m_translator(NULL)
+        -:   99://        , m_pred()
+        -:  100:        , m_values(NULL)
+        -:  101:        , m_current()
+        -:  102:    {}
+        -:  103:
+        -:  104:    inline spatial_query_incremental(Translator const& t, Predicates const& p)
+        -:  105:        : m_translator(::boost::addressof(t))
+        -:  106:        , m_pred(p)
+        -:  107:        , m_values(NULL)
+        -:  108:        , m_current()
+        -:  109:    {}
+        -:  110:
+        -:  111:    inline void operator()(internal_node const& n)
+        -:  112:    {
+        -:  113:        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        -:  114:        elements_type const& elements = rtree::elements(n);
+        -:  115:
+        -:  116:        m_internal_stack.push_back(std::make_pair(elements.begin(), elements.end()));
+        -:  117:    }
+        -:  118:
+        -:  119:    inline void operator()(leaf const& n)
+        -:  120:    {
+        -:  121:        m_values = ::boost::addressof(rtree::elements(n));
+        -:  122:        m_current = rtree::elements(n).begin();
+        -:  123:    }
+        -:  124:
+        -:  125:    const_reference dereference() const
+        -:  126:    {
+        -:  127:        BOOST_GEOMETRY_INDEX_ASSERT(m_values, "not dereferencable");
+        -:  128:        return *m_current;
+        -:  129:    }
+        -:  130:
+        -:  131:    void initialize(node_pointer root)
+        -:  132:    {
+        -:  133:        rtree::apply_visitor(*this, *root);
+        -:  134:        search_value();
+        -:  135:    }
+        -:  136:
+        -:  137:    void increment()
+        -:  138:    {
+        -:  139:        ++m_current;
+        -:  140:        search_value();
+        -:  141:    }
+        -:  142:
+        -:  143:    void search_value()
+        -:  144:    {
+        -:  145:        for (;;)
+        -:  146:        {
+        -:  147:            // if leaf is choosen, move to the next value in leaf
+        -:  148:            if ( m_values )
+        -:  149:            {
+        -:  150:                if ( m_current != m_values->end() )
+        -:  151:                {
+        -:  152:                    // return if next value is found
+        -:  153:                    Value const& v = *m_current;
+        -:  154:                    if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, v, (*m_translator)(v)) )
+        -:  155:                        return;
+        -:  156:
+        -:  157:                    ++m_current;
+        -:  158:                }
+        -:  159:                // no more values, clear current leaf
+        -:  160:                else
+        -:  161:                {
+        -:  162:                    m_values = 0;
+        -:  163:                }
+        -:  164:            }
+        -:  165:            // if leaf isn't choosen, move to the next leaf
+        -:  166:            else
+        -:  167:            {
+        -:  168:                // return if there is no more nodes to traverse
+        -:  169:                if ( m_internal_stack.empty() )
+        -:  170:                    return;
+        -:  171:
+        -:  172:                // no more children in current node, remove it from stack
+        -:  173:                if ( m_internal_stack.back().first == m_internal_stack.back().second )
+        -:  174:                {
+        -:  175:                    m_internal_stack.pop_back();
+        -:  176:                    continue;
+        -:  177:                }
+        -:  178:
+        -:  179:                internal_iterator it = m_internal_stack.back().first;
+        -:  180:                ++m_internal_stack.back().first;
+        -:  181:
+        -:  182:                // next node is found, push it to the stack
+        -:  183:                if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(m_pred, 0, it->first) )
+        -:  184:                    rtree::apply_visitor(*this, *(it->second));
+        -:  185:            }
+        -:  186:        }
+        -:  187:    }
+        -:  188:
+        -:  189:    bool is_end() const
+        -:  190:    {
+        -:  191:        return 0 == m_values;
+        -:  192:    }
+        -:  193:
+        -:  194:    friend bool operator==(spatial_query_incremental const& l, spatial_query_incremental const& r)
+        -:  195:    {
+        -:  196:        return (l.m_values == r.m_values) && (0 == l.m_values || l.m_current == r.m_current );
+        -:  197:    }
+        -:  198:
+        -:  199:private:
+        -:  200:
+        -:  201:    const Translator * m_translator;
+        -:  202:
+        -:  203:    Predicates m_pred;
+        -:  204:
+        -:  205:    std::vector< std::pair<internal_iterator, internal_iterator> > m_internal_stack;
+        -:  206:    const leaf_elements * m_values;
+        -:  207:    leaf_iterator m_current;
+        -:  208:};
+        -:  209:
+        -:  210:}}} // namespace detail::rtree::visitors
+        -:  211:
+        -:  212:}}} // namespace boost::geometry::index
+        -:  213:
+        -:  214:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_SPATIAL_QUERY_HPP

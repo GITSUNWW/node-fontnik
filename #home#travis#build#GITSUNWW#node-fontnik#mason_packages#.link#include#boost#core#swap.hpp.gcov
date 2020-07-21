@@ -1,0 +1,69 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/core/swap.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Copyright (C) 2007, 2008 Steven Watanabe, Joseph Gauterin, Niels Dekker
+        -:    2://
+        -:    3:// Distributed under the Boost Software License, Version 1.0. (See
+        -:    4:// accompanying file LICENSE_1_0.txt or copy at
+        -:    5:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    6:// For more information, see http://www.boost.org
+        -:    7:
+        -:    8:
+        -:    9:#ifndef BOOST_CORE_SWAP_HPP
+        -:   10:#define BOOST_CORE_SWAP_HPP
+        -:   11:
+        -:   12:// Note: the implementation of this utility contains various workarounds:
+        -:   13:// - swap_impl is put outside the boost namespace, to avoid infinite
+        -:   14:// recursion (causing stack overflow) when swapping objects of a primitive
+        -:   15:// type.
+        -:   16:// - swap_impl has a using-directive, rather than a using-declaration,
+        -:   17:// because some compilers (including MSVC 7.1, Borland 5.9.3, and
+        -:   18:// Intel 8.1) don't do argument-dependent lookup when it has a
+        -:   19:// using-declaration instead.
+        -:   20:// - boost::swap has two template arguments, instead of one, to
+        -:   21:// avoid ambiguity when swapping objects of a Boost type that does
+        -:   22:// not have its own boost::swap overload.
+        -:   23:
+        -:   24:#include <utility> //for std::swap (C++11)
+        -:   25:#include <algorithm> //for std::swap (C++98)
+        -:   26:#include <cstddef> //for std::size_t
+        -:   27:#include <boost/config.hpp>
+        -:   28:
+        -:   29:namespace boost_swap_impl
+        -:   30:{
+        -:   31:  template<class T>
+        -:   32:  BOOST_GPU_ENABLED
+function _ZN15boost_swap_impl9swap_implImEEvRT_S2_ called 0 returned 0% blocks executed 0%
+function _ZN15boost_swap_impl9swap_implIeEEvRT_S2_ called 0 returned 0% blocks executed 0%
+    #####:   33:  void swap_impl(T& left, T& right)
+        -:   34:  {
+        -:   35:    using namespace std;//use std::swap if argument dependent lookup fails
+    #####:   36:    swap(left,right);
+    #####:   37:  }
+        -:   38:
+        -:   39:  template<class T, std::size_t N>
+        -:   40:  BOOST_GPU_ENABLED
+        -:   41:  void swap_impl(T (& left)[N], T (& right)[N])
+        -:   42:  {
+        -:   43:    for (std::size_t i = 0; i < N; ++i)
+        -:   44:    {
+        -:   45:      ::boost_swap_impl::swap_impl(left[i], right[i]);
+        -:   46:    }
+        -:   47:  }
+        -:   48:}
+        -:   49:
+        -:   50:namespace boost
+        -:   51:{
+        -:   52:  template<class T1, class T2>
+        -:   53:  BOOST_GPU_ENABLED
+function _ZN5boost4swapImmEEvRT_RT0_ called 0 returned 0% blocks executed 0%
+function _ZN5boost4swapIeeEEvRT_RT0_ called 0 returned 0% blocks executed 0%
+    #####:   54:  void swap(T1& left, T2& right)
+        -:   55:  {
+    #####:   56:    ::boost_swap_impl::swap_impl(left, right);
+    #####:   57:  }
+        -:   58:}
+        -:   59:
+        -:   60:#endif

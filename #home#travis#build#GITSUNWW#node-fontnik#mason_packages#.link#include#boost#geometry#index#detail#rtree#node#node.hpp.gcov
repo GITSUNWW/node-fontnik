@@ -1,0 +1,248 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/index/detail/rtree/node/node.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry Index
+        -:    2://
+        -:    3:// R-tree nodes
+        -:    4://
+        -:    5:// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+        -:    6://
+        -:    7:// Use, modification and distribution is subject to the Boost Software License,
+        -:    8:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    9:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   10:
+        -:   11:#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
+        -:   12:#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
+        -:   13:
+        -:   14:#include <boost/container/vector.hpp>
+        -:   15:#include <boost/geometry/index/detail/varray.hpp>
+        -:   16:
+        -:   17:#include <boost/geometry/index/detail/rtree/node/concept.hpp>
+        -:   18:#include <boost/geometry/index/detail/rtree/node/pairs.hpp>
+        -:   19:#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
+        -:   20:#include <boost/geometry/index/detail/rtree/node/scoped_deallocator.hpp>
+        -:   21:
+        -:   22://#include <boost/geometry/index/detail/rtree/node/weak_visitor.hpp>
+        -:   23://#include <boost/geometry/index/detail/rtree/node/weak_dynamic.hpp>
+        -:   24://#include <boost/geometry/index/detail/rtree/node/weak_static.hpp>
+        -:   25:
+        -:   26:#include <boost/geometry/index/detail/rtree/node/variant_visitor.hpp>
+        -:   27:#include <boost/geometry/index/detail/rtree/node/variant_dynamic.hpp>
+        -:   28:#include <boost/geometry/index/detail/rtree/node/variant_static.hpp>
+        -:   29:
+        -:   30:#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
+        -:   31:
+        -:   32:#include <boost/geometry/algorithms/expand.hpp>
+        -:   33:
+        -:   34:#include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
+        -:   35:
+        -:   36:#include <boost/geometry/index/detail/algorithms/bounds.hpp>
+        -:   37:#include <boost/geometry/index/detail/is_bounding_geometry.hpp>
+        -:   38:
+        -:   39:namespace boost { namespace geometry { namespace index {
+        -:   40:
+        -:   41:namespace detail { namespace rtree {
+        -:   42:
+        -:   43:// elements box
+        -:   44:
+        -:   45:template <typename Box, typename FwdIter, typename Translator>
+function _ZN5boost8geometry5index6detail5rtree12elements_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEEPSt4pairISB_SC_ISA_SA_EENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEEEET_T0_SN_RKT1_ called 406138 returned 100% blocks executed 88%
+function _ZN5boost8geometry5index6detail5rtree12elements_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEEPKSt4pairISB_SC_ISA_SA_EENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEEEET_T0_SO_RKT1_ called 5397 returned 100% blocks executed 88%
+function _ZN5boost8geometry5index6detail5rtree12elements_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEEPKNS3_8ptr_pairISB_PNS_7variantINS3_12variant_leafISt4pairISB_SF_ISA_SA_EENS1_5rstarILm16ELm4ELm4ELm32EEESB_NS3_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SB_NS3_23node_variant_static_tagEEESO_EEJNS3_21variant_internal_nodeISH_SJ_SB_SP_SO_EEEEEEENS2_10translatorINS1_9indexableISH_EENS1_8equal_toISH_EEEEEET_T0_S15_RKT1_ called 0 returned 0% blocks executed 0%
+function _ZN5boost8geometry5index6detail5rtree12elements_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEEPNS3_8ptr_pairISB_PNS_7variantINS3_12variant_leafISt4pairISB_SF_ISA_SA_EENS1_5rstarILm16ELm4ELm4ELm32EEESB_NS3_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SB_NS3_23node_variant_static_tagEEESO_EEJNS3_21variant_internal_nodeISH_SJ_SB_SP_SO_EEEEEEENS2_10translatorINS1_9indexableISH_EENS1_8equal_toISH_EEEEEET_T0_S14_RKT1_ called 164 returned 100% blocks executed 88%
+   411699:   46:inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
+        -:   47:{
+        -:   48:    Box result;
+        -:   49:    
+        -:   50:    // Only here to suppress 'uninitialized local variable used' warning
+        -:   51:    // until the suggestion below is not implemented
+   411699:   52:    geometry::assign_inverse(result);
+        -:   53:
+        -:   54:    //BOOST_GEOMETRY_INDEX_ASSERT(first != last, "non-empty range required");
+        -:   55:    // NOTE: this is not elegant temporary solution,
+        -:   56:    //       reference to box could be passed as parameter and bool returned
+   411699:   57:    if ( first == last )
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 never executed
+branch  5 never executed
+branch  6 taken 0%
+branch  7 taken 100%
+    #####:   58:        return result;
+        -:   59:
+   411705:   60:    detail::bounds(element_indexable(*first, tr), result);
+   411705:   61:    ++first;
+        -:   62:
+  3523738:   63:    for ( ; first != last ; ++first )
+branch  0 taken 88%
+branch  1 taken 12%
+branch  2 taken 92%
+branch  3 taken 8%
+branch  4 never executed
+branch  5 never executed
+branch  6 taken 88%
+branch  7 taken 12%
+  3112023:   64:        geometry::expand(result, element_indexable(*first, tr));
+        -:   65:
+   411706:   66:    return result;
+   411706:   67:}
+        -:   68:
+        -:   69:// Enlarge bounds of a leaf node WRT epsilon if needed.
+        -:   70:// It's because Points and Segments are compared WRT machine epsilon.
+        -:   71:// This ensures that leafs bounds correspond to the stored elements.
+        -:   72:// NOTE: this is done only if the Indexable is not a Box
+        -:   73://       in the future don't do it also for NSphere
+        -:   74:template <typename Box, typename FwdIter, typename Translator>
+function _ZN5boost8geometry5index6detail5rtree10values_boxINS0_5model3boxINS5_5pointIfLm2ENS0_2cs9cartesianEEEEEPKSt4pairISB_SC_ISA_SA_EENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEEEET_T0_SO_RKT1_ called 5397 returned 100% blocks executed 100%
+     5397:   75:inline Box values_box(FwdIter first, FwdIter last, Translator const& tr)
+        -:   76:{
+        -:   77:    typedef typename std::iterator_traits<FwdIter>::value_type element_type;
+        -:   78:    BOOST_MPL_ASSERT_MSG((is_leaf_element<element_type>::value),
+        -:   79:                         SHOULD_BE_CALLED_ONLY_FOR_LEAF_ELEMENTS,
+        -:   80:                         (element_type));
+        -:   81:
+     5397:   82:    Box result = elements_box<Box>(first, last, tr);
+        -:   83:
+        -:   84:#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
+        -:   85:    if (BOOST_GEOMETRY_CONDITION((
+        -:   86:        ! is_bounding_geometry
+        -:   87:            <
+        -:   88:                typename indexable_type<Translator>::type
+        -:   89:            >::value)))
+        -:   90:    {
+        -:   91:        geometry::detail::expand_by_epsilon(result);
+        -:   92:    }
+        -:   93:#endif
+        -:   94:
+     5397:   95:    return result;
+        -:   96:}
+        -:   97:
+        -:   98:// destroys subtree if the element is internal node's element
+        -:   99:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+        -:  100:struct destroy_element
+        -:  101:{
+        -:  102:    typedef typename Options::parameters_type parameters_type;
+        -:  103:
+        -:  104:    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:  105:    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:  106:
+        -:  107:    typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
+        -:  108:
+function _ZN5boost8geometry5index6detail5rtree15destroy_elementISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyERNS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SY_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SY_SM_EEEEEEERSY_ called 0 returned 0% blocks executed 0%
+    #####:  109:    inline static void apply(typename internal_node::elements_type::value_type & element, Allocators & allocators)
+        -:  110:    {
+    #####:  111:         subtree_destroyer dummy(element.second, allocators);
+    #####:  112:         element.second = 0;
+    #####:  113:    }
+        -:  114:
+function _ZN5boost8geometry5index6detail5rtree15destroy_elementISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyERSE_RSY_ called 0 returned 0% blocks executed 0%
+    #####:  115:    inline static void apply(typename leaf::elements_type::value_type &, Allocators &) {}
+        -:  116:};
+        -:  117:
+        -:  118:// destroys stored subtrees if internal node's elements are passed
+        -:  119:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+        -:  120:struct destroy_elements
+        -:  121:{
+        -:  122:    template <typename Range>
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyINS2_6varrayISE_Lm17EEEEEvRT_RSY_ called 0 returned 0% blocks executed 0%
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyINS2_6varrayINS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SY_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SY_SM_EEEEEEELm17EEEEEvRT_RSY_ called 0 returned 0% blocks executed 0%
+    #####:  123:    inline static void apply(Range & elements, Allocators & allocators)
+        -:  124:    {
+    #####:  125:        apply(boost::begin(elements), boost::end(elements), allocators);
+    #####:  126:    }
+        -:  127:
+        -:  128:    template <typename It>
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyIPSE_EEvT_S12_RSY_ called 0 returned 0% blocks executed 0%
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE5applyIPNS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SY_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SY_SM_EEEEEEEEEvT_S1B_RSY_ called 0 returned 0% blocks executed 0%
+    #####:  129:    inline static void apply(It first, It last, Allocators & allocators)
+        -:  130:    {
+        -:  131:        typedef boost::mpl::bool_<
+        -:  132:            boost::is_same<
+        -:  133:                Value, typename std::iterator_traits<It>::value_type
+        -:  134:            >::value
+        -:  135:        > is_range_of_values;
+        -:  136:
+    #####:  137:        apply_dispatch(first, last, allocators, is_range_of_values());
+    #####:  138:    }
+        -:  139:
+        -:  140:private:
+        -:  141:    template <typename It>
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE14apply_dispatchIPNS3_8ptr_pairISC_PNS_7variantINS3_12variant_leafISE_SH_SC_SY_SM_EEJNS3_21variant_internal_nodeISE_SH_SC_SY_SM_EEEEEEEEEvT_S1B_RSY_RKN4mpl_5bool_ILb0EEE called 0 returned 0% blocks executed 0%
+    #####:  142:    inline static void apply_dispatch(It first, It last, Allocators & allocators,
+        -:  143:                                      boost::mpl::bool_<false> const& /*is_range_of_values*/)
+        -:  144:    {
+        -:  145:        typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
+        -:  146:
+    #####:  147:        for ( ; first != last ; ++first )
+branch  0 never executed
+branch  1 never executed
+        -:  148:        {
+    #####:  149:            subtree_destroyer dummy(first->second, allocators);
+    #####:  150:            first->second = 0;
+    #####:  151:        }
+    #####:  152:    }
+        -:  153:
+        -:  154:    template <typename It>
+function _ZN5boost8geometry5index6detail5rtree16destroy_elementsISt4pairINS0_5model3boxINS6_5pointIfLm2ENS0_2cs9cartesianEEEEES5_ISB_SB_EENS3_7optionsINS1_5rstarILm16ELm4ELm4ELm32EEENS3_19insert_reinsert_tagENS3_26choose_by_overlap_diff_tagENS3_17split_default_tagENS3_9rstar_tagENS3_23node_variant_static_tagEEENS2_10translatorINS1_9indexableISE_EENS1_8equal_toISE_EEEESC_NS3_10allocatorsINS_9container13new_allocatorISE_EESE_SH_SC_SM_EEE14apply_dispatchIPSE_EEvT_S12_RSY_RKN4mpl_5bool_ILb1EEE called 0 returned 0% blocks executed 0%
+    #####:  155:    inline static void apply_dispatch(It /*first*/, It /*last*/, Allocators & /*allocators*/,
+        -:  156:                                      boost::mpl::bool_<true> const& /*is_range_of_values*/)
+    #####:  157:    {}
+        -:  158:};
+        -:  159:
+        -:  160:// clears node, deletes all subtrees stored in node
+        -:  161:template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+        -:  162:struct clear_node
+        -:  163:{
+        -:  164:    typedef typename Options::parameters_type parameters_type;
+        -:  165:
+        -:  166:    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+        -:  167:    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+        -:  168:    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+        -:  169:
+        -:  170:    inline static void apply(node & node, Allocators & allocators)
+        -:  171:    {
+        -:  172:        rtree::visitors::is_leaf<Value, Options, Box, Allocators> ilv;
+        -:  173:        rtree::apply_visitor(ilv, node);
+        -:  174:        if ( ilv.result )
+        -:  175:        {
+        -:  176:            apply(rtree::get<leaf>(node), allocators);
+        -:  177:        }
+        -:  178:        else
+        -:  179:        {
+        -:  180:            apply(rtree::get<internal_node>(node), allocators);
+        -:  181:        }
+        -:  182:    }
+        -:  183:
+        -:  184:    inline static void apply(internal_node & internal_node, Allocators & allocators)
+        -:  185:    {
+        -:  186:        destroy_elements<Value, Options, Translator, Box, Allocators>::apply(rtree::elements(internal_node), allocators);
+        -:  187:        rtree::elements(internal_node).clear();
+        -:  188:    }
+        -:  189:
+        -:  190:    inline static void apply(leaf & leaf, Allocators &)
+        -:  191:    {
+        -:  192:        rtree::elements(leaf).clear();
+        -:  193:    }
+        -:  194:};
+        -:  195:
+        -:  196:template <typename Container, typename Iterator>
+        -:  197:void move_from_back(Container & container, Iterator it)
+        -:  198:{
+        -:  199:    BOOST_GEOMETRY_INDEX_ASSERT(!container.empty(), "cannot copy from empty container");
+        -:  200:    Iterator back_it = container.end();
+        -:  201:    --back_it;
+        -:  202:    if ( it != back_it )
+        -:  203:    {
+        -:  204:        *it = boost::move(*back_it);                                                             // MAY THROW (copy)
+        -:  205:    }
+        -:  206:}
+        -:  207:
+        -:  208:}} // namespace detail::rtree
+        -:  209:
+        -:  210:}}} // namespace boost::geometry::index
+        -:  211:
+        -:  212:#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP

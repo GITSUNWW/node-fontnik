@@ -1,0 +1,174 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/type_traits/aligned_storage.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://-----------------------------------------------------------------------------
+        -:    2:// boost aligned_storage.hpp header file
+        -:    3:// See http://www.boost.org for updates, documentation, and revision history.
+        -:    4://-----------------------------------------------------------------------------
+        -:    5://
+        -:    6:// Copyright (c) 2002-2003
+        -:    7:// Eric Friedman, Itay Maman
+        -:    8://
+        -:    9:// Distributed under the Boost Software License, Version 1.0. (See
+        -:   10:// accompanying file LICENSE_1_0.txt or copy at
+        -:   11:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   12:
+        -:   13:#ifndef BOOST_TT_ALIGNED_STORAGE_HPP
+        -:   14:#define BOOST_TT_ALIGNED_STORAGE_HPP
+        -:   15:
+        -:   16:#include <cstddef> // for std::size_t
+        -:   17:
+        -:   18:#include <boost/config.hpp>
+        -:   19:#include <boost/detail/workaround.hpp>
+        -:   20:#include <boost/type_traits/alignment_of.hpp>
+        -:   21:#include <boost/type_traits/type_with_alignment.hpp>
+        -:   22:#include <boost/type_traits/is_pod.hpp>
+        -:   23:#include <boost/type_traits/conditional.hpp>
+        -:   24:
+        -:   25:namespace boost {
+        -:   26:
+        -:   27:namespace detail { namespace aligned_storage {
+        -:   28:
+        -:   29:BOOST_STATIC_CONSTANT(
+        -:   30:      std::size_t
+        -:   31:    , alignment_of_max_align = ::boost::alignment_of<boost::detail::max_align>::value
+        -:   32:    );
+        -:   33:
+        -:   34://
+        -:   35:// To be TR1 conforming this must be a POD type:
+        -:   36://
+        -:   37:template <
+        -:   38:      std::size_t size_
+        -:   39:    , std::size_t alignment_
+        -:   40:>
+        -:   41:struct aligned_storage_imp
+        -:   42:{
+        -:   43:    union data_t
+        -:   44:    {
+        -:   45:        char buf[size_];
+        -:   46:
+        -:   47:        typename ::boost::type_with_alignment<alignment_>::type align_;
+        -:   48:    } data_;
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm544ELm4EE7addressEv called 26611057 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm408ELm8EE7addressEv called 4870870 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm552ELm8EE7addressEv called 2933523 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm680ELm8EE7addressEv called 232071 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm24ELm8EE7addressEv called 24775 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm816ELm16EE7addressEv called 646989 returned 100% blocks executed 100%
+function _ZNK5boost6detail15aligned_storage19aligned_storage_impILm544ELm8EE7addressEv called 0 returned 0% blocks executed 0%
+ 35319285:   49:    void* address() const { return const_cast<aligned_storage_imp*>(this); }
+        -:   50:};
+        -:   51:template <std::size_t size>
+        -:   52:struct aligned_storage_imp<size, std::size_t(-1)>
+        -:   53:{
+        -:   54:   union data_t
+        -:   55:   {
+        -:   56:      char buf[size];
+        -:   57:      ::boost::detail::max_align align_;
+        -:   58:   } data_;
+        -:   59:   void* address() const { return const_cast<aligned_storage_imp*>(this); }
+        -:   60:};
+        -:   61:
+        -:   62:template< std::size_t alignment_ >
+        -:   63:struct aligned_storage_imp<0u,alignment_>
+        -:   64:{
+        -:   65:    /* intentionally empty */
+        -:   66:    void* address() const { return 0; }
+        -:   67:};
+        -:   68:
+        -:   69:}} // namespace detail::aligned_storage
+        -:   70:
+        -:   71:template <
+        -:   72:      std::size_t size_
+        -:   73:    , std::size_t alignment_ = std::size_t(-1)
+        -:   74:>
+        -:   75:class aligned_storage : 
+        -:   76:#ifndef __BORLANDC__
+        -:   77:   private 
+        -:   78:#else
+        -:   79:   public
+        -:   80:#endif
+        -:   81:   ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> 
+        -:   82:{
+        -:   83: 
+        -:   84:public: // constants
+        -:   85:
+        -:   86:    typedef ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> type;
+        -:   87:
+        -:   88:    BOOST_STATIC_CONSTANT(
+        -:   89:          std::size_t
+        -:   90:        , size = size_
+        -:   91:        );
+        -:   92:    BOOST_STATIC_CONSTANT(
+        -:   93:          std::size_t
+        -:   94:        , alignment = (
+        -:   95:              alignment_ == std::size_t(-1)
+        -:   96:            ? ::boost::detail::aligned_storage::alignment_of_max_align
+        -:   97:            : alignment_
+        -:   98:            )
+        -:   99:        );
+        -:  100:
+        -:  101:private: // noncopyable
+        -:  102:
+        -:  103:    aligned_storage(const aligned_storage&);
+        -:  104:    aligned_storage& operator=(const aligned_storage&);
+        -:  105:
+        -:  106:public: // structors
+        -:  107:
+function _ZN5boost15aligned_storageILm552ELm8EEC2Ev called 7950 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm4EEC2Ev called 110979 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm680ELm8EEC2Ev called 5397 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm24ELm8EEC2Ev called 4955 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm408ELm8EEC2Ev called 24246 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm816ELm16EEC2Ev called 63521 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm8EEC2Ev called 0 returned 0% blocks executed 0%
+   217048:  108:    aligned_storage()
+   217048:  109:    {
+   217048:  110:    }
+        -:  111:
+function _ZN5boost15aligned_storageILm552ELm8EED2Ev called 7950 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm4EED2Ev called 110981 returned 99% blocks executed 100%
+function _ZN5boost15aligned_storageILm408ELm8EED2Ev called 24246 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm680ELm8EED2Ev called 5397 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm24ELm8EED2Ev called 4955 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm816ELm16EED2Ev called 63523 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm8EED2Ev called 0 returned 0% blocks executed 0%
+   217052:  112:    ~aligned_storage()
+        -:  113:    {
+   217052:  114:    }
+        -:  115:
+        -:  116:public: // accessors
+        -:  117:
+function _ZN5boost15aligned_storageILm552ELm8EE7addressEv called 2934413 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm4EE7addressEv called 1550407 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm408ELm8EE7addressEv called 209538 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm680ELm8EE7addressEv called 232069 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm24ELm8EE7addressEv called 24775 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm816ELm16EE7addressEv called 505044 returned 100% blocks executed 100%
+function _ZN5boost15aligned_storageILm544ELm8EE7addressEv called 0 returned 0% blocks executed 0%
+  5456246:  118:    void* address()
+        -:  119:    {
+  5456246:  120:        return static_cast<type*>(this)->address();
+        -:  121:    }
+        -:  122:
+function _ZNK5boost15aligned_storageILm544ELm4EE7addressEv called 25112033 returned 100% blocks executed 100%
+function _ZNK5boost15aligned_storageILm408ELm8EE7addressEv called 4658473 returned 100% blocks executed 100%
+function _ZNK5boost15aligned_storageILm816ELm16EE7addressEv called 141956 returned 100% blocks executed 100%
+ 29912462:  123:    const void* address() const
+        -:  124:    {
+ 29912462:  125:        return static_cast<const type*>(this)->address();
+        -:  126:    }
+        -:  127:};
+        -:  128:
+        -:  129://
+        -:  130:// Make sure that is_pod recognises aligned_storage<>::type
+        -:  131:// as a POD (Note that aligned_storage<> itself is not a POD):
+        -:  132://
+        -:  133:template <std::size_t size_, std::size_t alignment_>
+        -:  134:struct is_pod< ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> > : public true_type{};
+        -:  135:
+        -:  136:} // namespace boost
+        -:  137:
+        -:  138:#endif // BOOST_ALIGNED_STORAGE_HPP

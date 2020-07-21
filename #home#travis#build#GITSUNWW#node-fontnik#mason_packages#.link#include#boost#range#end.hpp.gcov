@@ -1,0 +1,137 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/range/end.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Range library
+        -:    2://
+        -:    3://  Copyright Thorsten Ottosen 2003-2004. Use, modification and
+        -:    4://  distribution is subject to the Boost Software License, Version
+        -:    5://  1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    6://  http://www.boost.org/LICENSE_1_0.txt)
+        -:    7://
+        -:    8:// For more information, see http://www.boost.org/libs/range/
+        -:    9://
+        -:   10:
+        -:   11:#ifndef BOOST_RANGE_END_HPP
+        -:   12:#define BOOST_RANGE_END_HPP
+        -:   13:
+        -:   14:#if defined(_MSC_VER)
+        -:   15:# pragma once
+        -:   16:#endif
+        -:   17:
+        -:   18:#include <boost/range/config.hpp>
+        -:   19:
+        -:   20:#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+        -:   21:#include <boost/range/detail/end.hpp>
+        -:   22:#else
+        -:   23:
+        -:   24:#include <boost/range/detail/implementation_help.hpp>
+        -:   25:#include <boost/range/iterator.hpp>
+        -:   26:#include <boost/range/const_iterator.hpp>
+        -:   27:
+        -:   28:namespace boost
+        -:   29:{
+        -:   30:
+        -:   31:#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+        -:   32:namespace range_detail
+        -:   33:{
+        -:   34:#endif
+        -:   35:
+        -:   36:        //////////////////////////////////////////////////////////////////////
+        -:   37:        // primary template
+        -:   38:        //////////////////////////////////////////////////////////////////////
+        -:   39:        template< typename C >
+        -:   40:        inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
+function _ZN5boost12range_detail9range_endINS_8geometry5index6detail6varrayISt4pairINS2_5model3boxINS7_5pointIfLm2ENS2_2cs9cartesianEEEEES6_ISC_SC_EELm17EEEEENS_14range_iteratorIT_vE4typeERSI_ called 0 returned 0% blocks executed 0%
+function _ZN5boost12range_detail9range_endINS_8geometry5index6detail6varrayINS4_5rtree8ptr_pairINS2_5model3boxINS8_5pointIfLm2ENS2_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISE_SH_ISD_SD_EENS3_5rstarILm16ELm4ELm4ELm32EEESE_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS6_23node_variant_static_tagEEESQ_EEJNS6_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEELm17EEEEENS_14range_iteratorIT_vE4typeERS10_ called 0 returned 0% blocks executed 0%
+    #####:   41:        range_end( C& c )
+        -:   42:        {
+        -:   43:            //
+        -:   44:            // If you get a compile-error here, it is most likely because
+        -:   45:            // you have not implemented range_begin() properly in
+        -:   46:            // the namespace of C
+        -:   47:            //
+    #####:   48:            return c.end();
+        -:   49:        }
+        -:   50:
+        -:   51:        //////////////////////////////////////////////////////////////////////
+        -:   52:        // pair
+        -:   53:        //////////////////////////////////////////////////////////////////////
+        -:   54:
+        -:   55:        template< typename Iterator >
+        -:   56:        inline Iterator range_end( const std::pair<Iterator,Iterator>& p )
+        -:   57:        {
+        -:   58:            return p.second;
+        -:   59:        }
+        -:   60:
+        -:   61:        template< typename Iterator >
+        -:   62:        inline Iterator range_end( std::pair<Iterator,Iterator>& p )
+        -:   63:        {
+        -:   64:            return p.second;
+        -:   65:        }
+        -:   66:
+        -:   67:        //////////////////////////////////////////////////////////////////////
+        -:   68:        // array
+        -:   69:        //////////////////////////////////////////////////////////////////////
+        -:   70:
+        -:   71:        template< typename T, std::size_t sz >
+        -:   72:        inline const T* range_end( const T (&a)[sz] )
+        -:   73:        {
+        -:   74:            return range_detail::array_end<T,sz>( a );
+        -:   75:        }
+        -:   76:
+        -:   77:        template< typename T, std::size_t sz >
+        -:   78:        inline T* range_end( T (&a)[sz] )
+        -:   79:        {
+        -:   80:            return range_detail::array_end<T,sz>( a );
+        -:   81:        }
+        -:   82:
+        -:   83:#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+        -:   84:} // namespace 'range_detail'
+        -:   85:#endif
+        -:   86:
+        -:   87:namespace range_adl_barrier
+        -:   88:{
+        -:   89:
+        -:   90:template< class T >
+function _ZN5boost17range_adl_barrier3endINS_8geometry5index6detail6varrayISt4pairINS2_5model3boxINS7_5pointIfLm2ENS2_2cs9cartesianEEEEES6_ISC_SC_EELm17EEEEENS_14range_iteratorIT_vE4typeERSI_ called 0 returned 0% blocks executed 0%
+function _ZN5boost17range_adl_barrier3endINS_8geometry5index6detail6varrayINS4_5rtree8ptr_pairINS2_5model3boxINS8_5pointIfLm2ENS2_2cs9cartesianEEEEEPNS_7variantINS6_12variant_leafISt4pairISE_SH_ISD_SD_EENS3_5rstarILm16ELm4ELm4ELm32EEESE_NS6_10allocatorsINS_9container13new_allocatorISJ_EESJ_SL_SE_NS6_23node_variant_static_tagEEESQ_EEJNS6_21variant_internal_nodeISJ_SL_SE_SR_SQ_EEEEEEELm17EEEEENS_14range_iteratorIT_vE4typeERS10_ called 0 returned 0% blocks executed 0%
+    #####:   91:inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type end( T& r )
+        -:   92:{
+        -:   93:#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+        -:   94:    using namespace range_detail;
+        -:   95:#endif
+    #####:   96:    return range_end( r );
+        -:   97:}
+        -:   98:
+        -:   99:template< class T >
+        -:  100:inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type end( const T& r )
+        -:  101:{
+        -:  102:#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+        -:  103:    using namespace range_detail;
+        -:  104:#endif
+        -:  105:    return range_end( r );
+        -:  106:}
+        -:  107:
+        -:  108:    } // namespace range_adl_barrier
+        -:  109:} // namespace 'boost'
+        -:  110:
+        -:  111:#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+        -:  112:
+        -:  113:namespace boost
+        -:  114:{
+        -:  115:    namespace range_adl_barrier
+        -:  116:    {
+        -:  117:        template< class T >
+        -:  118:        inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type
+        -:  119:        const_end( const T& r )
+        -:  120:        {
+        -:  121:            return boost::range_adl_barrier::end( r );
+        -:  122:        }
+        -:  123:    } // namespace range_adl_barrier
+        -:  124:    using namespace range_adl_barrier;
+        -:  125:} // namespace boost
+        -:  126:
+        -:  127:#endif
+        -:  128:

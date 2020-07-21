@@ -1,0 +1,201 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/numeric/conversion/converter_policies.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://  (c) Copyright Fernando Luis Cacciola Carballal 2000-2004
+        -:    2://  Use, modification, and distribution is subject to the Boost Software
+        -:    3://  License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:    4://  http://www.boost.org/LICENSE_1_0.txt)
+        -:    5:
+        -:    6://  See library home page at http://www.boost.org/libs/numeric/conversion
+        -:    7://
+        -:    8:// Contact the author at: fernando_cacciola@hotmail.com
+        -:    9://
+        -:   10:#ifndef BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
+        -:   11:#define BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
+        -:   12:
+        -:   13:#include <typeinfo> // for std::bad_cast
+        -:   14:
+        -:   15:#include <boost/config/no_tr1/cmath.hpp> // for std::floor and std::ceil
+        -:   16:#include <boost/throw_exception.hpp>
+        -:   17:
+        -:   18:#include <functional>
+        -:   19:
+        -:   20:#include "boost/type_traits/is_arithmetic.hpp"
+        -:   21:
+        -:   22:#include "boost/mpl/if.hpp"
+        -:   23:#include "boost/mpl/integral_c.hpp"
+        -:   24:
+        -:   25:namespace boost { namespace numeric
+        -:   26:{
+        -:   27:
+        -:   28:template<class S>
+        -:   29:struct Trunc
+        -:   30:{
+        -:   31:  typedef S source_type ;
+        -:   32:
+        -:   33:  typedef typename mpl::if_< is_arithmetic<S>,S,S const&>::type argument_type ;
+        -:   34:
+        -:   35:  static source_type nearbyint ( argument_type s )
+        -:   36:  {
+        -:   37:#if !defined(BOOST_NO_STDC_NAMESPACE)
+        -:   38:    using std::floor ;
+        -:   39:    using std::ceil  ;
+        -:   40:#endif
+        -:   41:
+        -:   42:    return s < static_cast<S>(0) ? ceil(s) : floor(s) ;
+        -:   43:  }
+        -:   44:
+        -:   45:  typedef mpl::integral_c< std::float_round_style, std::round_toward_zero> round_style ;
+        -:   46:} ;
+        -:   47:
+        -:   48:
+        -:   49:
+        -:   50:template<class S>
+        -:   51:struct Floor
+        -:   52:{
+        -:   53:  typedef S source_type ;
+        -:   54:
+        -:   55:  typedef typename mpl::if_< is_arithmetic<S>,S,S const&>::type argument_type ;
+        -:   56:
+        -:   57:  static source_type nearbyint ( argument_type s )
+        -:   58:  {
+        -:   59:#if !defined(BOOST_NO_STDC_NAMESPACE)
+        -:   60:    using std::floor ;
+        -:   61:#endif
+        -:   62:
+        -:   63:    return floor(s) ;
+        -:   64:  }
+        -:   65:
+        -:   66:  typedef mpl::integral_c< std::float_round_style, std::round_toward_neg_infinity> round_style ;
+        -:   67:} ;
+        -:   68:
+        -:   69:template<class S>
+        -:   70:struct Ceil
+        -:   71:{
+        -:   72:  typedef S source_type ;
+        -:   73:
+        -:   74:  typedef typename mpl::if_< is_arithmetic<S>,S,S const&>::type argument_type ;
+        -:   75:
+        -:   76:  static source_type nearbyint ( argument_type s )
+        -:   77:  {
+        -:   78:#if !defined(BOOST_NO_STDC_NAMESPACE)
+        -:   79:    using std::ceil ;
+        -:   80:#endif
+        -:   81:
+        -:   82:    return ceil(s) ;
+        -:   83:  }
+        -:   84:
+        -:   85:  typedef mpl::integral_c< std::float_round_style, std::round_toward_infinity> round_style ;
+        -:   86:} ;
+        -:   87:
+        -:   88:template<class S>
+        -:   89:struct RoundEven
+        -:   90:{
+        -:   91:  typedef S source_type ;
+        -:   92:
+        -:   93:  typedef typename mpl::if_< is_arithmetic<S>,S,S const&>::type argument_type ;
+        -:   94:
+        -:   95:  static source_type nearbyint ( argument_type s )
+        -:   96:  {
+        -:   97:    // Algorithm contributed by Guillaume Melquiond
+        -:   98:
+        -:   99:#if !defined(BOOST_NO_STDC_NAMESPACE)
+        -:  100:    using std::floor ;
+        -:  101:    using std::ceil  ;
+        -:  102:#endif
+        -:  103:
+        -:  104:    // only works inside the range not at the boundaries
+        -:  105:    S prev = floor(s);
+        -:  106:    S next = ceil(s);
+        -:  107:
+        -:  108:    S rt = (s - prev) - (next - s); // remainder type
+        -:  109:
+        -:  110:    S const zero(0.0);
+        -:  111:    S const two(2.0);
+        -:  112:
+        -:  113:    if ( rt < zero )
+        -:  114:      return prev;
+        -:  115:    else if ( rt > zero )
+        -:  116:      return next;
+        -:  117:    else
+        -:  118:    {
+        -:  119:      bool is_prev_even = two * floor(prev / two) == prev ;
+        -:  120:      return ( is_prev_even ? prev : next ) ;
+        -:  121:    }
+        -:  122:  }
+        -:  123:
+        -:  124:  typedef mpl::integral_c< std::float_round_style, std::round_to_nearest> round_style ;
+        -:  125:} ;
+        -:  126:
+        -:  127:
+        -:  128:enum range_check_result
+        -:  129:{
+        -:  130:  cInRange     = 0 ,
+        -:  131:  cNegOverflow = 1 ,
+        -:  132:  cPosOverflow = 2
+        -:  133:} ;
+        -:  134:
+        -:  135:class bad_numeric_cast : public std::bad_cast
+        -:  136:{
+        -:  137:  public:
+        -:  138:
+        -:  139:    virtual const char * what() const throw()
+        -:  140:      {  return "bad numeric conversion: overflow"; }
+        -:  141:};
+        -:  142:
+        -:  143:class negative_overflow : public bad_numeric_cast
+        -:  144:{
+        -:  145:  public:
+        -:  146:
+        -:  147:    virtual const char * what() const throw()
+        -:  148:      {  return "bad numeric conversion: negative overflow"; }
+        -:  149:};
+        -:  150:class positive_overflow : public bad_numeric_cast
+        -:  151:{
+        -:  152:  public:
+        -:  153:
+        -:  154:    virtual const char * what() const throw()
+        -:  155:      { return "bad numeric conversion: positive overflow"; }
+        -:  156:};
+        -:  157:
+        -:  158:struct def_overflow_handler
+        -:  159:{
+        -:  160:  void operator() ( range_check_result r ) // throw(negative_overflow,positive_overflow)
+        -:  161:  {
+        -:  162:#ifndef BOOST_NO_EXCEPTIONS
+        -:  163:    if ( r == cNegOverflow )
+        -:  164:      throw negative_overflow() ;
+        -:  165:    else if ( r == cPosOverflow )
+        -:  166:           throw positive_overflow() ;
+        -:  167:#else
+        -:  168:    if ( r == cNegOverflow )
+        -:  169:      ::boost::throw_exception(negative_overflow()) ;
+        -:  170:    else if ( r == cPosOverflow )
+        -:  171:           ::boost::throw_exception(positive_overflow()) ;
+        -:  172:#endif
+        -:  173:  }
+        -:  174:} ;
+        -:  175:
+        -:  176:struct silent_overflow_handler
+        -:  177:{
+        -:  178:  void operator() ( range_check_result ) {} // throw()
+        -:  179:} ;
+        -:  180:
+        -:  181:template<class Traits>
+        -:  182:struct raw_converter
+        -:  183:{
+        -:  184:  typedef typename Traits::result_type   result_type   ;
+        -:  185:  typedef typename Traits::argument_type argument_type ;
+        -:  186:
+function _ZN5boost7numeric13raw_converterINS0_17conversion_traitsIdfEEE17low_level_convertEf called 366996 returned 100% blocks executed 100%
+function _ZN5boost7numeric13raw_converterINS0_17conversion_traitsIdiEEE17low_level_convertEi called 91749 returned 100% blocks executed 100%
+   458745:  187:  static result_type low_level_convert ( argument_type s ) { return static_cast<result_type>(s) ; }
+        -:  188:} ;
+        -:  189:
+        -:  190:struct UseInternalRangeChecker {} ;
+        -:  191:
+        -:  192:} } // namespace boost::numeric
+        -:  193:
+        -:  194:#endif

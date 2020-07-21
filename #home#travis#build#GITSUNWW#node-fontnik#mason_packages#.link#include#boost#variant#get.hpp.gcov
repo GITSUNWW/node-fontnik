@@ -1,0 +1,421 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/variant/get.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://-----------------------------------------------------------------------------
+        -:    2:// boost variant/get.hpp header file
+        -:    3:// See http://www.boost.org for updates, documentation, and revision history.
+        -:    4://-----------------------------------------------------------------------------
+        -:    5://
+        -:    6:// Copyright (c) 2003 Eric Friedman, Itay Maman
+        -:    7:// Copyright (c) 2014 Antony Polukhin
+        -:    8://
+        -:    9:// Distributed under the Boost Software License, Version 1.0. (See
+        -:   10:// accompanying file LICENSE_1_0.txt or copy at
+        -:   11:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   12:
+        -:   13:#ifndef BOOST_VARIANT_GET_HPP
+        -:   14:#define BOOST_VARIANT_GET_HPP
+        -:   15:
+        -:   16:#include <exception>
+        -:   17:
+        -:   18:#include <boost/config.hpp>
+        -:   19:#include <boost/detail/workaround.hpp>
+        -:   20:#include <boost/static_assert.hpp>
+        -:   21:#include <boost/throw_exception.hpp>
+        -:   22:#include <boost/utility/addressof.hpp>
+        -:   23:#include <boost/variant/variant_fwd.hpp>
+        -:   24:#include <boost/variant/detail/element_index.hpp>
+        -:   25:#include <boost/variant/detail/move.hpp>
+        -:   26:
+        -:   27:#include <boost/type_traits/add_reference.hpp>
+        -:   28:#include <boost/type_traits/add_pointer.hpp>
+        -:   29:#include <boost/type_traits/is_lvalue_reference.hpp>
+        -:   30:
+        -:   31:namespace boost {
+        -:   32:
+        -:   33:#if defined(BOOST_CLANG)
+        -:   34:#   pragma clang diagnostic push
+        -:   35:#   pragma clang diagnostic ignored "-Wweak-vtables"
+        -:   36:#endif
+        -:   37://////////////////////////////////////////////////////////////////////////
+        -:   38:// class bad_get
+        -:   39://
+        -:   40:// The exception thrown in the event of a failed get of a value.
+        -:   41://
+function _ZN5boost7bad_getC2Ev called 0 returned 0% blocks executed 0%
+function _ZN5boost7bad_getD2Ev called 0 returned 0% blocks executed 0%
+function _ZN5boost7bad_getC2ERKS0_ called 0 returned 0% blocks executed 0%
+function _ZN5boost7bad_getD0Ev called 0 returned 0% blocks executed 0%
+    #####:   42:class BOOST_SYMBOL_VISIBLE bad_get
+        -:   43:    : public std::exception
+        -:   44:{
+        -:   45:public: // std::exception implementation
+        -:   46:
+function _ZNK5boost7bad_get4whatEv called 0 returned 0% blocks executed 0%
+    #####:   47:    virtual const char * what() const BOOST_NOEXCEPT_OR_NOTHROW
+        -:   48:    {
+    #####:   49:        return "boost::bad_get: "
+        -:   50:               "failed value get using boost::get";
+        -:   51:    }
+        -:   52:
+        -:   53:};
+        -:   54:#if defined(BOOST_CLANG)
+        -:   55:#   pragma clang diagnostic pop
+        -:   56:#endif
+        -:   57:
+        -:   58:
+        -:   59://////////////////////////////////////////////////////////////////////////
+        -:   60:// function template get<T>
+        -:   61://
+        -:   62:// Retrieves content of given variant object if content is of type T.
+        -:   63:// Otherwise: pointer ver. returns 0; reference ver. throws bad_get.
+        -:   64://
+        -:   65:
+        -:   66:namespace detail { namespace variant {
+        -:   67:
+        -:   68:// (detail) class template get_visitor
+        -:   69://
+        -:   70:// Generic static visitor that: if the value is of the specified type,
+        -:   71:// returns a pointer to the value it visits; else a null pointer.
+        -:   72://
+        -:   73:template <typename T>
+        -:   74:struct get_visitor
+        -:   75:{
+        -:   76:private: // private typedefs
+        -:   77:
+        -:   78:    typedef typename add_pointer<T>::type pointer;
+        -:   79:    typedef typename add_reference<T>::type reference;
+        -:   80:
+        -:   81:public: // visitor typedefs
+        -:   82:
+        -:   83:    typedef pointer result_type;
+        -:   84:
+        -:   85:public: // visitor interfaces
+        -:   86:
+function _ZNK5boost6detail7variant11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS3_5model3boxINS9_5pointIfLm2ENS3_2cs9cartesianEEEEES8_ISE_SE_EENS4_5rstarILm16ELm4ELm4ELm32EEESF_NS6_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SF_NS6_23node_variant_static_tagEEESO_EEEclERSQ_ called 40292 returned 100% blocks executed 100%
+function _ZNK5boost6detail7variant11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS3_5model3boxINS9_5pointIfLm2ENS3_2cs9cartesianEEEEES8_ISE_SE_EENS4_5rstarILm16ELm4ELm4ELm32EEESF_NS6_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SF_NS6_23node_variant_static_tagEEESO_EEEclERSQ_ called 45903 returned 100% blocks executed 100%
+    86195:   87:    pointer operator()(reference operand) const BOOST_NOEXCEPT
+        -:   88:    {
+    86195:   89:        return boost::addressof(operand);
+        -:   90:    }
+        -:   91:
+        -:   92:    template <typename U>
+function _ZNK5boost6detail7variant11get_visitorINS_8geometry5index6detail5rtree12variant_leafISt4pairINS3_5model3boxINS9_5pointIfLm2ENS3_2cs9cartesianEEEEES8_ISE_SE_EENS4_5rstarILm16ELm4ELm4ELm32EEESF_NS6_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SF_NS6_23node_variant_static_tagEEESO_EEEclINS6_21variant_internal_nodeISH_SJ_SF_SP_SO_EEEEPSQ_RKT_ called 0 returned 0% blocks executed 0%
+function _ZNK5boost6detail7variant11get_visitorINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS3_5model3boxINS9_5pointIfLm2ENS3_2cs9cartesianEEEEES8_ISE_SE_EENS4_5rstarILm16ELm4ELm4ELm32EEESF_NS6_10allocatorsINS_9container13new_allocatorISH_EESH_SJ_SF_NS6_23node_variant_static_tagEEESO_EEEclINS6_12variant_leafISH_SJ_SF_SP_SO_EEEEPSQ_RKT_ called 0 returned 0% blocks executed 0%
+    #####:   93:    pointer operator()(const U&) const BOOST_NOEXCEPT
+        -:   94:    {
+    #####:   95:        return static_cast<pointer>(0);
+        -:   96:    }
+        -:   97:};
+        -:   98:
+        -:   99:}} // namespace detail::variant
+        -:  100:
+        -:  101:#ifndef BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE
+        -:  102:#   if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0551))
+        -:  103:#       define BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(t)
+        -:  104:#   else
+        -:  105:#       define BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(t)  \
+        -:  106:        , t* = 0
+        -:  107:#   endif
+        -:  108:#endif
+        -:  109:
+        -:  110://///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        -:  111:// relaxed_get<U>(variant) methods
+        -:  112://
+        -:  113:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  114:inline
+        -:  115:    typename add_pointer<U>::type
+function _ZN5boost11relaxed_getINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EESO_JNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEENS_11add_pointerIT_E4typeEPNS_7variantIT0_JDpT1_EEE called 40292 returned 100% blocks executed 71%
+function _ZN5boost11relaxed_getINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EENS4_12variant_leafISF_SH_SD_SN_SM_EEJSO_EEENS_11add_pointerIT_E4typeEPNS_7variantIT0_JDpT1_EEE called 45905 returned 100% blocks executed 71%
+    86197:  116:relaxed_get(
+        -:  117:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  118:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  119:    ) BOOST_NOEXCEPT
+        -:  120:{
+        -:  121:    typedef typename add_pointer<U>::type U_ptr;
+    86197:  122:    if (!operand) return static_cast<U_ptr>(0);
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 0%
+branch  3 taken 100%
+        -:  123:
+        -:  124:    detail::variant::get_visitor<U> v;
+    86197:  125:    return operand->apply_visitor(v);
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+    86197:  126:}
+        -:  127:
+        -:  128:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  129:inline
+        -:  130:    typename add_pointer<const U>::type
+        -:  131:relaxed_get(
+        -:  132:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  133:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  134:    ) BOOST_NOEXCEPT
+        -:  135:{
+        -:  136:    typedef typename add_pointer<const U>::type U_ptr;
+        -:  137:    if (!operand) return static_cast<U_ptr>(0);
+        -:  138:
+        -:  139:    detail::variant::get_visitor<const U> v;
+        -:  140:    return operand->apply_visitor(v);
+        -:  141:}
+        -:  142:
+        -:  143:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  144:inline
+        -:  145:    typename add_reference<U>::type
+function _ZN5boost11relaxed_getINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EESO_JNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 40292 returned 100% blocks executed 42%
+function _ZN5boost11relaxed_getINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EENS4_12variant_leafISF_SH_SD_SN_SM_EEJSO_EEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 45904 returned 100% blocks executed 42%
+    86196:  146:relaxed_get(
+        -:  147:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  148:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  149:    )
+        -:  150:{
+        -:  151:    typedef typename add_pointer<U>::type U_ptr;
+    86196:  152:    U_ptr result = relaxed_get<U>(boost::addressof(operand));
+        -:  153:
+    86196:  154:    if (!result)
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 0%
+branch  3 taken 100%
+    #####:  155:        boost::throw_exception(bad_get());
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+    86197:  156:    return *result;
+    #####:  157:}
+        -:  158:
+        -:  159:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  160:inline
+        -:  161:    typename add_reference<const U>::type
+        -:  162:relaxed_get(
+        -:  163:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  164:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  165:    )
+        -:  166:{
+        -:  167:    typedef typename add_pointer<const U>::type U_ptr;
+        -:  168:    U_ptr result = relaxed_get<const U>(boost::addressof(operand));
+        -:  169:
+        -:  170:    if (!result)
+        -:  171:        boost::throw_exception(bad_get());
+        -:  172:    return *result;
+        -:  173:}
+        -:  174:
+        -:  175:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  176:
+        -:  177:#if defined(BOOST_MSVC) && (_MSC_VER < 1900) // MSVC-2014 has fixed the incorrect diagnostics.
+        -:  178:#   pragma warning(push)
+        -:  179:#   pragma warning(disable: 4172) // returning address of local variable or temporary
+        -:  180:#endif
+        -:  181:
+        -:  182:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  183:inline
+        -:  184:    U&&
+        -:  185:relaxed_get(
+        -:  186:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >&& operand
+        -:  187:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  188:    )
+        -:  189:{
+        -:  190:    typedef typename add_pointer<U>::type U_ptr;
+        -:  191:    U_ptr result = relaxed_get<U>(boost::addressof(operand));
+        -:  192:
+        -:  193:    if (!result)
+        -:  194:        boost::throw_exception(bad_get());
+        -:  195:    return static_cast<U&&>(*result);
+        -:  196:}
+        -:  197:
+        -:  198:#if defined(BOOST_MSVC) && (_MSC_VER < 1900)
+        -:  199:#   pragma warning(pop)
+        -:  200:#endif
+        -:  201:
+        -:  202:#endif
+        -:  203:
+        -:  204://///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        -:  205:// strict_get<U>(variant) methods
+        -:  206://
+        -:  207:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  208:inline
+        -:  209:    typename add_pointer<U>::type
+        -:  210:strict_get(
+        -:  211:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  212:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  213:    ) BOOST_NOEXCEPT
+        -:  214:{
+        -:  215:    BOOST_STATIC_ASSERT_MSG(
+        -:  216:        (boost::detail::variant::holds_element<boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >, U >::value),
+        -:  217:        "boost::variant does not contain specified type U, "
+        -:  218:        "call to boost::get<U>(boost::variant<T...>*) will always return NULL"
+        -:  219:    );
+        -:  220:
+        -:  221:    return relaxed_get<U>(operand);
+        -:  222:}
+        -:  223:
+        -:  224:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  225:inline
+        -:  226:    typename add_pointer<const U>::type
+        -:  227:strict_get(
+        -:  228:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  229:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  230:    ) BOOST_NOEXCEPT
+        -:  231:{
+        -:  232:    BOOST_STATIC_ASSERT_MSG(
+        -:  233:        (boost::detail::variant::holds_element<boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >, const U >::value),
+        -:  234:        "boost::variant does not contain specified type U, "
+        -:  235:        "call to boost::get<U>(const boost::variant<T...>*) will always return NULL"
+        -:  236:    );
+        -:  237:
+        -:  238:    return relaxed_get<U>(operand);
+        -:  239:}
+        -:  240:
+        -:  241:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  242:inline
+        -:  243:    typename add_reference<U>::type
+function _ZN5boost10strict_getINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EESO_JNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 40292 returned 100% blocks executed 100%
+function _ZN5boost10strict_getINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EENS4_12variant_leafISF_SH_SD_SN_SM_EEJSO_EEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 45904 returned 100% blocks executed 100%
+    86196:  244:strict_get(
+        -:  245:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  246:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  247:    )
+        -:  248:{
+        -:  249:    BOOST_STATIC_ASSERT_MSG(
+        -:  250:        (boost::detail::variant::holds_element<boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >, U >::value),
+        -:  251:        "boost::variant does not contain specified type U, "
+        -:  252:        "call to boost::get<U>(boost::variant<T...>&) will always throw boost::bad_get exception"
+        -:  253:    );
+        -:  254:
+    86196:  255:    return relaxed_get<U>(operand);
+        -:  256:}
+        -:  257:
+        -:  258:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  259:inline
+        -:  260:    typename add_reference<const U>::type
+        -:  261:strict_get(
+        -:  262:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  263:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  264:    )
+        -:  265:{
+        -:  266:    BOOST_STATIC_ASSERT_MSG(
+        -:  267:        (boost::detail::variant::holds_element<boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >, const U >::value),
+        -:  268:        "boost::variant does not contain specified type U, "
+        -:  269:        "call to boost::get<U>(const boost::variant<T...>&) will always throw boost::bad_get exception"
+        -:  270:    );
+        -:  271:
+        -:  272:    return relaxed_get<U>(operand);
+        -:  273:}
+        -:  274:
+        -:  275:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  276:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  277:inline
+        -:  278:    U&&
+        -:  279:strict_get(
+        -:  280:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >&& operand
+        -:  281:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  282:    )
+        -:  283:{
+        -:  284:    BOOST_STATIC_ASSERT_MSG(
+        -:  285:        (!boost::is_lvalue_reference<U>::value),
+        -:  286:        "remove ampersand '&' from template type U in boost::get<U>(boost::variant<T...>&&) "
+        -:  287:    );
+        -:  288:
+        -:  289:    BOOST_STATIC_ASSERT_MSG(
+        -:  290:        (boost::detail::variant::holds_element<boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >, U >::value),
+        -:  291:        "boost::variant does not contain specified type U, "
+        -:  292:        "call to boost::get<U>(const boost::variant<T...>&) will always throw boost::bad_get exception"
+        -:  293:    );
+        -:  294:
+        -:  295:    return relaxed_get<U>(detail::variant::move(operand));
+        -:  296:}
+        -:  297:#endif
+        -:  298:
+        -:  299://///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        -:  300:// get<U>(variant) methods
+        -:  301://
+        -:  302:
+        -:  303:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  304:inline
+        -:  305:    typename add_pointer<U>::type
+        -:  306:get(
+        -:  307:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  308:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  309:    ) BOOST_NOEXCEPT
+        -:  310:{
+        -:  311:#ifdef BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+        -:  312:    return relaxed_get<U>(operand);
+        -:  313:#else
+        -:  314:    return strict_get<U>(operand);
+        -:  315:#endif
+        -:  316:
+        -:  317:}
+        -:  318:
+        -:  319:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  320:inline
+        -:  321:    typename add_pointer<const U>::type
+        -:  322:get(
+        -:  323:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >* operand
+        -:  324:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  325:    ) BOOST_NOEXCEPT
+        -:  326:{
+        -:  327:#ifdef BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+        -:  328:    return relaxed_get<U>(operand);
+        -:  329:#else
+        -:  330:    return strict_get<U>(operand);
+        -:  331:#endif
+        -:  332:}
+        -:  333:
+        -:  334:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  335:inline
+        -:  336:    typename add_reference<U>::type
+function _ZN5boost3getINS_8geometry5index6detail5rtree12variant_leafISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EESO_JNS4_21variant_internal_nodeISF_SH_SD_SN_SM_EEEEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 40292 returned 100% blocks executed 100%
+function _ZN5boost3getINS_8geometry5index6detail5rtree21variant_internal_nodeISt4pairINS1_5model3boxINS7_5pointIfLm2ENS1_2cs9cartesianEEEEES6_ISC_SC_EENS2_5rstarILm16ELm4ELm4ELm32EEESD_NS4_10allocatorsINS_9container13new_allocatorISF_EESF_SH_SD_NS4_23node_variant_static_tagEEESM_EENS4_12variant_leafISF_SH_SD_SN_SM_EEJSO_EEENS_13add_referenceIT_E4typeERNS_7variantIT0_JDpT1_EEE called 45903 returned 100% blocks executed 100%
+    86195:  337:get(
+        -:  338:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  339:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  340:    )
+        -:  341:{
+        -:  342:#ifdef BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+        -:  343:    return relaxed_get<U>(operand);
+        -:  344:#else
+    86195:  345:    return strict_get<U>(operand);
+        -:  346:#endif
+        -:  347:}
+        -:  348:
+        -:  349:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  350:inline
+        -:  351:    typename add_reference<const U>::type
+        -:  352:get(
+        -:  353:      const boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >& operand
+        -:  354:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  355:    )
+        -:  356:{
+        -:  357:#ifdef BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+        -:  358:    return relaxed_get<U>(operand);
+        -:  359:#else
+        -:  360:    return strict_get<U>(operand);
+        -:  361:#endif
+        -:  362:}
+        -:  363:
+        -:  364:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  365:template <typename U, BOOST_VARIANT_ENUM_PARAMS(typename T) >
+        -:  366:inline
+        -:  367:    U&&
+        -:  368:get(
+        -:  369:      boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >&& operand
+        -:  370:      BOOST_VARIANT_AUX_GET_EXPLICIT_TEMPLATE_TYPE(U)
+        -:  371:    )
+        -:  372:{
+        -:  373:#ifdef BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+        -:  374:    return relaxed_get<U>(detail::variant::move(operand));
+        -:  375:#else
+        -:  376:    return strict_get<U>(detail::variant::move(operand));
+        -:  377:#endif
+        -:  378:}
+        -:  379:#endif
+        -:  380:
+        -:  381:} // namespace boost
+        -:  382:
+        -:  383:#endif // BOOST_VARIANT_GET_HPP

@@ -1,0 +1,524 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/algorithms/detail/distance/point_to_geometry.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    4:// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+        -:    5:// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+        -:    6:// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+        -:    7:
+        -:    8:// This file was modified by Oracle on 2014.
+        -:    9:// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+        -:   10:
+        -:   11:// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+        -:   12:
+        -:   13:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:   14:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:   15:
+        -:   16:// Use, modification and distribution is subject to the Boost Software License,
+        -:   17:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   18:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   19:
+        -:   20:#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_POINT_TO_GEOMETRY_HPP
+        -:   21:#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_POINT_TO_GEOMETRY_HPP
+        -:   22:
+        -:   23:#include <iterator>
+        -:   24:
+        -:   25:#include <boost/core/ignore_unused.hpp>
+        -:   26:#include <boost/range.hpp>
+        -:   27:#include <boost/type_traits/is_same.hpp>
+        -:   28:
+        -:   29:#include <boost/geometry/core/closure.hpp>
+        -:   30:#include <boost/geometry/core/point_type.hpp>
+        -:   31:#include <boost/geometry/core/exterior_ring.hpp>
+        -:   32:#include <boost/geometry/core/interior_rings.hpp>
+        -:   33:#include <boost/geometry/core/tag.hpp>
+        -:   34:#include <boost/geometry/core/tags.hpp>
+        -:   35:
+        -:   36:#include <boost/geometry/util/math.hpp>
+        -:   37:
+        -:   38:#include <boost/geometry/strategies/distance.hpp>
+        -:   39:#include <boost/geometry/strategies/tags.hpp>
+        -:   40:
+        -:   41:#include <boost/geometry/algorithms/assign.hpp>
+        -:   42:#include <boost/geometry/algorithms/covered_by.hpp>
+        -:   43:#include <boost/geometry/algorithms/within.hpp>
+        -:   44:
+        -:   45:#include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
+        -:   46:#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+        -:   47:#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+        -:   48:#include <boost/geometry/algorithms/detail/distance/iterator_selector.hpp>
+        -:   49:
+        -:   50:#include <boost/geometry/algorithms/dispatch/distance.hpp>
+        -:   51:
+        -:   52:
+        -:   53:namespace boost { namespace geometry
+        -:   54:{
+        -:   55:
+        -:   56:#ifndef DOXYGEN_NO_DETAIL
+        -:   57:namespace detail { namespace distance
+        -:   58:{
+        -:   59:
+        -:   60:
+        -:   61:template <typename P1, typename P2, typename Strategy>
+        -:   62:struct point_to_point
+        -:   63:{
+        -:   64:    static inline
+        -:   65:    typename strategy::distance::services::return_type<Strategy, P1, P2>::type
+function _ZN5boost8geometry6detail8distance14point_to_pointINS0_5model5pointIfLm2ENS0_2cs9cartesianEEES8_NS0_8strategy8distance10comparable10pythagorasIvEEE5applyERKS8_SG_RKSD_ called 91749 returned 100% blocks executed 100%
+    91749:   66:    apply(P1 const& p1, P2 const& p2, Strategy const& strategy)
+        -:   67:    {
+    91749:   68:        boost::ignore_unused(strategy);
+    91749:   69:        return strategy.apply(p1, p2);
+        -:   70:    }
+        -:   71:};
+        -:   72:
+        -:   73:
+        -:   74:template
+        -:   75:<
+        -:   76:    typename Point,
+        -:   77:    typename Range,
+        -:   78:    closure_selector Closure,
+        -:   79:    typename Strategy
+        -:   80:>
+        -:   81:class point_to_range
+        -:   82:{
+        -:   83:private:
+        -:   84:    typedef typename strategy::distance::services::comparable_type
+        -:   85:        <
+        -:   86:            Strategy
+        -:   87:        >::type comparable_strategy;
+        -:   88:
+        -:   89:    typedef detail::closest_feature::point_to_point_range
+        -:   90:        <
+        -:   91:            Point, Range, Closure, comparable_strategy
+        -:   92:        > point_to_point_range;
+        -:   93:
+        -:   94:public:
+        -:   95:    typedef typename strategy::distance::services::return_type
+        -:   96:        <
+        -:   97:            Strategy,
+        -:   98:            Point,
+        -:   99:            typename boost::range_value<Range>::type
+        -:  100:        >::type return_type;
+        -:  101:
+        -:  102:    static inline return_type apply(Point const& point, Range const& range,
+        -:  103:                                    Strategy const& strategy)
+        -:  104:    {
+        -:  105:        return_type const zero = return_type(0);
+        -:  106:
+        -:  107:        if (boost::size(range) == 0)
+        -:  108:        {
+        -:  109:            return zero;
+        -:  110:        }
+        -:  111:
+        -:  112:        namespace sds = strategy::distance::services;
+        -:  113:
+        -:  114:        typename sds::return_type
+        -:  115:            <
+        -:  116:                comparable_strategy,
+        -:  117:                Point,
+        -:  118:                typename point_type<Range>::type
+        -:  119:            >::type cd_min;
+        -:  120:
+        -:  121:        std::pair
+        -:  122:            <
+        -:  123:                typename boost::range_iterator<Range const>::type,
+        -:  124:                typename boost::range_iterator<Range const>::type
+        -:  125:            > it_pair
+        -:  126:            = point_to_point_range::apply(point,
+        -:  127:                                          boost::begin(range),
+        -:  128:                                          boost::end(range),
+        -:  129:                                          sds::get_comparable
+        -:  130:                                              <
+        -:  131:                                                  Strategy
+        -:  132:                                              >::apply(strategy),
+        -:  133:                                          cd_min);
+        -:  134:
+        -:  135:        return
+        -:  136:            is_comparable<Strategy>::value
+        -:  137:            ?
+        -:  138:            cd_min
+        -:  139:            :
+        -:  140:            strategy.apply(point, *it_pair.first, *it_pair.second);
+        -:  141:    }
+        -:  142:};
+        -:  143:
+        -:  144:
+        -:  145:template
+        -:  146:<
+        -:  147:    typename Point,
+        -:  148:    typename Ring,
+        -:  149:    closure_selector Closure,
+        -:  150:    typename Strategy
+        -:  151:>
+        -:  152:struct point_to_ring
+        -:  153:{
+        -:  154:    typedef typename strategy::distance::services::return_type
+        -:  155:        <
+        -:  156:            Strategy, Point, typename point_type<Ring>::type
+        -:  157:        >::type return_type;
+        -:  158:
+        -:  159:    static inline return_type apply(Point const& point,
+        -:  160:                                    Ring const& ring,
+        -:  161:                                    Strategy const& strategy)
+        -:  162:    {
+        -:  163:        if (geometry::within(point, ring))
+        -:  164:        {
+        -:  165:            return return_type(0);
+        -:  166:        }
+        -:  167:
+        -:  168:        return point_to_range
+        -:  169:            <
+        -:  170:                Point, Ring, closure<Ring>::value, Strategy
+        -:  171:            >::apply(point, ring, strategy);
+        -:  172:    }
+        -:  173:};
+        -:  174:
+        -:  175:
+        -:  176:template
+        -:  177:<
+        -:  178:    typename Point,
+        -:  179:    typename Polygon,
+        -:  180:    closure_selector Closure,
+        -:  181:    typename Strategy
+        -:  182:>
+        -:  183:class point_to_polygon
+        -:  184:{
+        -:  185:public:
+        -:  186:    typedef typename strategy::distance::services::return_type
+        -:  187:        <
+        -:  188:            Strategy, Point, typename point_type<Polygon>::type
+        -:  189:        >::type return_type;
+        -:  190:
+        -:  191:private:
+        -:  192:    typedef point_to_range
+        -:  193:        <
+        -:  194:            Point, typename ring_type<Polygon>::type, Closure, Strategy
+        -:  195:        > per_ring;
+        -:  196:
+        -:  197:    struct distance_to_interior_rings
+        -:  198:    {
+        -:  199:        template <typename InteriorRingIterator>
+        -:  200:        static inline return_type apply(Point const& point,
+        -:  201:                                        InteriorRingIterator first,
+        -:  202:                                        InteriorRingIterator last,
+        -:  203:                                        Strategy const& strategy)
+        -:  204:        {
+        -:  205:            for (InteriorRingIterator it = first; it != last; ++it)
+        -:  206:            {
+        -:  207:                if (geometry::within(point, *it))
+        -:  208:                {
+        -:  209:                    // the point is inside a polygon hole, so its distance
+        -:  210:                    // to the polygon its distance to the polygon's
+        -:  211:                    // hole boundary
+        -:  212:                    return per_ring::apply(point, *it, strategy);
+        -:  213:                }
+        -:  214:            }
+        -:  215:            return 0;
+        -:  216:        }
+        -:  217:
+        -:  218:        template <typename InteriorRings>
+        -:  219:        static inline return_type apply(Point const& point,
+        -:  220:                                        InteriorRings const& interior_rings,
+        -:  221:                                        Strategy const& strategy)
+        -:  222:        {
+        -:  223:            return apply(point,
+        -:  224:                         boost::begin(interior_rings),
+        -:  225:                         boost::end(interior_rings),
+        -:  226:                         strategy);
+        -:  227:        }
+        -:  228:    };
+        -:  229:
+        -:  230:
+        -:  231:public:
+        -:  232:    static inline return_type apply(Point const& point,
+        -:  233:                                    Polygon const& polygon,
+        -:  234:                                    Strategy const& strategy)
+        -:  235:    {
+        -:  236:        if (!geometry::covered_by(point, exterior_ring(polygon)))
+        -:  237:        {
+        -:  238:            // the point is outside the exterior ring, so its distance
+        -:  239:            // to the polygon is its distance to the polygon's exterior ring
+        -:  240:            return per_ring::apply(point, exterior_ring(polygon), strategy);
+        -:  241:        }
+        -:  242:
+        -:  243:        // Check interior rings
+        -:  244:        return distance_to_interior_rings::apply(point,
+        -:  245:                                                 interior_rings(polygon),
+        -:  246:                                                 strategy);
+        -:  247:    }
+        -:  248:};
+        -:  249:
+        -:  250:
+        -:  251:template
+        -:  252:<
+        -:  253:    typename Point,
+        -:  254:    typename MultiGeometry,
+        -:  255:    typename Strategy,
+        -:  256:    bool CheckCoveredBy = boost::is_same
+        -:  257:        <
+        -:  258:            typename tag<MultiGeometry>::type, multi_polygon_tag
+        -:  259:        >::value
+        -:  260:>
+        -:  261:class point_to_multigeometry
+        -:  262:{
+        -:  263:private:
+        -:  264:    typedef detail::closest_feature::geometry_to_range geometry_to_range;
+        -:  265:
+        -:  266:public:
+        -:  267:    typedef typename strategy::distance::services::return_type
+        -:  268:        <
+        -:  269:            Strategy,
+        -:  270:            Point,
+        -:  271:            typename point_type<MultiGeometry>::type
+        -:  272:        >::type return_type;
+        -:  273:
+        -:  274:    static inline return_type apply(Point const& point,
+        -:  275:                                    MultiGeometry const& multigeometry,
+        -:  276:                                    Strategy const& strategy)
+        -:  277:    {
+        -:  278:        typedef iterator_selector<MultiGeometry const> selector_type;
+        -:  279:
+        -:  280:        namespace sds = strategy::distance::services;
+        -:  281:
+        -:  282:        typename sds::return_type
+        -:  283:            <
+        -:  284:                typename sds::comparable_type<Strategy>::type,
+        -:  285:                Point,
+        -:  286:                typename point_type<MultiGeometry>::type
+        -:  287:            >::type cd;
+        -:  288:
+        -:  289:        typename selector_type::iterator_type it_min
+        -:  290:            = geometry_to_range::apply(point,
+        -:  291:                                       selector_type::begin(multigeometry),
+        -:  292:                                       selector_type::end(multigeometry),
+        -:  293:                                       sds::get_comparable
+        -:  294:                                           <
+        -:  295:                                               Strategy
+        -:  296:                                           >::apply(strategy),
+        -:  297:                                       cd);
+        -:  298:
+        -:  299:        return
+        -:  300:            is_comparable<Strategy>::value
+        -:  301:            ?
+        -:  302:            cd
+        -:  303:            :
+        -:  304:            dispatch::distance
+        -:  305:                <
+        -:  306:                    Point,
+        -:  307:                    typename std::iterator_traits
+        -:  308:                        <
+        -:  309:                            typename selector_type::iterator_type
+        -:  310:                        >::value_type,
+        -:  311:                    Strategy
+        -:  312:                >::apply(point, *it_min, strategy);
+        -:  313:    }
+        -:  314:};
+        -:  315:
+        -:  316:
+        -:  317:// this is called only for multipolygons, hence the change in the
+        -:  318:// template parameter name MultiGeometry to MultiPolygon
+        -:  319:template <typename Point, typename MultiPolygon, typename Strategy>
+        -:  320:struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
+        -:  321:{
+        -:  322:    typedef typename strategy::distance::services::return_type
+        -:  323:        <
+        -:  324:            Strategy,
+        -:  325:            Point,
+        -:  326:            typename point_type<MultiPolygon>::type
+        -:  327:        >::type return_type;
+        -:  328:
+        -:  329:    static inline return_type apply(Point const& point,
+        -:  330:                                    MultiPolygon const& multipolygon,
+        -:  331:                                    Strategy const& strategy)
+        -:  332:    {
+        -:  333:        if (geometry::covered_by(point, multipolygon))
+        -:  334:        {
+        -:  335:            return 0;
+        -:  336:        }
+        -:  337:
+        -:  338:        return point_to_multigeometry
+        -:  339:            <
+        -:  340:                Point, MultiPolygon, Strategy, false
+        -:  341:            >::apply(point, multipolygon, strategy);
+        -:  342:    }
+        -:  343:};
+        -:  344:
+        -:  345:
+        -:  346:}} // namespace detail::distance
+        -:  347:#endif // DOXYGEN_NO_DETAIL
+        -:  348:
+        -:  349:
+        -:  350:
+        -:  351:
+        -:  352:#ifndef DOXYGEN_NO_DISPATCH
+        -:  353:namespace dispatch
+        -:  354:{
+        -:  355:
+        -:  356:
+        -:  357:// Point-point
+        -:  358:template <typename P1, typename P2, typename Strategy>
+        -:  359:struct distance
+        -:  360:    <
+        -:  361:        P1, P2, Strategy, point_tag, point_tag,
+        -:  362:        strategy_tag_distance_point_point, false
+        -:  363:    > : detail::distance::point_to_point<P1, P2, Strategy>
+        -:  364:{};
+        -:  365:
+        -:  366:
+        -:  367:// Point-line version 2, where point-segment strategy is specified
+        -:  368:template <typename Point, typename Linestring, typename Strategy>
+        -:  369:struct distance
+        -:  370:    <
+        -:  371:        Point, Linestring, Strategy, point_tag, linestring_tag,
+        -:  372:        strategy_tag_distance_point_segment, false
+        -:  373:    > : detail::distance::point_to_range<Point, Linestring, closed, Strategy>
+        -:  374:{};
+        -:  375:
+        -:  376:
+        -:  377:// Point-ring , where point-segment strategy is specified
+        -:  378:template <typename Point, typename Ring, typename Strategy>
+        -:  379:struct distance
+        -:  380:    <
+        -:  381:        Point, Ring, Strategy, point_tag, ring_tag,
+        -:  382:        strategy_tag_distance_point_segment, false
+        -:  383:    > : detail::distance::point_to_ring
+        -:  384:        <
+        -:  385:            Point, Ring, closure<Ring>::value, Strategy
+        -:  386:        >
+        -:  387:{};
+        -:  388:
+        -:  389:
+        -:  390:// Point-polygon , where point-segment strategy is specified
+        -:  391:template <typename Point, typename Polygon, typename Strategy>
+        -:  392:struct distance
+        -:  393:    <
+        -:  394:        Point, Polygon, Strategy, point_tag, polygon_tag,
+        -:  395:        strategy_tag_distance_point_segment, false
+        -:  396:    > : detail::distance::point_to_polygon
+        -:  397:        <
+        -:  398:            Point, Polygon, closure<Polygon>::value, Strategy
+        -:  399:        >
+        -:  400:{};
+        -:  401:
+        -:  402:
+        -:  403:// Point-segment version 2, with point-segment strategy
+        -:  404:template <typename Point, typename Segment, typename Strategy>
+        -:  405:struct distance
+        -:  406:    <
+        -:  407:        Point, Segment, Strategy, point_tag, segment_tag,
+        -:  408:        strategy_tag_distance_point_segment, false
+        -:  409:    >
+        -:  410:{
+        -:  411:    static inline typename strategy::distance::services::return_type
+        -:  412:        <
+        -:  413:            Strategy, Point, typename point_type<Segment>::type
+        -:  414:        >::type apply(Point const& point,
+        -:  415:                      Segment const& segment,
+        -:  416:                      Strategy const& strategy)
+        -:  417:    {
+        -:  418:        typename point_type<Segment>::type p[2];
+        -:  419:        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        -:  420:        geometry::detail::assign_point_from_index<1>(segment, p[1]);
+        -:  421:
+        -:  422:        boost::ignore_unused(strategy);
+        -:  423:        return strategy.apply(point, p[0], p[1]);
+        -:  424:    }
+        -:  425:};
+        -:  426:
+        -:  427:
+        -:  428:template <typename Point, typename Box, typename Strategy>
+        -:  429:struct distance
+        -:  430:    <
+        -:  431:         Point, Box, Strategy, point_tag, box_tag,
+        -:  432:         strategy_tag_distance_point_box, false
+        -:  433:    >
+        -:  434:{
+        -:  435:    static inline typename strategy::distance::services::return_type
+        -:  436:        <
+        -:  437:            Strategy, Point, typename point_type<Box>::type
+        -:  438:        >::type
+        -:  439:    apply(Point const& point, Box const& box, Strategy const& strategy)
+        -:  440:    {
+        -:  441:        boost::ignore_unused(strategy);
+        -:  442:        return strategy.apply(point, box);
+        -:  443:    }
+        -:  444:};
+        -:  445:
+        -:  446:
+        -:  447:template<typename Point, typename MultiPoint, typename Strategy>
+        -:  448:struct distance
+        -:  449:    <
+        -:  450:        Point, MultiPoint, Strategy, point_tag, multi_point_tag,
+        -:  451:        strategy_tag_distance_point_point, false
+        -:  452:    > : detail::distance::point_to_multigeometry
+        -:  453:        <
+        -:  454:            Point, MultiPoint, Strategy
+        -:  455:        >
+        -:  456:{};
+        -:  457:
+        -:  458:
+        -:  459:template<typename Point, typename MultiLinestring, typename Strategy>
+        -:  460:struct distance
+        -:  461:    <
+        -:  462:        Point, MultiLinestring, Strategy, point_tag, multi_linestring_tag,
+        -:  463:        strategy_tag_distance_point_segment, false
+        -:  464:    > : detail::distance::point_to_multigeometry
+        -:  465:        <
+        -:  466:            Point, MultiLinestring, Strategy
+        -:  467:        >
+        -:  468:{};
+        -:  469:
+        -:  470:
+        -:  471:template<typename Point, typename MultiPolygon, typename Strategy>
+        -:  472:struct distance
+        -:  473:    <
+        -:  474:        Point, MultiPolygon, Strategy, point_tag, multi_polygon_tag,
+        -:  475:        strategy_tag_distance_point_segment, false
+        -:  476:    > : detail::distance::point_to_multigeometry
+        -:  477:        <
+        -:  478:            Point, MultiPolygon, Strategy
+        -:  479:        >
+        -:  480:{};
+        -:  481:
+        -:  482:
+        -:  483:template <typename Point, typename Linear, typename Strategy>
+        -:  484:struct distance
+        -:  485:    <
+        -:  486:         Point, Linear, Strategy, point_tag, linear_tag,
+        -:  487:         strategy_tag_distance_point_segment, false
+        -:  488:    > : distance
+        -:  489:        <
+        -:  490:            Point, Linear, Strategy,
+        -:  491:            point_tag, typename tag<Linear>::type,
+        -:  492:            strategy_tag_distance_point_segment, false
+        -:  493:        >
+        -:  494:{};
+        -:  495:
+        -:  496:
+        -:  497:template <typename Point, typename Areal, typename Strategy>
+        -:  498:struct distance
+        -:  499:    <
+        -:  500:         Point, Areal, Strategy, point_tag, areal_tag,
+        -:  501:         strategy_tag_distance_point_segment, false
+        -:  502:    > : distance
+        -:  503:        <
+        -:  504:            Point, Areal, Strategy,
+        -:  505:            point_tag, typename tag<Areal>::type,
+        -:  506:            strategy_tag_distance_point_segment, false
+        -:  507:        >
+        -:  508:{};
+        -:  509:
+        -:  510:
+        -:  511:} // namespace dispatch
+        -:  512:#endif // DOXYGEN_NO_DISPATCH
+        -:  513:
+        -:  514:
+        -:  515:}} // namespace boost::geometry
+        -:  516:
+        -:  517:
+        -:  518:#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_POINT_TO_GEOMETRY_HPP

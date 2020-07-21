@@ -1,0 +1,272 @@
+        -:    0:Source:/usr/lib/gcc/x86_64-linux-gnu/5.4.0/../../../../include/c++/5.4.0/ext/new_allocator.h
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Allocator that wraps operator new -*- C++ -*-
+        -:    2:
+        -:    3:// Copyright (C) 2001-2015 Free Software Foundation, Inc.
+        -:    4://
+        -:    5:// This file is part of the GNU ISO C++ Library.  This library is free
+        -:    6:// software; you can redistribute it and/or modify it under the
+        -:    7:// terms of the GNU General Public License as published by the
+        -:    8:// Free Software Foundation; either version 3, or (at your option)
+        -:    9:// any later version.
+        -:   10:
+        -:   11:// This library is distributed in the hope that it will be useful,
+        -:   12:// but WITHOUT ANY WARRANTY; without even the implied warranty of
+        -:   13:// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        -:   14:// GNU General Public License for more details.
+        -:   15:
+        -:   16:// Under Section 7 of GPL version 3, you are granted additional
+        -:   17:// permissions described in the GCC Runtime Library Exception, version
+        -:   18:// 3.1, as published by the Free Software Foundation.
+        -:   19:
+        -:   20:// You should have received a copy of the GNU General Public License and
+        -:   21:// a copy of the GCC Runtime Library Exception along with this program;
+        -:   22:// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+        -:   23:// <http://www.gnu.org/licenses/>.
+        -:   24:
+        -:   25:/** @file ext/new_allocator.h
+        -:   26: *  This file is a GNU extension to the Standard C++ Library.
+        -:   27: */
+        -:   28:
+        -:   29:#ifndef _NEW_ALLOCATOR_H
+        -:   30:#define _NEW_ALLOCATOR_H 1
+        -:   31:
+        -:   32:#include <bits/c++config.h>
+        -:   33:#include <new>
+        -:   34:#include <bits/functexcept.h>
+        -:   35:#include <bits/move.h>
+        -:   36:#if __cplusplus >= 201103L
+        -:   37:#include <type_traits>
+        -:   38:#endif
+        -:   39:
+        -:   40:namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
+        -:   41:{
+        -:   42:_GLIBCXX_BEGIN_NAMESPACE_VERSION
+        -:   43:
+        -:   44:  using std::size_t;
+        -:   45:  using std::ptrdiff_t;
+        -:   46:
+        -:   47:  /**
+        -:   48:   *  @brief  An allocator that uses global new, as per [20.4].
+        -:   49:   *  @ingroup allocators
+        -:   50:   *
+        -:   51:   *  This is precisely the allocator defined in the C++ Standard. 
+        -:   52:   *    - all allocation calls operator new
+        -:   53:   *    - all deallocation calls operator delete
+        -:   54:   *
+        -:   55:   *  @tparam  _Tp  Type of allocated object.
+        -:   56:   */
+        -:   57:  template<typename _Tp>
+        -:   58:    class new_allocator
+        -:   59:    {
+        -:   60:    public:
+        -:   61:      typedef size_t     size_type;
+        -:   62:      typedef ptrdiff_t  difference_type;
+        -:   63:      typedef _Tp*       pointer;
+        -:   64:      typedef const _Tp* const_pointer;
+        -:   65:      typedef _Tp&       reference;
+        -:   66:      typedef const _Tp& const_reference;
+        -:   67:      typedef _Tp        value_type;
+        -:   68:
+        -:   69:      template<typename _Tp1>
+        -:   70:        struct rebind
+        -:   71:        { typedef new_allocator<_Tp1> other; };
+        -:   72:
+        -:   73:#if __cplusplus >= 201103L
+        -:   74:      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+        -:   75:      // 2103. propagate_on_container_move_assignment
+        -:   76:      typedef std::true_type propagate_on_container_move_assignment;
+        -:   77:#endif
+        -:   78:
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEEC2Ev called 1806 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEEC2Ev called 1806 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEEC2Ev called 12 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEEC2Ev called 9 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIiEC2Ev called 9 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIP12napi_value__EC2Ev called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIjEC2Ev called 267 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEEC2Ev called 2 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEEC2Ev called 2 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEEC2Ev called 693875 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEEC2Ev called 2 returned 100% blocks executed 100%
+   697790:   79:      new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+        -:   80:
+function _ZN9__gnu_cxx13new_allocatorIiEC2ERKS1_ called 18 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIP12napi_value__EC2ERKS3_ called 272 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEEC2ERKS7_ called 2 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEEC2ERKS8_ called 8897 returned 100% blocks executed 100%
+     9189:   81:      new_allocator(const new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+        -:   82:
+        -:   83:      template<typename _Tp1>
+        -:   84:        new_allocator(const new_allocator<_Tp1>&) _GLIBCXX_USE_NOEXCEPT { }
+        -:   85:
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEED2Ev called 10704 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEED2Ev called 1806 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIiED2Ev called 27 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEED2Ev called 12 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEED2Ev called 9 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIP12napi_value__ED2Ev called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIjED2Ev called 263 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEED2Ev called 2 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEED2Ev called 2 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEED2Ev called 693890 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEED2Ev called 4 returned 100% blocks executed 100%
+   706719:   86:      ~new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+        -:   87:
+        -:   88:      pointer
+        -:   89:      address(reference __x) const _GLIBCXX_NOEXCEPT
+        -:   90:      { return std::__addressof(__x); }
+        -:   91:
+        -:   92:      const_pointer
+        -:   93:      address(const_reference __x) const _GLIBCXX_NOEXCEPT
+        -:   94:      { return std::__addressof(__x); }
+        -:   95:
+        -:   96:      // NB: __n is permitted to be 0.  The C++ standard says nothing
+        -:   97:      // about what the return value is when __n == 0.
+        -:   98:      pointer
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE8allocateEmPKv called 11 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEE8allocateEmPKv called 13439 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorIiE8allocateEmPKv called 9 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorIP12napi_value__E8allocateEmPKv called 272 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorIjE8allocateEmPKv called 534 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEE8allocateEmPKv called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIcE8allocateEmPKv called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEE8allocateEmPKv called 352 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE8allocateEmPKv called 13489 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEE8allocateEmPKv called 3230 returned 100% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEE8allocateEmPKv called 3762570 returned 99% blocks executed 75%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEE8allocateEmPKv called 2 returned 100% blocks executed 75%
+  3793908:   99:      allocate(size_type __n, const void* = 0)
+        -:  100:      { 
+  3793908:  101:	if (__n > this->max_size())
+branch  0 taken 0%
+branch  1 taken 100%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 taken 0%
+branch  5 taken 100%
+branch  6 taken 0%
+branch  7 taken 100%
+branch  8 taken 0%
+branch  9 taken 100%
+branch 10 never executed
+branch 11 never executed
+branch 12 never executed
+branch 13 never executed
+branch 14 taken 0%
+branch 15 taken 100%
+branch 16 taken 0%
+branch 17 taken 100%
+branch 18 taken 0%
+branch 19 taken 100%
+branch 20 taken 0%
+branch 21 taken 100%
+branch 22 taken 0%
+branch 23 taken 100%
+    #####:  102:	  std::__throw_bad_alloc();
+        -:  103:
+  3793722:  104:	return static_cast<_Tp*>(::operator new(__n * sizeof(_Tp)));
+        -:  105:      }
+        -:  106:
+        -:  107:      // __p is not permitted to be a null pointer.
+        -:  108:      void
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE10deallocateEPS7_m called 13489 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEE10deallocateEPSA_m called 3230 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIiE10deallocateEPim called 9 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE10deallocateEPS2_m called 11 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEE10deallocateEPS2_m called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIP12napi_value__E10deallocateEPS2_m called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIjE10deallocateEPjm called 530 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEE10deallocateEPS7_m called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIcE10deallocateEPcm called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEE10deallocateEPS7_m called 352 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEE10deallocateEPSC_m called 3762425 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEE10deallocateEPS6_m called 2 returned 100% blocks executed 100%
+  3780048:  109:      deallocate(pointer __p, size_type)
+  3780048:  110:      { ::operator delete(__p); }
+        -:  111:
+        -:  112:      size_type
+function _ZNK9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE8max_sizeEv called 22 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEE8max_sizeEv called 13439 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorIiE8max_sizeEv called 9 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorIP12napi_value__E8max_sizeEv called 272 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorIjE8max_sizeEv called 1335 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEE8max_sizeEv called 0 returned 0% blocks executed 0%
+function _ZNK9__gnu_cxx13new_allocatorIcE8max_sizeEv called 0 returned 0% blocks executed 0%
+function _ZNK9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEE8max_sizeEv called 352 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE8max_sizeEv called 33667 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEE8max_sizeEv called 9690 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEE8max_sizeEv called 11281864 returned 100% blocks executed 100%
+function _ZNK9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEE8max_sizeEv called 4 returned 100% blocks executed 100%
+ 11340654:  113:      max_size() const _GLIBCXX_USE_NOEXCEPT
+ 11340654:  114:      { return size_t(-1) / sizeof(_Tp); }
+        -:  115:
+        -:  116:#if __cplusplus >= 201103L
+        -:  117:      template<typename _Up, typename... _Args>
+        -:  118:        void
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEE9constructIiJRmEEEvPT_DpOT0_ called 13439 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE9constructIS2_JRPcS6_St6vectorIiSaIiEEEEEvPT_DpOT0_ called 8 returned 100% blocks executed 45%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE9constructIS2_JRPcSt6vectorIiSaIiEEEEEvPT_DpOT0_ called 1 returned 100% blocks executed 50%
+function _ZN9__gnu_cxx13new_allocatorIjE9constructIjJRjEEEvPT_DpOT0_ called 68875 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEE9constructIS7_JS7_EEEvPT_DpOT0_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEE9constructIS6_JRjRS5_EEEvPT_DpOT0_ called 352 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE9constructIS7_JRKS7_EEEvPT_DpOT0_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEE9constructISA_JRKSA_EEEvPT_DpOT0_ called 3399 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE9constructIS7_JddEEEvPT_DpOT0_ called 19222 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE9constructIS7_JRdSA_EEEvPT_DpOT0_ called 74096 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEE9constructISC_JRKSC_EEEvPT_DpOT0_ called 14429985 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEE9constructIS6_JS6_EEEvPT_DpOT0_ called 4 returned 100% blocks executed 100%
+ 14609381:  119:        construct(_Up* __p, _Args&&... __args)
+ 14609381:  120:	{ ::new((void *)__p) _Up(std::forward<_Args>(__args)...); }
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 100%
+branch  3 taken 0%
+branch  4 taken 100%
+branch  5 taken 0%
+branch  6 taken 100%
+branch  7 taken 0%
+branch  8 taken 100%
+branch  9 taken 0%
+        -:  121:
+        -:  122:      template<typename _Up>
+        -:  123:        void 
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeIiEE7destroyIiEEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIN12node_fontnik12FaceMetadataEE7destroyIS2_EEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorIjE7destroyIjEEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrISt6vectorIcSaIcEESt14default_deleteIS4_EEE7destroyIS7_EEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKjN9protozero9data_viewEEEE7destroyIS6_EEvPT_ called 352 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorIN5boost8geometry5model5pointIfLm2ENS2_2cs9cartesianEEEE7destroyIS7_EEvPT_ called 21910 returned 100% blocks executed 100%
+function _ZN9__gnu_cxx13new_allocatorISt6vectorIN5boost8geometry5model5pointIfLm2ENS3_2cs9cartesianEEESaIS8_EEE7destroyISA_EEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt4pairIN5boost8geometry5model3boxINS4_5pointIfLm2ENS3_2cs9cartesianEEEEES1_IS9_S9_EEE7destroyISC_EEvPT_ called 0 returned 0% blocks executed 0%
+function _ZN9__gnu_cxx13new_allocatorISt10unique_ptrIN12node_fontnik8GlyphPBFESt14default_deleteIS3_EEE7destroyIS6_EEvPT_ called 0 returned 0% blocks executed 0%
+    22262:  124:        destroy(_Up* __p) { __p->~_Up(); }
+        -:  125:#else
+        -:  126:      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+        -:  127:      // 402. wrong new expression in [some_] allocator::construct
+        -:  128:      void 
+        -:  129:      construct(pointer __p, const _Tp& __val) 
+        -:  130:      { ::new((void *)__p) _Tp(__val); }
+        -:  131:
+        -:  132:      void 
+        -:  133:      destroy(pointer __p) { __p->~_Tp(); }
+        -:  134:#endif
+        -:  135:    };
+        -:  136:
+        -:  137:  template<typename _Tp>
+        -:  138:    inline bool
+        -:  139:    operator==(const new_allocator<_Tp>&, const new_allocator<_Tp>&)
+        -:  140:    { return true; }
+        -:  141:  
+        -:  142:  template<typename _Tp>
+        -:  143:    inline bool
+        -:  144:    operator!=(const new_allocator<_Tp>&, const new_allocator<_Tp>&)
+        -:  145:    { return false; }
+        -:  146:
+        -:  147:_GLIBCXX_END_NAMESPACE_VERSION
+        -:  148:} // namespace
+        -:  149:
+        -:  150:#endif

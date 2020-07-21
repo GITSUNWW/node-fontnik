@@ -1,0 +1,42 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/gzip/utils.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <cstdlib>
+        -:    2:
+        -:    3:namespace gzip {
+        -:    4:
+        -:    5:// These live in gzip.hpp because it doesnt need to use deps.
+        -:    6:// Otherwise, they would need to live in impl files if these methods used
+        -:    7:// zlib structures or functions like inflate/deflate)
+function _ZN4gzip13is_compressedEPKcm called 4 returned 100% blocks executed 58%
+        4:    8:inline bool is_compressed(const char* data, std::size_t size)
+        -:    9:{
+        8:   10:    return size > 2 &&
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   11:           (
+        -:   12:               // zlib
+        -:   13:               (
+        4:   14:                   static_cast<uint8_t>(data[0]) == 0x78 &&
+branch  0 taken 0%
+branch  1 taken 100%
+    #####:   15:                   (static_cast<uint8_t>(data[1]) == 0x9C ||
+branch  0 never executed
+branch  1 never executed
+    #####:   16:                    static_cast<uint8_t>(data[1]) == 0x01 ||
+branch  0 never executed
+branch  1 never executed
+    #####:   17:                    static_cast<uint8_t>(data[1]) == 0xDA ||
+branch  0 never executed
+branch  1 never executed
+        4:   18:                    static_cast<uint8_t>(data[1]) == 0x5E)) ||
+branch  0 never executed
+branch  1 never executed
+        -:   19:               // gzip
+        4:   20:               (static_cast<uint8_t>(data[0]) == 0x1F && static_cast<uint8_t>(data[1]) == 0x8B));
+branch  0 taken 0%
+branch  1 taken 100%
+        -:   21:}
+        -:   22:} // namespace gzip

@@ -1,0 +1,1160 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/protozero/pbf_writer.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef PROTOZERO_PBF_WRITER_HPP
+        -:    2:#define PROTOZERO_PBF_WRITER_HPP
+        -:    3:
+        -:    4:/*****************************************************************************
+        -:    5:
+        -:    6:protozero - Minimalistic protocol buffer decoder and encoder in C++.
+        -:    7:
+        -:    8:This file is from https://github.com/mapbox/protozero where you can find more
+        -:    9:documentation.
+        -:   10:
+        -:   11:*****************************************************************************/
+        -:   12:
+        -:   13:/**
+        -:   14: * @file pbf_writer.hpp
+        -:   15: *
+        -:   16: * @brief Contains the pbf_writer class.
+        -:   17: */
+        -:   18:
+        -:   19:#include <protozero/config.hpp>
+        -:   20:#include <protozero/data_view.hpp>
+        -:   21:#include <protozero/types.hpp>
+        -:   22:#include <protozero/varint.hpp>
+        -:   23:
+        -:   24:#if PROTOZERO_BYTE_ORDER != PROTOZERO_LITTLE_ENDIAN
+        -:   25:# include <protozero/byteswap.hpp>
+        -:   26:#endif
+        -:   27:
+        -:   28:#include <cstddef>
+        -:   29:#include <cstdint>
+        -:   30:#include <cstring>
+        -:   31:#include <initializer_list>
+        -:   32:#include <iterator>
+        -:   33:#include <limits>
+        -:   34:#include <string>
+        -:   35:#include <utility>
+        -:   36:
+        -:   37:namespace protozero {
+        -:   38:
+        -:   39:namespace detail {
+        -:   40:
+        -:   41:    template <typename T> class packed_field_varint;
+        -:   42:    template <typename T> class packed_field_svarint;
+        -:   43:    template <typename T> class packed_field_fixed;
+        -:   44:
+        -:   45:} // end namespace detail
+        -:   46:
+        -:   47:/**
+        -:   48: * The pbf_writer is used to write PBF formatted messages into a buffer.
+        -:   49: *
+        -:   50: * Almost all methods in this class can throw an std::bad_alloc exception if
+        -:   51: * the std::string used as a buffer wants to resize.
+        -:   52: */
+        -:   53:class pbf_writer {
+        -:   54:
+        -:   55:    // A pointer to a string buffer holding the data already written to the
+        -:   56:    // PBF message. For default constructed writers or writers that have been
+        -:   57:    // rolled back, this is a nullptr.
+        -:   58:    std::string* m_data = nullptr;
+        -:   59:
+        -:   60:    // A pointer to a parent writer object if this is a submessage. If this
+        -:   61:    // is a top-level writer, it is a nullptr.
+      269:   62:    pbf_writer* m_parent_writer = nullptr;
+        -:   63:
+        -:   64:    // This is usually 0. If there is an open submessage, this is set in the
+        -:   65:    // parent to the rollback position, ie. the last position before the
+        -:   66:    // submessage was started. This is the position where the header of the
+        -:   67:    // submessage starts.
+     2338:   68:    std::size_t m_rollback_pos = 0;
+        -:   69:
+        -:   70:    // This is usually 0. If there is an open submessage, this is set in the
+        -:   71:    // parent to the position where the data of the submessage is written to.
+     2338:   72:    std::size_t m_pos = 0;
+        -:   73:
+function _ZN9protozero10pbf_writer10add_varintEm called 28845 returned 100% blocks executed 60%
+    28845:   74:    void add_varint(uint64_t value) {
+    28845:   75:        protozero_assert(m_pos == 0 && "you can't add fields to a parent pbf_writer if there is an existing pbf_writer for a submessage");
+branch  0 taken 100%
+branch  1 taken 0%
+    28845:   76:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+    28845:   77:        write_varint(std::back_inserter(*m_data), value);
+    28845:   78:    }
+        -:   79:
+function _ZN9protozero10pbf_writer9add_fieldEjNS_13pbf_wire_typeE called 15457 returned 100% blocks executed 55%
+    15457:   80:    void add_field(pbf_tag_type tag, pbf_wire_type type) {
+    15457:   81:        protozero_assert(((tag > 0 && tag < 19000) || (tag > 19999 && tag <= ((1U << 29U) - 1))) && "tag out of range");
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 0%
+branch  3 taken 100%
+branch  4 never executed
+branch  5 never executed
+branch  6 never executed
+branch  7 never executed
+    15457:   82:        const uint32_t b = (tag << 3U) | uint32_t(type);
+    15457:   83:        add_varint(b);
+    15457:   84:    }
+        -:   85:
+function _ZN9protozero10pbf_writer17add_tagged_varintEjm called 10836 returned 100% blocks executed 100%
+    10836:   86:    void add_tagged_varint(pbf_tag_type tag, uint64_t value) {
+    10836:   87:        add_field(tag, pbf_wire_type::varint);
+    10836:   88:        add_varint(value);
+    10836:   89:    }
+        -:   90:
+        -:   91:    template <typename T>
+        -:   92:    void add_fixed(T value) {
+        -:   93:        protozero_assert(m_pos == 0 && "you can't add fields to a parent pbf_writer if there is an existing pbf_writer for a submessage");
+        -:   94:        protozero_assert(m_data);
+        -:   95:#if PROTOZERO_BYTE_ORDER != PROTOZERO_LITTLE_ENDIAN
+        -:   96:        byteswap_inplace(&value);
+        -:   97:#endif
+        -:   98:        m_data->append(reinterpret_cast<const char*>(&value), sizeof(T));
+        -:   99:    }
+        -:  100:
+        -:  101:    template <typename T, typename It>
+        -:  102:    void add_packed_fixed(pbf_tag_type tag, It first, It last, std::input_iterator_tag /*unused*/) {
+        -:  103:        if (first == last) {
+        -:  104:            return;
+        -:  105:        }
+        -:  106:
+        -:  107:        pbf_writer sw{*this, tag};
+        -:  108:
+        -:  109:        while (first != last) {
+        -:  110:            sw.add_fixed<T>(*first++);
+        -:  111:        }
+        -:  112:    }
+        -:  113:
+        -:  114:    template <typename T, typename It>
+        -:  115:    void add_packed_fixed(pbf_tag_type tag, It first, It last, std::forward_iterator_tag /*unused*/) {
+        -:  116:        if (first == last) {
+        -:  117:            return;
+        -:  118:        }
+        -:  119:
+        -:  120:        const auto length = std::distance(first, last);
+        -:  121:        add_length_varint(tag, sizeof(T) * pbf_length_type(length));
+        -:  122:        reserve(sizeof(T) * std::size_t(length));
+        -:  123:
+        -:  124:        while (first != last) {
+        -:  125:            add_fixed<T>(*first++);
+        -:  126:        }
+        -:  127:    }
+        -:  128:
+        -:  129:    template <typename It>
+        -:  130:    void add_packed_varint(pbf_tag_type tag, It first, It last) {
+        -:  131:        if (first == last) {
+        -:  132:            return;
+        -:  133:        }
+        -:  134:
+        -:  135:        pbf_writer sw{*this, tag};
+        -:  136:
+        -:  137:        while (first != last) {
+        -:  138:            sw.add_varint(uint64_t(*first++));
+        -:  139:        }
+        -:  140:    }
+        -:  141:
+        -:  142:    template <typename It>
+        -:  143:    void add_packed_svarint(pbf_tag_type tag, It first, It last) {
+        -:  144:        if (first == last) {
+        -:  145:            return;
+        -:  146:        }
+        -:  147:
+        -:  148:        pbf_writer sw{*this, tag};
+        -:  149:
+        -:  150:        while (first != last) {
+        -:  151:            sw.add_varint(encode_zigzag64(*first++));
+        -:  152:        }
+        -:  153:    }
+        -:  154:
+        -:  155:    // The number of bytes to reserve for the varint holding the length of
+        -:  156:    // a length-delimited field. The length has to fit into pbf_length_type,
+        -:  157:    // and a varint needs 8 bit for every 7 bit.
+        -:  158:    enum constant_reserve_bytes : int {
+        -:  159:        reserve_bytes = sizeof(pbf_length_type) * 8 / 7 + 1
+        -:  160:    };
+        -:  161:
+        -:  162:    // If m_rollpack_pos is set to this special value, it means that when
+        -:  163:    // the submessage is closed, nothing needs to be done, because the length
+        -:  164:    // of the submessage has already been written correctly.
+        -:  165:    enum constant_size_is_known : std::size_t {
+        -:  166:        size_is_known = std::numeric_limits<std::size_t>::max()
+        -:  167:    };
+        -:  168:
+function _ZN9protozero10pbf_writer15open_submessageEjm called 2069 returned 100% blocks executed 61%
+     2069:  169:    void open_submessage(pbf_tag_type tag, std::size_t size) {
+     2069:  170:        protozero_assert(m_pos == 0);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  171:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  172:        if (size == 0) {
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  173:            m_rollback_pos = m_data->size();
+     2069:  174:            add_field(tag, pbf_wire_type::length_delimited);
+     2069:  175:            m_data->append(std::size_t(reserve_bytes), '\0');
+     2069:  176:        } else {
+    #####:  177:            m_rollback_pos = size_is_known;
+    #####:  178:            add_length_varint(tag, pbf_length_type(size));
+    #####:  179:            reserve(size);
+        -:  180:        }
+     2069:  181:        m_pos = m_data->size();
+     2069:  182:    }
+        -:  183:
+function _ZN9protozero10pbf_writer19rollback_submessageEv called 0 returned 0% blocks executed 0%
+    #####:  184:    void rollback_submessage() {
+    #####:  185:        protozero_assert(m_pos != 0);
+branch  0 never executed
+branch  1 never executed
+    #####:  186:        protozero_assert(m_rollback_pos != size_is_known);
+branch  0 never executed
+branch  1 never executed
+    #####:  187:        protozero_assert(m_data);
+branch  0 never executed
+branch  1 never executed
+    #####:  188:        m_data->resize(m_rollback_pos);
+    #####:  189:        m_pos = 0;
+    #####:  190:    }
+        -:  191:
+function _ZN9protozero10pbf_writer17commit_submessageEv called 2069 returned 100% blocks executed 55%
+     2069:  192:    void commit_submessage() {
+     2069:  193:        protozero_assert(m_pos != 0);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  194:        protozero_assert(m_rollback_pos != size_is_known);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  195:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  196:        const auto length = pbf_length_type(m_data->size() - m_pos);
+        -:  197:
+     2069:  198:        protozero_assert(m_data->size() >= m_pos - reserve_bytes);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  199:        const auto n = write_varint(m_data->begin() + int64_t(m_pos) - reserve_bytes, length);
+        -:  200:
+     2069:  201:        m_data->erase(m_data->begin() + int64_t(m_pos) - reserve_bytes + n, m_data->begin() + int64_t(m_pos));
+     2069:  202:        m_pos = 0;
+     2069:  203:    }
+        -:  204:
+function _ZN9protozero10pbf_writer16close_submessageEv called 2069 returned 100% blocks executed 66%
+     2069:  205:    void close_submessage() {
+     2069:  206:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  207:        if (m_pos == 0 || m_rollback_pos == size_is_known) {
+branch  0 taken 100%
+branch  1 taken 0%
+branch  2 taken 0%
+branch  3 taken 100%
+    #####:  208:            return;
+        -:  209:        }
+     2069:  210:        if (m_data->size() - m_pos == 0) {
+branch  0 taken 0%
+branch  1 taken 100%
+    #####:  211:            rollback_submessage();
+    #####:  212:        } else {
+     2069:  213:            commit_submessage();
+        -:  214:        }
+     2069:  215:    }
+        -:  216:
+function _ZN9protozero10pbf_writer17add_length_varintEjj called 2552 returned 100% blocks executed 100%
+     2552:  217:    void add_length_varint(pbf_tag_type tag, pbf_length_type length) {
+     2552:  218:        add_field(tag, pbf_wire_type::length_delimited);
+     2552:  219:        add_varint(length);
+     2552:  220:    }
+        -:  221:
+        -:  222:public:
+        -:  223:
+        -:  224:    /**
+        -:  225:     * Create a writer using the given string as a data store. The pbf_writer
+        -:  226:     * stores a reference to that string and adds all data to it. The string
+        -:  227:     * doesn't have to be empty. The pbf_writer will just append data.
+        -:  228:     */
+function _ZN9protozero10pbf_writerC2ERSs called 269 returned 100% blocks executed 100%
+      269:  229:    explicit pbf_writer(std::string& data) noexcept :
+      269:  230:        m_data{&data} {
+      269:  231:    }
+        -:  232:
+        -:  233:    /**
+        -:  234:     * Create a writer without a data store. In this form the writer can not
+        -:  235:     * be used!
+        -:  236:     */
+        -:  237:    pbf_writer() noexcept = default;
+        -:  238:
+        -:  239:    /**
+        -:  240:     * Construct a pbf_writer for a submessage from the pbf_writer of the
+        -:  241:     * parent message.
+        -:  242:     *
+        -:  243:     * @param parent_writer The pbf_writer
+        -:  244:     * @param tag Tag (field number) of the field that will be written
+        -:  245:     * @param size Optional size of the submessage in bytes (use 0 for unknown).
+        -:  246:     *        Setting this allows some optimizations but is only possible in
+        -:  247:     *        a few very specific cases.
+        -:  248:     */
+function _ZN9protozero10pbf_writerC2ERS0_jm called 2069 returned 100% blocks executed 100%
+     2069:  249:    pbf_writer(pbf_writer& parent_writer, pbf_tag_type tag, std::size_t size=0) :
+     2069:  250:        m_data{parent_writer.m_data},
+     2069:  251:        m_parent_writer{&parent_writer} {
+     2069:  252:        m_parent_writer->open_submessage(tag, size);
+     2069:  253:    }
+        -:  254:
+        -:  255:    /// A pbf_writer object can not be copied
+        -:  256:    pbf_writer(const pbf_writer&) = delete;
+        -:  257:
+        -:  258:    /// A pbf_writer object can not be copied
+        -:  259:    pbf_writer& operator=(const pbf_writer&) = delete;
+        -:  260:
+        -:  261:    /**
+        -:  262:     * A pbf_writer object can be moved. After this the other pbf_writer will
+        -:  263:     * be invalid.
+        -:  264:     */
+        -:  265:    pbf_writer(pbf_writer&& other) noexcept :
+        -:  266:        m_data{other.m_data},
+        -:  267:        m_parent_writer{other.m_parent_writer},
+        -:  268:        m_rollback_pos{other.m_rollback_pos},
+        -:  269:        m_pos{other.m_pos} {
+        -:  270:        other.m_data = nullptr;
+        -:  271:        other.m_parent_writer = nullptr;
+        -:  272:        other.m_rollback_pos = 0;
+        -:  273:        other.m_pos = 0;
+        -:  274:    }
+        -:  275:
+        -:  276:    /**
+        -:  277:     * A pbf_writer object can be moved. After this the other pbf_writer will
+        -:  278:     * be invalid.
+        -:  279:     */
+        -:  280:    pbf_writer& operator=(pbf_writer&& other) noexcept {
+        -:  281:        m_data = other.m_data;
+        -:  282:        m_parent_writer = other.m_parent_writer;
+        -:  283:        m_rollback_pos = other.m_rollback_pos;
+        -:  284:        m_pos = other.m_pos;
+        -:  285:        other.m_data = nullptr;
+        -:  286:        other.m_parent_writer = nullptr;
+        -:  287:        other.m_rollback_pos = 0;
+        -:  288:        other.m_pos = 0;
+        -:  289:        return *this;
+        -:  290:    }
+        -:  291:
+function _ZN9protozero10pbf_writerD2Ev called 2338 returned 100% blocks executed 75%
+     2338:  292:    ~pbf_writer() noexcept {
+        -:  293:        try {
+     2338:  294:            if (m_parent_writer != nullptr) {
+branch  0 taken 88%
+branch  1 taken 12%
+     2069:  295:                m_parent_writer->close_submessage();
+branch  0 taken 100%
+branch  1 taken 0%
+     2069:  296:            }
+     2338:  297:        } catch (...) {
+        -:  298:            // This try/catch is used to make the destructor formally noexcept.
+        -:  299:            // close_submessage() is not noexcept, but will not throw the way
+        -:  300:            // it is called here, so we are good. But to be paranoid, call...
+    #####:  301:            std::terminate();
+        -:  302:        }
+     2338:  303:    }
+        -:  304:
+        -:  305:    /**
+        -:  306:     * Check if this writer is valid. A writer is invalid if it was default
+        -:  307:     * constructed, moved from, or if commit() has been called on it.
+        -:  308:     * Otherwise it is valid.
+        -:  309:     */
+        -:  310:    bool valid() const noexcept {
+        -:  311:        return m_data != nullptr;
+        -:  312:    }
+        -:  313:
+        -:  314:    /**
+        -:  315:     * Swap the contents of this object with the other.
+        -:  316:     *
+        -:  317:     * @param other Other object to swap data with.
+        -:  318:     */
+        -:  319:    void swap(pbf_writer& other) noexcept {
+        -:  320:        using std::swap;
+        -:  321:        swap(m_data, other.m_data);
+        -:  322:        swap(m_parent_writer, other.m_parent_writer);
+        -:  323:        swap(m_rollback_pos, other.m_rollback_pos);
+        -:  324:        swap(m_pos, other.m_pos);
+        -:  325:    }
+        -:  326:
+        -:  327:    /**
+        -:  328:     * Reserve size bytes in the underlying message store in addition to
+        -:  329:     * whatever the message store already holds. So unlike
+        -:  330:     * the `std::string::reserve()` method this is not an absolute size,
+        -:  331:     * but additional memory that should be reserved.
+        -:  332:     *
+        -:  333:     * @param size Number of bytes to reserve in underlying message store.
+        -:  334:     */
+function _ZN9protozero10pbf_writer7reserveEm called 0 returned 0% blocks executed 0%
+    #####:  335:    void reserve(std::size_t size) {
+    #####:  336:        protozero_assert(m_data);
+branch  0 never executed
+branch  1 never executed
+    #####:  337:        m_data->reserve(m_data->size() + size);
+    #####:  338:    }
+        -:  339:
+        -:  340:    /**
+        -:  341:     * Commit this submessage. This does the same as when the pbf_writer
+        -:  342:     * goes out of scope and is destructed.
+        -:  343:     *
+        -:  344:     * @pre Must be a pbf_writer of a submessage, ie one opened with the
+        -:  345:     *      pbf_writer constructor taking a parent message.
+        -:  346:     * @post The pbf_writer is invalid and can't be used any more.
+        -:  347:     */
+        -:  348:    void commit() {
+        -:  349:        protozero_assert(m_parent_writer && "you can't call commit() on a pbf_writer without a parent");
+        -:  350:        protozero_assert(m_pos == 0 && "you can't call commit() on a pbf_writer that has an open nested submessage");
+        -:  351:        m_parent_writer->close_submessage();
+        -:  352:        m_parent_writer = nullptr;
+        -:  353:        m_data = nullptr;
+        -:  354:    }
+        -:  355:
+        -:  356:    /**
+        -:  357:     * Cancel writing of this submessage. The complete submessage will be
+        -:  358:     * removed as if it was never created and no fields were added.
+        -:  359:     *
+        -:  360:     * @pre Must be a pbf_writer of a submessage, ie one opened with the
+        -:  361:     *      pbf_writer constructor taking a parent message.
+        -:  362:     * @post The pbf_writer is invalid and can't be used any more.
+        -:  363:     */
+        -:  364:    void rollback() {
+        -:  365:        protozero_assert(m_parent_writer && "you can't call rollback() on a pbf_writer without a parent");
+        -:  366:        protozero_assert(m_pos == 0 && "you can't call rollback() on a pbf_writer that has an open nested submessage");
+        -:  367:        m_parent_writer->rollback_submessage();
+        -:  368:        m_parent_writer = nullptr;
+        -:  369:        m_data = nullptr;
+        -:  370:    }
+        -:  371:
+        -:  372:    ///@{
+        -:  373:    /**
+        -:  374:     * @name Scalar field writer functions
+        -:  375:     */
+        -:  376:
+        -:  377:    /**
+        -:  378:     * Add "bool" field to data.
+        -:  379:     *
+        -:  380:     * @param tag Tag (field number) of the field
+        -:  381:     * @param value Value to be written
+        -:  382:     */
+        -:  383:    void add_bool(pbf_tag_type tag, bool value) {
+        -:  384:        add_field(tag, pbf_wire_type::varint);
+        -:  385:        protozero_assert(m_pos == 0 && "you can't add fields to a parent pbf_writer if there is an existing pbf_writer for a submessage");
+        -:  386:        protozero_assert(m_data);
+        -:  387:        m_data->append(1, char(value));
+        -:  388:    }
+        -:  389:
+        -:  390:    /**
+        -:  391:     * Add "enum" field to data.
+        -:  392:     *
+        -:  393:     * @param tag Tag (field number) of the field
+        -:  394:     * @param value Value to be written
+        -:  395:     */
+        -:  396:    void add_enum(pbf_tag_type tag, int32_t value) {
+        -:  397:        add_tagged_varint(tag, uint64_t(value));
+        -:  398:    }
+        -:  399:
+        -:  400:    /**
+        -:  401:     * Add "int32" field to data.
+        -:  402:     *
+        -:  403:     * @param tag Tag (field number) of the field
+        -:  404:     * @param value Value to be written
+        -:  405:     */
+        -:  406:    void add_int32(pbf_tag_type tag, int32_t value) {
+        -:  407:        add_tagged_varint(tag, uint64_t(value));
+        -:  408:    }
+        -:  409:
+        -:  410:    /**
+        -:  411:     * Add "sint32" field to data.
+        -:  412:     *
+        -:  413:     * @param tag Tag (field number) of the field
+        -:  414:     * @param value Value to be written
+        -:  415:     */
+function _ZN9protozero10pbf_writer10add_sint32Eji called 3612 returned 100% blocks executed 100%
+     3612:  416:    void add_sint32(pbf_tag_type tag, int32_t value) {
+     3612:  417:        add_tagged_varint(tag, encode_zigzag32(value));
+     3612:  418:    }
+        -:  419:
+        -:  420:    /**
+        -:  421:     * Add "uint32" field to data.
+        -:  422:     *
+        -:  423:     * @param tag Tag (field number) of the field
+        -:  424:     * @param value Value to be written
+        -:  425:     */
+function _ZN9protozero10pbf_writer10add_uint32Ejj called 7224 returned 100% blocks executed 100%
+     7224:  426:    void add_uint32(pbf_tag_type tag, uint32_t value) {
+     7224:  427:        add_tagged_varint(tag, value);
+     7224:  428:    }
+        -:  429:
+        -:  430:    /**
+        -:  431:     * Add "int64" field to data.
+        -:  432:     *
+        -:  433:     * @param tag Tag (field number) of the field
+        -:  434:     * @param value Value to be written
+        -:  435:     */
+        -:  436:    void add_int64(pbf_tag_type tag, int64_t value) {
+        -:  437:        add_tagged_varint(tag, uint64_t(value));
+        -:  438:    }
+        -:  439:
+        -:  440:    /**
+        -:  441:     * Add "sint64" field to data.
+        -:  442:     *
+        -:  443:     * @param tag Tag (field number) of the field
+        -:  444:     * @param value Value to be written
+        -:  445:     */
+        -:  446:    void add_sint64(pbf_tag_type tag, int64_t value) {
+        -:  447:        add_tagged_varint(tag, encode_zigzag64(value));
+        -:  448:    }
+        -:  449:
+        -:  450:    /**
+        -:  451:     * Add "uint64" field to data.
+        -:  452:     *
+        -:  453:     * @param tag Tag (field number) of the field
+        -:  454:     * @param value Value to be written
+        -:  455:     */
+        -:  456:    void add_uint64(pbf_tag_type tag, uint64_t value) {
+        -:  457:        add_tagged_varint(tag, value);
+        -:  458:    }
+        -:  459:
+        -:  460:    /**
+        -:  461:     * Add "fixed32" field to data.
+        -:  462:     *
+        -:  463:     * @param tag Tag (field number) of the field
+        -:  464:     * @param value Value to be written
+        -:  465:     */
+        -:  466:    void add_fixed32(pbf_tag_type tag, uint32_t value) {
+        -:  467:        add_field(tag, pbf_wire_type::fixed32);
+        -:  468:        add_fixed<uint32_t>(value);
+        -:  469:    }
+        -:  470:
+        -:  471:    /**
+        -:  472:     * Add "sfixed32" field to data.
+        -:  473:     *
+        -:  474:     * @param tag Tag (field number) of the field
+        -:  475:     * @param value Value to be written
+        -:  476:     */
+        -:  477:    void add_sfixed32(pbf_tag_type tag, int32_t value) {
+        -:  478:        add_field(tag, pbf_wire_type::fixed32);
+        -:  479:        add_fixed<int32_t>(value);
+        -:  480:    }
+        -:  481:
+        -:  482:    /**
+        -:  483:     * Add "fixed64" field to data.
+        -:  484:     *
+        -:  485:     * @param tag Tag (field number) of the field
+        -:  486:     * @param value Value to be written
+        -:  487:     */
+        -:  488:    void add_fixed64(pbf_tag_type tag, uint64_t value) {
+        -:  489:        add_field(tag, pbf_wire_type::fixed64);
+        -:  490:        add_fixed<uint64_t>(value);
+        -:  491:    }
+        -:  492:
+        -:  493:    /**
+        -:  494:     * Add "sfixed64" field to data.
+        -:  495:     *
+        -:  496:     * @param tag Tag (field number) of the field
+        -:  497:     * @param value Value to be written
+        -:  498:     */
+        -:  499:    void add_sfixed64(pbf_tag_type tag, int64_t value) {
+        -:  500:        add_field(tag, pbf_wire_type::fixed64);
+        -:  501:        add_fixed<int64_t>(value);
+        -:  502:    }
+        -:  503:
+        -:  504:    /**
+        -:  505:     * Add "float" field to data.
+        -:  506:     *
+        -:  507:     * @param tag Tag (field number) of the field
+        -:  508:     * @param value Value to be written
+        -:  509:     */
+        -:  510:    void add_float(pbf_tag_type tag, float value) {
+        -:  511:        add_field(tag, pbf_wire_type::fixed32);
+        -:  512:        add_fixed<float>(value);
+        -:  513:    }
+        -:  514:
+        -:  515:    /**
+        -:  516:     * Add "double" field to data.
+        -:  517:     *
+        -:  518:     * @param tag Tag (field number) of the field
+        -:  519:     * @param value Value to be written
+        -:  520:     */
+        -:  521:    void add_double(pbf_tag_type tag, double value) {
+        -:  522:        add_field(tag, pbf_wire_type::fixed64);
+        -:  523:        add_fixed<double>(value);
+        -:  524:    }
+        -:  525:
+        -:  526:    /**
+        -:  527:     * Add "bytes" field to data.
+        -:  528:     *
+        -:  529:     * @param tag Tag (field number) of the field
+        -:  530:     * @param value Pointer to value to be written
+        -:  531:     * @param size Number of bytes to be written
+        -:  532:     */
+function _ZN9protozero10pbf_writer9add_bytesEjPKcm called 2552 returned 100% blocks executed 57%
+     2552:  533:    void add_bytes(pbf_tag_type tag, const char* value, std::size_t size) {
+     2552:  534:        protozero_assert(m_pos == 0 && "you can't add fields to a parent pbf_writer if there is an existing pbf_writer for a submessage");
+branch  0 taken 100%
+branch  1 taken 0%
+     2552:  535:        protozero_assert(m_data);
+branch  0 taken 100%
+branch  1 taken 0%
+     2552:  536:        protozero_assert(size <= std::numeric_limits<pbf_length_type>::max());
+branch  0 taken 100%
+branch  1 taken 0%
+     2552:  537:        add_length_varint(tag, pbf_length_type(size));
+     2552:  538:        m_data->append(value, size);
+     2552:  539:    }
+        -:  540:
+        -:  541:    /**
+        -:  542:     * Add "bytes" field to data.
+        -:  543:     *
+        -:  544:     * @param tag Tag (field number) of the field
+        -:  545:     * @param value Value to be written
+        -:  546:     */
+        -:  547:    void add_bytes(pbf_tag_type tag, const data_view& value) {
+        -:  548:        add_bytes(tag, value.data(), value.size());
+        -:  549:    }
+        -:  550:
+        -:  551:    /**
+        -:  552:     * Add "bytes" field to data.
+        -:  553:     *
+        -:  554:     * @param tag Tag (field number) of the field
+        -:  555:     * @param value Value to be written
+        -:  556:     */
+function _ZN9protozero10pbf_writer9add_bytesEjRKSs called 1674 returned 100% blocks executed 100%
+     1674:  557:    void add_bytes(pbf_tag_type tag, const std::string& value) {
+     1674:  558:        add_bytes(tag, value.data(), value.size());
+     1674:  559:    }
+        -:  560:
+        -:  561:    /**
+        -:  562:     * Add "bytes" field to data. Bytes from the value are written until
+        -:  563:     * a null byte is encountered. The null byte is not added.
+        -:  564:     *
+        -:  565:     * @param tag Tag (field number) of the field
+        -:  566:     * @param value Pointer to zero-delimited value to be written
+        -:  567:     */
+        -:  568:    void add_bytes(pbf_tag_type tag, const char* value) {
+        -:  569:        add_bytes(tag, value, std::strlen(value));
+        -:  570:    }
+        -:  571:
+        -:  572:    /**
+        -:  573:     * Add "bytes" field to data using vectored input. All the data in the
+        -:  574:     * 2nd and further arguments is "concatenated" with only a single copy
+        -:  575:     * into the final buffer.
+        -:  576:     *
+        -:  577:     * This will work with objects of any type supporting the data() and
+        -:  578:     * size() methods like std::string or protozero::data_view.
+        -:  579:     *
+        -:  580:     * Example:
+        -:  581:     * @code
+        -:  582:     * std::string data1 = "abc";
+        -:  583:     * std::string data2 = "xyz";
+        -:  584:     * writer.add_bytes_vectored(1, data1, data2);
+        -:  585:     * @endcode
+        -:  586:     *
+        -:  587:     * @tparam Ts List of types supporting data() and size() methods.
+        -:  588:     * @param tag Tag (field number) of the field
+        -:  589:     * @param values List of objects of types Ts with data to be appended.
+        -:  590:     */
+        -:  591:    template <typename... Ts>
+        -:  592:    void add_bytes_vectored(pbf_tag_type tag, Ts&&... values) {
+        -:  593:        protozero_assert(m_pos == 0 && "you can't add fields to a parent pbf_writer if there is an existing pbf_writer for a submessage");
+        -:  594:        protozero_assert(m_data);
+        -:  595:        size_t sum_size = 0;
+        -:  596:        (void)std::initializer_list<size_t>{sum_size += values.size()...};
+        -:  597:        protozero_assert(sum_size <= std::numeric_limits<pbf_length_type>::max());
+        -:  598:        add_length_varint(tag, pbf_length_type(sum_size));
+        -:  599:        m_data->reserve(m_data->size() + sum_size);
+        -:  600:        (void)std::initializer_list<int>{(m_data->append(values.data(), values.size()), 0)...};
+        -:  601:    }
+        -:  602:
+        -:  603:    /**
+        -:  604:     * Add "string" field to data.
+        -:  605:     *
+        -:  606:     * @param tag Tag (field number) of the field
+        -:  607:     * @param value Pointer to value to be written
+        -:  608:     * @param size Number of bytes to be written
+        -:  609:     */
+        -:  610:    void add_string(pbf_tag_type tag, const char* value, std::size_t size) {
+        -:  611:        add_bytes(tag, value, size);
+        -:  612:    }
+        -:  613:
+        -:  614:    /**
+        -:  615:     * Add "string" field to data.
+        -:  616:     *
+        -:  617:     * @param tag Tag (field number) of the field
+        -:  618:     * @param value Value to be written
+        -:  619:     */
+        -:  620:    void add_string(pbf_tag_type tag, const data_view& value) {
+        -:  621:        add_bytes(tag, value.data(), value.size());
+        -:  622:    }
+        -:  623:
+        -:  624:    /**
+        -:  625:     * Add "string" field to data.
+        -:  626:     *
+        -:  627:     * @param tag Tag (field number) of the field
+        -:  628:     * @param value Value to be written
+        -:  629:     */
+function _ZN9protozero10pbf_writer10add_stringEjRKSs called 526 returned 100% blocks executed 100%
+      526:  630:    void add_string(pbf_tag_type tag, const std::string& value) {
+      526:  631:        add_bytes(tag, value.data(), value.size());
+      526:  632:    }
+        -:  633:
+        -:  634:    /**
+        -:  635:     * Add "string" field to data. Bytes from the value are written until
+        -:  636:     * a null byte is encountered. The null byte is not added.
+        -:  637:     *
+        -:  638:     * @param tag Tag (field number) of the field
+        -:  639:     * @param value Pointer to value to be written
+        -:  640:     */
+        -:  641:    void add_string(pbf_tag_type tag, const char* value) {
+        -:  642:        add_bytes(tag, value, std::strlen(value));
+        -:  643:    }
+        -:  644:
+        -:  645:    /**
+        -:  646:     * Add "message" field to data.
+        -:  647:     *
+        -:  648:     * @param tag Tag (field number) of the field
+        -:  649:     * @param value Pointer to message to be written
+        -:  650:     * @param size Length of the message
+        -:  651:     */
+        -:  652:    void add_message(pbf_tag_type tag, const char* value, std::size_t size) {
+        -:  653:        add_bytes(tag, value, size);
+        -:  654:    }
+        -:  655:
+        -:  656:    /**
+        -:  657:     * Add "message" field to data.
+        -:  658:     *
+        -:  659:     * @param tag Tag (field number) of the field
+        -:  660:     * @param value Value to be written. The value must be a complete message.
+        -:  661:     */
+function _ZN9protozero10pbf_writer11add_messageEjRKNS_9data_viewE called 352 returned 100% blocks executed 100%
+      352:  662:    void add_message(pbf_tag_type tag, const data_view& value) {
+      352:  663:        add_bytes(tag, value.data(), value.size());
+      352:  664:    }
+        -:  665:
+        -:  666:    /**
+        -:  667:     * Add "message" field to data.
+        -:  668:     *
+        -:  669:     * @param tag Tag (field number) of the field
+        -:  670:     * @param value Value to be written. The value must be a complete message.
+        -:  671:     */
+        -:  672:    void add_message(pbf_tag_type tag, const std::string& value) {
+        -:  673:        add_bytes(tag, value.data(), value.size());
+        -:  674:    }
+        -:  675:
+        -:  676:    ///@}
+        -:  677:
+        -:  678:    ///@{
+        -:  679:    /**
+        -:  680:     * @name Repeated packed field writer functions
+        -:  681:     */
+        -:  682:
+        -:  683:    /**
+        -:  684:     * Add "repeated packed bool" field to data.
+        -:  685:     *
+        -:  686:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  687:     *         Dereferencing the iterator must yield a type assignable to bool.
+        -:  688:     * @param tag Tag (field number) of the field
+        -:  689:     * @param first Iterator pointing to the beginning of the data
+        -:  690:     * @param last Iterator pointing one past the end of data
+        -:  691:     */
+        -:  692:    template <typename InputIterator>
+        -:  693:    void add_packed_bool(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  694:        add_packed_varint(tag, first, last);
+        -:  695:    }
+        -:  696:
+        -:  697:    /**
+        -:  698:     * Add "repeated packed enum" field to data.
+        -:  699:     *
+        -:  700:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  701:     *         Dereferencing the iterator must yield a type assignable to int32_t.
+        -:  702:     * @param tag Tag (field number) of the field
+        -:  703:     * @param first Iterator pointing to the beginning of the data
+        -:  704:     * @param last Iterator pointing one past the end of data
+        -:  705:     */
+        -:  706:    template <typename InputIterator>
+        -:  707:    void add_packed_enum(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  708:        add_packed_varint(tag, first, last);
+        -:  709:    }
+        -:  710:
+        -:  711:    /**
+        -:  712:     * Add "repeated packed int32" field to data.
+        -:  713:     *
+        -:  714:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  715:     *         Dereferencing the iterator must yield a type assignable to int32_t.
+        -:  716:     * @param tag Tag (field number) of the field
+        -:  717:     * @param first Iterator pointing to the beginning of the data
+        -:  718:     * @param last Iterator pointing one past the end of data
+        -:  719:     */
+        -:  720:    template <typename InputIterator>
+        -:  721:    void add_packed_int32(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  722:        add_packed_varint(tag, first, last);
+        -:  723:    }
+        -:  724:
+        -:  725:    /**
+        -:  726:     * Add "repeated packed sint32" field to data.
+        -:  727:     *
+        -:  728:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  729:     *         Dereferencing the iterator must yield a type assignable to int32_t.
+        -:  730:     * @param tag Tag (field number) of the field
+        -:  731:     * @param first Iterator pointing to the beginning of the data
+        -:  732:     * @param last Iterator pointing one past the end of data
+        -:  733:     */
+        -:  734:    template <typename InputIterator>
+        -:  735:    void add_packed_sint32(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  736:        add_packed_svarint(tag, first, last);
+        -:  737:    }
+        -:  738:
+        -:  739:    /**
+        -:  740:     * Add "repeated packed uint32" field to data.
+        -:  741:     *
+        -:  742:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  743:     *         Dereferencing the iterator must yield a type assignable to uint32_t.
+        -:  744:     * @param tag Tag (field number) of the field
+        -:  745:     * @param first Iterator pointing to the beginning of the data
+        -:  746:     * @param last Iterator pointing one past the end of data
+        -:  747:     */
+        -:  748:    template <typename InputIterator>
+        -:  749:    void add_packed_uint32(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  750:        add_packed_varint(tag, first, last);
+        -:  751:    }
+        -:  752:
+        -:  753:    /**
+        -:  754:     * Add "repeated packed int64" field to data.
+        -:  755:     *
+        -:  756:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  757:     *         Dereferencing the iterator must yield a type assignable to int64_t.
+        -:  758:     * @param tag Tag (field number) of the field
+        -:  759:     * @param first Iterator pointing to the beginning of the data
+        -:  760:     * @param last Iterator pointing one past the end of data
+        -:  761:     */
+        -:  762:    template <typename InputIterator>
+        -:  763:    void add_packed_int64(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  764:        add_packed_varint(tag, first, last);
+        -:  765:    }
+        -:  766:
+        -:  767:    /**
+        -:  768:     * Add "repeated packed sint64" field to data.
+        -:  769:     *
+        -:  770:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  771:     *         Dereferencing the iterator must yield a type assignable to int64_t.
+        -:  772:     * @param tag Tag (field number) of the field
+        -:  773:     * @param first Iterator pointing to the beginning of the data
+        -:  774:     * @param last Iterator pointing one past the end of data
+        -:  775:     */
+        -:  776:    template <typename InputIterator>
+        -:  777:    void add_packed_sint64(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  778:        add_packed_svarint(tag, first, last);
+        -:  779:    }
+        -:  780:
+        -:  781:    /**
+        -:  782:     * Add "repeated packed uint64" field to data.
+        -:  783:     *
+        -:  784:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  785:     *         Dereferencing the iterator must yield a type assignable to uint64_t.
+        -:  786:     * @param tag Tag (field number) of the field
+        -:  787:     * @param first Iterator pointing to the beginning of the data
+        -:  788:     * @param last Iterator pointing one past the end of data
+        -:  789:     */
+        -:  790:    template <typename InputIterator>
+        -:  791:    void add_packed_uint64(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  792:        add_packed_varint(tag, first, last);
+        -:  793:    }
+        -:  794:
+        -:  795:    /**
+        -:  796:     * Add a "repeated packed" fixed-size field to data. The following
+        -:  797:     * fixed-size fields are available:
+        -:  798:     *
+        -:  799:     * uint32_t -> repeated packed fixed32
+        -:  800:     * int32_t  -> repeated packed sfixed32
+        -:  801:     * uint64_t -> repeated packed fixed64
+        -:  802:     * int64_t  -> repeated packed sfixed64
+        -:  803:     * double   -> repeated packed double
+        -:  804:     * float    -> repeated packed float
+        -:  805:     *
+        -:  806:     * @tparam ValueType One of the following types: (u)int32/64_t, double, float.
+        -:  807:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  808:     * @param tag Tag (field number) of the field
+        -:  809:     * @param first Iterator pointing to the beginning of the data
+        -:  810:     * @param last Iterator pointing one past the end of data
+        -:  811:     */
+        -:  812:    template <typename ValueType, typename InputIterator>
+        -:  813:    void add_packed_fixed(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  814:        static_assert(std::is_same<ValueType, uint32_t>::value ||
+        -:  815:                      std::is_same<ValueType, int32_t>::value ||
+        -:  816:                      std::is_same<ValueType, int64_t>::value ||
+        -:  817:                      std::is_same<ValueType, uint64_t>::value ||
+        -:  818:                      std::is_same<ValueType, double>::value ||
+        -:  819:                      std::is_same<ValueType, float>::value, "Only some types are allowed");
+        -:  820:        add_packed_fixed<ValueType, InputIterator>(tag, first, last,
+        -:  821:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  822:    }
+        -:  823:
+        -:  824:    /**
+        -:  825:     * Add "repeated packed fixed32" field to data.
+        -:  826:     *
+        -:  827:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  828:     *         Dereferencing the iterator must yield a type assignable to uint32_t.
+        -:  829:     * @param tag Tag (field number) of the field
+        -:  830:     * @param first Iterator pointing to the beginning of the data
+        -:  831:     * @param last Iterator pointing one past the end of data
+        -:  832:     */
+        -:  833:    template <typename InputIterator>
+        -:  834:    void add_packed_fixed32(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  835:        add_packed_fixed<uint32_t, InputIterator>(tag, first, last,
+        -:  836:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  837:    }
+        -:  838:
+        -:  839:    /**
+        -:  840:     * Add "repeated packed sfixed32" field to data.
+        -:  841:     *
+        -:  842:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  843:     *         Dereferencing the iterator must yield a type assignable to int32_t.
+        -:  844:     * @param tag Tag (field number) of the field
+        -:  845:     * @param first Iterator pointing to the beginning of the data
+        -:  846:     * @param last Iterator pointing one past the end of data
+        -:  847:     */
+        -:  848:    template <typename InputIterator>
+        -:  849:    void add_packed_sfixed32(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  850:        add_packed_fixed<int32_t, InputIterator>(tag, first, last,
+        -:  851:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  852:    }
+        -:  853:
+        -:  854:    /**
+        -:  855:     * Add "repeated packed fixed64" field to data.
+        -:  856:     *
+        -:  857:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  858:     *         Dereferencing the iterator must yield a type assignable to uint64_t.
+        -:  859:     * @param tag Tag (field number) of the field
+        -:  860:     * @param first Iterator pointing to the beginning of the data
+        -:  861:     * @param last Iterator pointing one past the end of data
+        -:  862:     */
+        -:  863:    template <typename InputIterator>
+        -:  864:    void add_packed_fixed64(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  865:        add_packed_fixed<uint64_t, InputIterator>(tag, first, last,
+        -:  866:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  867:    }
+        -:  868:
+        -:  869:    /**
+        -:  870:     * Add "repeated packed sfixed64" field to data.
+        -:  871:     *
+        -:  872:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  873:     *         Dereferencing the iterator must yield a type assignable to int64_t.
+        -:  874:     * @param tag Tag (field number) of the field
+        -:  875:     * @param first Iterator pointing to the beginning of the data
+        -:  876:     * @param last Iterator pointing one past the end of data
+        -:  877:     */
+        -:  878:    template <typename InputIterator>
+        -:  879:    void add_packed_sfixed64(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  880:        add_packed_fixed<int64_t, InputIterator>(tag, first, last,
+        -:  881:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  882:    }
+        -:  883:
+        -:  884:    /**
+        -:  885:     * Add "repeated packed float" field to data.
+        -:  886:     *
+        -:  887:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  888:     *         Dereferencing the iterator must yield a type assignable to float.
+        -:  889:     * @param tag Tag (field number) of the field
+        -:  890:     * @param first Iterator pointing to the beginning of the data
+        -:  891:     * @param last Iterator pointing one past the end of data
+        -:  892:     */
+        -:  893:    template <typename InputIterator>
+        -:  894:    void add_packed_float(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  895:        add_packed_fixed<float, InputIterator>(tag, first, last,
+        -:  896:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  897:    }
+        -:  898:
+        -:  899:    /**
+        -:  900:     * Add "repeated packed double" field to data.
+        -:  901:     *
+        -:  902:     * @tparam InputIterator A type satisfying the InputIterator concept.
+        -:  903:     *         Dereferencing the iterator must yield a type assignable to double.
+        -:  904:     * @param tag Tag (field number) of the field
+        -:  905:     * @param first Iterator pointing to the beginning of the data
+        -:  906:     * @param last Iterator pointing one past the end of data
+        -:  907:     */
+        -:  908:    template <typename InputIterator>
+        -:  909:    void add_packed_double(pbf_tag_type tag, InputIterator first, InputIterator last) {
+        -:  910:        add_packed_fixed<double, InputIterator>(tag, first, last,
+        -:  911:            typename std::iterator_traits<InputIterator>::iterator_category{});
+        -:  912:    }
+        -:  913:
+        -:  914:    ///@}
+        -:  915:
+        -:  916:    template <typename T> friend class detail::packed_field_varint;
+        -:  917:    template <typename T> friend class detail::packed_field_svarint;
+        -:  918:    template <typename T> friend class detail::packed_field_fixed;
+        -:  919:
+        -:  920:}; // class pbf_writer
+        -:  921:
+        -:  922:/**
+        -:  923: * Swap two pbf_writer objects.
+        -:  924: *
+        -:  925: * @param lhs First object.
+        -:  926: * @param rhs Second object.
+        -:  927: */
+        -:  928:inline void swap(pbf_writer& lhs, pbf_writer& rhs) noexcept {
+        -:  929:    lhs.swap(rhs);
+        -:  930:}
+        -:  931:
+        -:  932:namespace detail {
+        -:  933:
+        -:  934:    class packed_field {
+        -:  935:
+        -:  936:    protected:
+        -:  937:
+        -:  938:        pbf_writer m_writer{}; // NOLINT(misc-non-private-member-variables-in-classes, cppcoreguidelines-non-private-member-variables-in-classes,-warnings-as-errors)
+        -:  939:
+        -:  940:    public:
+        -:  941:
+        -:  942:        packed_field(const packed_field&) = delete;
+        -:  943:        packed_field& operator=(const packed_field&) = delete;
+        -:  944:
+        -:  945:        packed_field(packed_field&&) noexcept = default;
+        -:  946:        packed_field& operator=(packed_field&&) noexcept = default;
+        -:  947:
+        -:  948:        packed_field() = default;
+        -:  949:
+        -:  950:        packed_field(pbf_writer& parent_writer, pbf_tag_type tag) :
+        -:  951:            m_writer{parent_writer, tag} {
+        -:  952:        }
+        -:  953:
+        -:  954:        packed_field(pbf_writer& parent_writer, pbf_tag_type tag, std::size_t size) :
+        -:  955:            m_writer{parent_writer, tag, size} {
+        -:  956:        }
+        -:  957:
+        -:  958:        ~packed_field() noexcept = default;
+        -:  959:
+        -:  960:        bool valid() const noexcept {
+        -:  961:            return m_writer.valid();
+        -:  962:        }
+        -:  963:
+        -:  964:        void commit() {
+        -:  965:            m_writer.commit();
+        -:  966:        }
+        -:  967:
+        -:  968:        void rollback() {
+        -:  969:            m_writer.rollback();
+        -:  970:        }
+        -:  971:
+        -:  972:    }; // class packed_field
+        -:  973:
+        -:  974:    template <typename T>
+        -:  975:    class packed_field_fixed : public packed_field {
+        -:  976:
+        -:  977:    public:
+        -:  978:
+        -:  979:        packed_field_fixed() :
+        -:  980:            packed_field{} {
+        -:  981:        }
+        -:  982:
+        -:  983:        template <typename P>
+        -:  984:        packed_field_fixed(pbf_writer& parent_writer, P tag) :
+        -:  985:            packed_field{parent_writer, static_cast<pbf_tag_type>(tag)} {
+        -:  986:        }
+        -:  987:
+        -:  988:        template <typename P>
+        -:  989:        packed_field_fixed(pbf_writer& parent_writer, P tag, std::size_t size) :
+        -:  990:            packed_field{parent_writer, static_cast<pbf_tag_type>(tag), size * sizeof(T)} {
+        -:  991:        }
+        -:  992:
+        -:  993:        void add_element(T value) {
+        -:  994:            m_writer.add_fixed<T>(value);
+        -:  995:        }
+        -:  996:
+        -:  997:    }; // class packed_field_fixed
+        -:  998:
+        -:  999:    template <typename T>
+        -: 1000:    class packed_field_varint : public packed_field {
+        -: 1001:
+        -: 1002:    public:
+        -: 1003:
+        -: 1004:        packed_field_varint() :
+        -: 1005:            packed_field{} {
+        -: 1006:        }
+        -: 1007:
+        -: 1008:        template <typename P>
+        -: 1009:        packed_field_varint(pbf_writer& parent_writer, P tag) :
+        -: 1010:            packed_field{parent_writer, static_cast<pbf_tag_type>(tag)} {
+        -: 1011:        }
+        -: 1012:
+        -: 1013:        void add_element(T value) {
+        -: 1014:            m_writer.add_varint(uint64_t(value));
+        -: 1015:        }
+        -: 1016:
+        -: 1017:    }; // class packed_field_varint
+        -: 1018:
+        -: 1019:    template <typename T>
+        -: 1020:    class packed_field_svarint : public packed_field {
+        -: 1021:
+        -: 1022:    public:
+        -: 1023:
+        -: 1024:        packed_field_svarint() :
+        -: 1025:            packed_field{} {
+        -: 1026:        }
+        -: 1027:
+        -: 1028:        template <typename P>
+        -: 1029:        packed_field_svarint(pbf_writer& parent_writer, P tag) :
+        -: 1030:            packed_field{parent_writer, static_cast<pbf_tag_type>(tag)} {
+        -: 1031:        }
+        -: 1032:
+        -: 1033:        void add_element(T value) {
+        -: 1034:            m_writer.add_varint(encode_zigzag64(value));
+        -: 1035:        }
+        -: 1036:
+        -: 1037:    }; // class packed_field_svarint
+        -: 1038:
+        -: 1039:} // end namespace detail
+        -: 1040:
+        -: 1041:/// Class for generating packed repeated bool fields.
+        -: 1042:using packed_field_bool     = detail::packed_field_varint<bool>;
+        -: 1043:
+        -: 1044:/// Class for generating packed repeated enum fields.
+        -: 1045:using packed_field_enum     = detail::packed_field_varint<int32_t>;
+        -: 1046:
+        -: 1047:/// Class for generating packed repeated int32 fields.
+        -: 1048:using packed_field_int32    = detail::packed_field_varint<int32_t>;
+        -: 1049:
+        -: 1050:/// Class for generating packed repeated sint32 fields.
+        -: 1051:using packed_field_sint32   = detail::packed_field_svarint<int32_t>;
+        -: 1052:
+        -: 1053:/// Class for generating packed repeated uint32 fields.
+        -: 1054:using packed_field_uint32   = detail::packed_field_varint<uint32_t>;
+        -: 1055:
+        -: 1056:/// Class for generating packed repeated int64 fields.
+        -: 1057:using packed_field_int64    = detail::packed_field_varint<int64_t>;
+        -: 1058:
+        -: 1059:/// Class for generating packed repeated sint64 fields.
+        -: 1060:using packed_field_sint64   = detail::packed_field_svarint<int64_t>;
+        -: 1061:
+        -: 1062:/// Class for generating packed repeated uint64 fields.
+        -: 1063:using packed_field_uint64   = detail::packed_field_varint<uint64_t>;
+        -: 1064:
+        -: 1065:/// Class for generating packed repeated fixed32 fields.
+        -: 1066:using packed_field_fixed32  = detail::packed_field_fixed<uint32_t>;
+        -: 1067:
+        -: 1068:/// Class for generating packed repeated sfixed32 fields.
+        -: 1069:using packed_field_sfixed32 = detail::packed_field_fixed<int32_t>;
+        -: 1070:
+        -: 1071:/// Class for generating packed repeated fixed64 fields.
+        -: 1072:using packed_field_fixed64  = detail::packed_field_fixed<uint64_t>;
+        -: 1073:
+        -: 1074:/// Class for generating packed repeated sfixed64 fields.
+        -: 1075:using packed_field_sfixed64 = detail::packed_field_fixed<int64_t>;
+        -: 1076:
+        -: 1077:/// Class for generating packed repeated float fields.
+        -: 1078:using packed_field_float    = detail::packed_field_fixed<float>;
+        -: 1079:
+        -: 1080:/// Class for generating packed repeated double fields.
+        -: 1081:using packed_field_double   = detail::packed_field_fixed<double>;
+        -: 1082:
+        -: 1083:} // end namespace protozero
+        -: 1084:
+        -: 1085:#endif // PROTOZERO_PBF_WRITER_HPP

@@ -1,0 +1,207 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/algorithms/detail/expand/interface.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    4:// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+        -:    5:// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+        -:    6:// Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
+        -:    7:
+        -:    8:// This file was modified by Oracle on 2015, 2016.
+        -:    9:// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+        -:   10:
+        -:   11:// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+        -:   12:// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+        -:   13:
+        -:   14:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:   15:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:   16:
+        -:   17:// Distributed under the Boost Software License, Version 1.0.
+        -:   18:// (See accompanying file LICENSE_1_0.txt or copy at
+        -:   19:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   20:
+        -:   21:#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_INTERFACE_HPP
+        -:   22:#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_INTERFACE_HPP
+        -:   23:
+        -:   24:#include <boost/variant/apply_visitor.hpp>
+        -:   25:#include <boost/variant/static_visitor.hpp>
+        -:   26:#include <boost/variant/variant_fwd.hpp>
+        -:   27:
+        -:   28:#include <boost/geometry/geometries/concepts/check.hpp>
+        -:   29:
+        -:   30:#include <boost/geometry/algorithms/dispatch/expand.hpp>
+        -:   31:
+        -:   32:#include <boost/geometry/strategies/default_strategy.hpp>
+        -:   33:
+        -:   34:#include <boost/geometry/strategies/envelope.hpp>
+        -:   35:#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
+        -:   36:#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+        -:   37:#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
+        -:   38:
+        -:   39:namespace boost { namespace geometry
+        -:   40:{
+        -:   41:
+        -:   42:namespace resolve_strategy
+        -:   43:{
+        -:   44:
+        -:   45:template <typename Geometry>
+        -:   46:struct expand
+        -:   47:{
+        -:   48:    template <typename Box, typename Strategy>
+        -:   49:    static inline void apply(Box& box,
+        -:   50:                             Geometry const& geometry,
+        -:   51:                             Strategy const& strategy)
+        -:   52:    {
+        -:   53:        dispatch::expand<Box, Geometry>::apply(box, geometry, strategy);
+        -:   54:    }
+        -:   55:
+        -:   56:    template <typename Box>
+function _ZN5boost8geometry16resolve_strategy6expandINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEE5applyIS9_EEvRT_RKS9_NS0_16default_strategyE called 3497373 returned 100% blocks executed 100%
+  3497373:   57:    static inline void apply(Box& box,
+        -:   58:                             Geometry const& geometry,
+        -:   59:                             default_strategy)
+        -:   60:    {
+        -:   61:        typedef typename point_type<Geometry>::type point_type;
+        -:   62:        typedef typename coordinate_type<point_type>::type coordinate_type;
+        -:   63:
+        -:   64:        typedef typename strategy::envelope::services::default_strategy
+        -:   65:                <
+        -:   66:                typename cs_tag<point_type>::type,
+        -:   67:                coordinate_type
+        -:   68:                >::type strategy_type;
+        -:   69:
+  3497373:   70:        dispatch::expand<Box, Geometry>::apply(box, geometry, strategy_type());
+  3497373:   71:    }
+        -:   72:};
+        -:   73:
+        -:   74:} //namespace resolve_strategy
+        -:   75:
+        -:   76:
+        -:   77:namespace resolve_variant
+        -:   78:{
+        -:   79:    
+        -:   80:template <typename Geometry>
+        -:   81:struct expand
+        -:   82:{
+        -:   83:    template <typename Box, typename Strategy>
+function _ZN5boost8geometry15resolve_variant6expandINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEE5applyIS9_NS0_16default_strategyEEEvRT_RKS9_RKT0_ called 3497362 returned 100% blocks executed 100%
+  3497362:   84:    static inline void apply(Box& box,
+        -:   85:                             Geometry const& geometry,
+        -:   86:                             Strategy const& strategy)
+        -:   87:    {
+  3497362:   88:        concepts::check<Box>();
+  3497362:   89:        concepts::check<Geometry const>();
+  3497362:   90:        concepts::check_concepts_and_equal_dimensions<Box, Geometry const>();
+        -:   91:        
+  3497362:   92:        resolve_strategy::expand<Geometry>::apply(box, geometry, strategy);
+  3497362:   93:    }
+        -:   94:};
+        -:   95:
+        -:   96:template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+        -:   97:struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+        -:   98:{
+        -:   99:    template <typename Box, typename Strategy>
+        -:  100:    struct visitor: boost::static_visitor<void>
+        -:  101:    {
+        -:  102:        Box& m_box;
+        -:  103:        Strategy const& m_strategy;
+        -:  104:        
+        -:  105:        visitor(Box& box, Strategy const& strategy)
+        -:  106:            : m_box(box)
+        -:  107:            , m_strategy(strategy)
+        -:  108:        {}
+        -:  109:        
+        -:  110:        template <typename Geometry>
+        -:  111:        void operator()(Geometry const& geometry) const
+        -:  112:        {
+        -:  113:            return expand<Geometry>::apply(m_box, geometry, m_strategy);
+        -:  114:        }
+        -:  115:    };
+        -:  116:    
+        -:  117:    template <class Box, typename Strategy>
+        -:  118:    static inline void
+        -:  119:    apply(Box& box,
+        -:  120:          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+        -:  121:          Strategy const& strategy)
+        -:  122:    {
+        -:  123:        return boost::apply_visitor(visitor<Box, Strategy>(box, strategy),
+        -:  124:                                    geometry);
+        -:  125:    }
+        -:  126:};
+        -:  127:    
+        -:  128:} // namespace resolve_variant
+        -:  129:    
+        -:  130:    
+        -:  131:/***
+        -:  132:*!
+        -:  133:\brief Expands a box using the extend (envelope) of another geometry (box, point)
+        -:  134:\ingroup expand
+        -:  135:\tparam Box type of the box
+        -:  136:\tparam Geometry of second geometry, to be expanded with the box
+        -:  137:\param box box to expand another geometry with, might be changed
+        -:  138:\param geometry other geometry
+        -:  139:\param strategy_less
+        -:  140:\param strategy_greater
+        -:  141:\note Strategy is currently ignored
+        -:  142: *
+        -:  143:template
+        -:  144:<
+        -:  145:    typename Box, typename Geometry,
+        -:  146:    typename StrategyLess, typename StrategyGreater
+        -:  147:>
+        -:  148:inline void expand(Box& box, Geometry const& geometry,
+        -:  149:            StrategyLess const& strategy_less,
+        -:  150:            StrategyGreater const& strategy_greater)
+        -:  151:{
+        -:  152:    concepts::check_concepts_and_equal_dimensions<Box, Geometry const>();
+        -:  153:
+        -:  154:    dispatch::expand<Box, Geometry>::apply(box, geometry);
+        -:  155:}
+        -:  156:***/
+        -:  157:
+        -:  158:/*!
+        -:  159:\brief Expands (with strategy)
+        -:  160:\ingroup expand
+        -:  161:\tparam Box type of the box
+        -:  162:\tparam Geometry \tparam_geometry
+        -:  163:\tparam Strategy \tparam_strategy{expand}
+        -:  164:\param box box to be expanded using another geometry, mutable
+        -:  165:\param geometry \param_geometry geometry which envelope (bounding box)
+        -:  166:\param strategy \param_strategy{expand}
+        -:  167:will be added to the box
+        -:  168:
+        -:  169:\qbk{distinguish,with strategy}
+        -:  170:\qbk{[include reference/algorithms/expand.qbk]}
+        -:  171: */
+        -:  172:template <typename Box, typename Geometry, typename Strategy>
+        -:  173:inline void expand(Box& box, Geometry const& geometry, Strategy const& strategy)
+        -:  174:{
+        -:  175:
+        -:  176:    resolve_variant::expand<Geometry>::apply(box, geometry, strategy);
+        -:  177:}
+        -:  178:
+        -:  179:/*!
+        -:  180:\brief Expands a box using the bounding box (envelope) of another geometry
+        -:  181:(box, point)
+        -:  182:\ingroup expand
+        -:  183:\tparam Box type of the box
+        -:  184:\tparam Geometry \tparam_geometry
+        -:  185:\param box box to be expanded using another geometry, mutable
+        -:  186:\param geometry \param_geometry geometry which envelope (bounding box) will be
+        -:  187:added to the box
+        -:  188:
+        -:  189:\qbk{[include reference/algorithms/expand.qbk]}
+        -:  190: */
+        -:  191:template <typename Box, typename Geometry>
+function _ZN5boost8geometry6expandINS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEES8_EEvRT_RKT0_ called 3497303 returned 100% blocks executed 100%
+  3497303:  192:inline void expand(Box& box, Geometry const& geometry)
+        -:  193:{
+  3497303:  194:    resolve_variant::expand<Geometry>::apply(box, geometry, default_strategy());
+  3497303:  195:}
+        -:  196:
+        -:  197:}} // namespace boost::geometry
+        -:  198:
+        -:  199:#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_INTERFACE_HPP

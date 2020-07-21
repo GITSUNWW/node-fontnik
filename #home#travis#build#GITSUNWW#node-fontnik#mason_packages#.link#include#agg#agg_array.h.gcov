@@ -1,0 +1,1147 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/agg/agg_array.h
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://----------------------------------------------------------------------------
+        -:    2:// Anti-Grain Geometry - Version 2.4
+        -:    3:// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+        -:    4://
+        -:    5:// Permission to copy, use, modify, sell and distribute this software 
+        -:    6:// is granted provided this copyright notice appears in all copies. 
+        -:    7:// This software is provided "as is" without express or implied
+        -:    8:// warranty, and with no claim as to its suitability for any purpose.
+        -:    9://
+        -:   10://----------------------------------------------------------------------------
+        -:   11:// Contact: mcseem@antigrain.com
+        -:   12://          mcseemagg@yahoo.com
+        -:   13://          http://www.antigrain.com
+        -:   14://----------------------------------------------------------------------------
+        -:   15:#ifndef AGG_ARRAY_INCLUDED
+        -:   16:#define AGG_ARRAY_INCLUDED
+        -:   17:
+        -:   18:#include <cstddef>
+        -:   19:#include <cstring>
+        -:   20:#include "agg_basics.h"
+        -:   21:
+        -:   22:namespace agg_fontnik
+        -:   23:{
+        -:   24:
+        -:   25:    //-------------------------------------------------------pod_array_adaptor
+        -:   26:    template<class T> class pod_array_adaptor
+        -:   27:    {
+        -:   28:    public:
+        -:   29:        typedef T value_type;
+        -:   30:        pod_array_adaptor(T* array, unsigned size) : 
+        -:   31:            m_array(array), m_size(size) {}
+        -:   32:
+        -:   33:        unsigned size() const { return m_size; }
+        -:   34:        const T& operator [] (unsigned i) const { return m_array[i]; }
+        -:   35:              T& operator [] (unsigned i)       { return m_array[i]; }
+        -:   36:        const T& at(unsigned i) const           { return m_array[i]; }
+        -:   37:              T& at(unsigned i)                 { return m_array[i]; }
+        -:   38:        T  value_at(unsigned i) const           { return m_array[i]; }
+        -:   39:
+        -:   40:    private:
+        -:   41:        T*       m_array;
+        -:   42:        unsigned m_size;
+        -:   43:    };
+        -:   44:
+        -:   45:
+        -:   46:    //---------------------------------------------------------pod_auto_array
+        -:   47:    template<class T, unsigned Size> class pod_auto_array
+        -:   48:    {
+        -:   49:    public:
+        -:   50:        typedef T value_type;
+        -:   51:        typedef pod_auto_array<T, Size> self_type;
+        -:   52:
+        -:   53:        pod_auto_array() {}
+        -:   54:        explicit pod_auto_array(const T* c)
+        -:   55:        {
+        -:   56:            memcpy(m_array, c, sizeof(T) * Size);
+        -:   57:        }
+        -:   58:
+        -:   59:        const self_type& operator = (const T* c)
+        -:   60:        {
+        -:   61:            memcpy(m_array, c, sizeof(T) * Size);
+        -:   62:            return *this;
+        -:   63:        }
+        -:   64:
+        -:   65:        static unsigned size() { return Size; }
+        -:   66:        const T& operator [] (unsigned i) const { return m_array[i]; }
+        -:   67:              T& operator [] (unsigned i)       { return m_array[i]; }
+        -:   68:        const T& at(unsigned i) const           { return m_array[i]; }
+        -:   69:              T& at(unsigned i)                 { return m_array[i]; }
+        -:   70:        T  value_at(unsigned i) const           { return m_array[i]; }
+        -:   71:
+        -:   72:    private:
+        -:   73:        T m_array[Size];
+        -:   74:    };
+        -:   75:
+        -:   76:
+        -:   77:    //--------------------------------------------------------pod_auto_vector
+        -:   78:    template<class T, unsigned Size> class pod_auto_vector
+        -:   79:    {
+        -:   80:    public:
+        -:   81:        typedef T value_type;
+        -:   82:        typedef pod_auto_vector<T, Size> self_type;
+        -:   83:
+        -:   84:        pod_auto_vector() : m_size(0) {}
+        -:   85:
+        -:   86:        void remove_all()            { m_size = 0; }
+        -:   87:        void clear()                 { m_size = 0; }
+        -:   88:        void add(const T& v)         { m_array[m_size++] = v; }
+        -:   89:        void push_back(const T& v)   { m_array[m_size++] = v; }
+        -:   90:        void inc_size(unsigned size) { m_size += size; }
+        -:   91:        
+        -:   92:        unsigned size() const { return m_size; }
+        -:   93:        const T& operator [] (unsigned i) const { return m_array[i]; }
+        -:   94:              T& operator [] (unsigned i)       { return m_array[i]; }
+        -:   95:        const T& at(unsigned i) const           { return m_array[i]; }
+        -:   96:              T& at(unsigned i)                 { return m_array[i]; }
+        -:   97:        T  value_at(unsigned i) const           { return m_array[i]; }
+        -:   98:
+        -:   99:    private:
+        -:  100:        T m_array[Size];
+        -:  101:        unsigned m_size;
+        -:  102:    };
+        -:  103:
+        -:  104:
+        -:  105:    //---------------------------------------------------------------pod_array
+        -:  106:    template<class T> class pod_array
+        -:  107:    {
+        -:  108:    public:
+        -:  109:        typedef T value_type;
+        -:  110:        typedef pod_array<T> self_type;
+        -:  111:
+        -:  112:        ~pod_array() { pod_allocator<T>::deallocate(m_array, m_size); }
+        -:  113:        pod_array() : m_array(0), m_size(0) {}
+        -:  114:
+        -:  115:        pod_array(unsigned size) : 
+        -:  116:            m_array(pod_allocator<T>::allocate(size)), 
+        -:  117:            m_size(size) 
+        -:  118:        {}
+        -:  119:
+        -:  120:        pod_array(const self_type& v) : 
+        -:  121:            m_array(pod_allocator<T>::allocate(v.m_size)), 
+        -:  122:            m_size(v.m_size) 
+        -:  123:        {
+        -:  124:            memcpy(m_array, v.m_array, sizeof(T) * m_size);
+        -:  125:        }
+        -:  126:
+        -:  127:        void resize(unsigned size)
+        -:  128:        {
+        -:  129:            if(size != m_size)
+        -:  130:            {
+        -:  131:                pod_allocator<T>::deallocate(m_array, m_size);
+        -:  132:                m_array = pod_allocator<T>::allocate(m_size = size);
+        -:  133:            }
+        -:  134:        }
+        -:  135:        const self_type& operator = (const self_type& v)
+        -:  136:        {
+        -:  137:            resize(v.size());
+        -:  138:            memcpy(m_array, v.m_array, sizeof(T) * m_size);
+        -:  139:            return *this;
+        -:  140:        }
+        -:  141:
+        -:  142:        unsigned size() const { return m_size; }
+        -:  143:        const T& operator [] (unsigned i) const { return m_array[i]; }
+        -:  144:              T& operator [] (unsigned i)       { return m_array[i]; }
+        -:  145:        const T& at(unsigned i) const           { return m_array[i]; }
+        -:  146:              T& at(unsigned i)                 { return m_array[i]; }
+        -:  147:        T  value_at(unsigned i) const           { return m_array[i]; }
+        -:  148:
+        -:  149:        const T* data() const { return m_array; }
+        -:  150:              T* data()       { return m_array; }
+        -:  151:    private:
+        -:  152:        T*       m_array;
+        -:  153:        unsigned m_size;
+        -:  154:    };
+        -:  155:
+        -:  156:
+        -:  157:
+        -:  158:    //--------------------------------------------------------------pod_vector
+        -:  159:    // A simple class template to store Plain Old Data, a vector
+        -:  160:    // of a fixed size. The data is continous in memory
+        -:  161:    //------------------------------------------------------------------------
+        -:  162:    template<class T> class pod_vector
+        -:  163:    {
+        -:  164:    public:
+        -:  165:        typedef T value_type;
+        -:  166:
+        -:  167:        ~pod_vector() { pod_allocator<T>::deallocate(m_array, m_capacity); }
+        -:  168:        pod_vector() : m_size(0), m_capacity(0), m_array(0) {}
+        -:  169:        pod_vector(unsigned cap, unsigned extra_tail=0);
+        -:  170:
+        -:  171:        // Copying
+        -:  172:        pod_vector(const pod_vector<T>&);
+        -:  173:        const pod_vector<T>& operator = (const pod_vector<T>&);
+        -:  174:
+        -:  175:        // Set new capacity. All data is lost, size is set to zero.
+        -:  176:        void capacity(unsigned cap, unsigned extra_tail=0);
+        -:  177:        unsigned capacity() const { return m_capacity; }
+        -:  178:
+        -:  179:        // Allocate n elements. All data is lost, 
+        -:  180:        // but elements can be accessed in range 0...size-1. 
+        -:  181:        void allocate(unsigned size, unsigned extra_tail=0);
+        -:  182:
+        -:  183:        // Resize keeping the content.
+        -:  184:        void resize(unsigned new_size);
+        -:  185:
+        -:  186:        void zero()
+        -:  187:        {
+        -:  188:            memset(m_array, 0, sizeof(T) * m_size);
+        -:  189:        }
+        -:  190:
+        -:  191:        void add(const T& v)         { m_array[m_size++] = v; }
+        -:  192:        void push_back(const T& v)   { m_array[m_size++] = v; }
+        -:  193:        void insert_at(unsigned pos, const T& val);
+        -:  194:        void inc_size(unsigned size) { m_size += size; }
+        -:  195:        unsigned size()      const   { return m_size; }
+        -:  196:        unsigned byte_size() const   { return m_size * sizeof(T); }
+        -:  197:        void serialize(int8u* ptr) const;
+        -:  198:        void deserialize(const int8u* data, unsigned byte_size);
+        -:  199:        const T& operator [] (unsigned i) const { return m_array[i]; }
+        -:  200:              T& operator [] (unsigned i)       { return m_array[i]; }
+        -:  201:        const T& at(unsigned i) const           { return m_array[i]; }
+        -:  202:              T& at(unsigned i)                 { return m_array[i]; }
+        -:  203:        T  value_at(unsigned i) const           { return m_array[i]; }
+        -:  204:
+        -:  205:        const T* data() const { return m_array; }
+        -:  206:              T* data()       { return m_array; }
+        -:  207:
+        -:  208:        void remove_all()         { m_size = 0; }
+        -:  209:        void clear()              { m_size = 0; }
+        -:  210:        void cut_at(unsigned num) { if(num < m_size) m_size = num; }
+        -:  211:
+        -:  212:    private:
+        -:  213:        unsigned m_size;
+        -:  214:        unsigned m_capacity;
+        -:  215:        T*       m_array;
+        -:  216:    };
+        -:  217:
+        -:  218:    //------------------------------------------------------------------------
+        -:  219:    template<class T> 
+        -:  220:    void pod_vector<T>::capacity(unsigned cap, unsigned extra_tail)
+        -:  221:    {
+        -:  222:        m_size = 0;
+        -:  223:        if(cap > m_capacity)
+        -:  224:        {
+        -:  225:            pod_allocator<T>::deallocate(m_array, m_capacity);
+        -:  226:            m_capacity = cap + extra_tail;
+        -:  227:            m_array = m_capacity ? pod_allocator<T>::allocate(m_capacity) : 0;
+        -:  228:        }
+        -:  229:    }
+        -:  230:
+        -:  231:    //------------------------------------------------------------------------
+        -:  232:    template<class T> 
+        -:  233:    void pod_vector<T>::allocate(unsigned size, unsigned extra_tail)
+        -:  234:    {
+        -:  235:        capacity(size, extra_tail);
+        -:  236:        m_size = size;
+        -:  237:    }
+        -:  238:
+        -:  239:
+        -:  240:    //------------------------------------------------------------------------
+        -:  241:    template<class T> 
+        -:  242:    void pod_vector<T>::resize(unsigned new_size)
+        -:  243:    {
+        -:  244:        if(new_size > m_size)
+        -:  245:        {
+        -:  246:            if(new_size > m_capacity)
+        -:  247:            {
+        -:  248:                T* data = pod_allocator<T>::allocate(new_size);
+        -:  249:                memcpy(data, m_array, m_size * sizeof(T));
+        -:  250:                pod_allocator<T>::deallocate(m_array, m_capacity);
+        -:  251:                m_array = data;
+        -:  252:            }
+        -:  253:        }
+        -:  254:        else
+        -:  255:        {
+        -:  256:            m_size = new_size;
+        -:  257:        }
+        -:  258:    }
+        -:  259:
+        -:  260:    //------------------------------------------------------------------------
+        -:  261:    template<class T> pod_vector<T>::pod_vector(unsigned cap, unsigned extra_tail) :
+        -:  262:        m_size(0), 
+        -:  263:        m_capacity(cap + extra_tail), 
+        -:  264:        m_array(pod_allocator<T>::allocate(m_capacity)) {}
+        -:  265:
+        -:  266:    //------------------------------------------------------------------------
+        -:  267:    template<class T> pod_vector<T>::pod_vector(const pod_vector<T>& v) :
+        -:  268:        m_size(v.m_size),
+        -:  269:        m_capacity(v.m_capacity),
+        -:  270:        m_array(v.m_capacity ? pod_allocator<T>::allocate(v.m_capacity) : 0)
+        -:  271:    {
+        -:  272:        memcpy(m_array, v.m_array, sizeof(T) * v.m_size);
+        -:  273:    }
+        -:  274:
+        -:  275:    //------------------------------------------------------------------------
+        -:  276:    template<class T> const pod_vector<T>& 
+        -:  277:    pod_vector<T>::operator = (const pod_vector<T>&v)
+        -:  278:    {
+        -:  279:        allocate(v.m_size);
+        -:  280:        if(v.m_size) memcpy(m_array, v.m_array, sizeof(T) * v.m_size);
+        -:  281:        return *this;
+        -:  282:    }
+        -:  283:
+        -:  284:    //------------------------------------------------------------------------
+        -:  285:    template<class T> void pod_vector<T>::serialize(int8u* ptr) const
+        -:  286:    { 
+        -:  287:        if(m_size) memcpy(ptr, m_array, m_size * sizeof(T)); 
+        -:  288:    }
+        -:  289:
+        -:  290:    //------------------------------------------------------------------------
+        -:  291:    template<class T> 
+        -:  292:    void pod_vector<T>::deserialize(const int8u* data, unsigned byte_size)
+        -:  293:    {
+        -:  294:        byte_size /= sizeof(T);
+        -:  295:        allocate(byte_size);
+        -:  296:        if(byte_size) memcpy(m_array, data, byte_size * sizeof(T));
+        -:  297:    }
+        -:  298:
+        -:  299:    //------------------------------------------------------------------------
+        -:  300:    template<class T> 
+        -:  301:    void pod_vector<T>::insert_at(unsigned pos, const T& val)
+        -:  302:    {
+        -:  303:        if(pos >= m_size) 
+        -:  304:        {
+        -:  305:            m_array[m_size] = val;
+        -:  306:        }
+        -:  307:        else
+        -:  308:        {
+        -:  309:            memmove(m_array + pos + 1, m_array + pos, (m_size - pos) * sizeof(T));
+        -:  310:            m_array[pos] = val;
+        -:  311:        }
+        -:  312:        ++m_size;
+        -:  313:    }
+        -:  314:
+        -:  315:    //---------------------------------------------------------------pod_bvector
+        -:  316:    // A simple class template to store Plain Old Data, similar to std::deque
+        -:  317:    // It doesn't reallocate memory but instead, uses blocks of data of size 
+        -:  318:    // of (1 << S), that is, power of two. The data is NOT contiguous in memory, 
+        -:  319:    // so the only valid access method is operator [] or curr(), prev(), next()
+        -:  320:    // 
+        -:  321:    // There reallocs occure only when the pool of pointers to blocks needs 
+        -:  322:    // to be extended (it happens very rarely). You can control the value 
+        -:  323:    // of increment to reallocate the pointer buffer. See the second constructor.
+        -:  324:    // By default, the incremeent value equals (1 << S), i.e., the block size.
+        -:  325:    //------------------------------------------------------------------------
+        -:  326:    template<class T, unsigned S=6> class pod_bvector
+        -:  327:    {
+        -:  328:    public:
+        -:  329:        enum block_scale_e
+        -:  330:        {   
+        -:  331:            block_shift = S,
+        -:  332:            block_size  = 1 << block_shift,
+        -:  333:            block_mask  = block_size - 1
+        -:  334:        };
+        -:  335:
+        -:  336:        typedef T value_type;
+        -:  337:
+        -:  338:        ~pod_bvector();
+        -:  339:        pod_bvector();
+        -:  340:        pod_bvector(unsigned block_ptr_inc);
+        -:  341:
+        -:  342:        // Copying
+        -:  343:        pod_bvector(const pod_bvector<T, S>& v);
+        -:  344:        const pod_bvector<T, S>& operator = (const pod_bvector<T, S>& v);
+        -:  345:
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EE10remove_allEv called 21910 returned 100% blocks executed 100%
+    21910:  346:        void remove_all() { m_size = 0; }
+        -:  347:        void clear()      { m_size = 0; }
+        -:  348:        void free_all()   { free_tail(0); }
+        -:  349:        void free_tail(unsigned size);
+        -:  350:        void add(const T& val);
+        -:  351:        void push_back(const T& val) { add(val); }
+        -:  352:        void modify_last(const T& val);
+        -:  353:        void remove_last();
+        -:  354:
+        -:  355:        int allocate_continuous_block(unsigned num_elements);
+        -:  356:
+        -:  357:        void add_array(const T* ptr, unsigned num_elem)
+        -:  358:        {
+        -:  359:            while(num_elem--)
+        -:  360:            {
+        -:  361:                add(*ptr++);
+        -:  362:            }
+        -:  363:        }
+        -:  364:
+        -:  365:        template<class DataAccessor> void add_data(DataAccessor& data)
+        -:  366:        {
+        -:  367:            while(data.size())
+        -:  368:            {
+        -:  369:                add(*data);
+        -:  370:                ++data;
+        -:  371:            }
+        -:  372:        }
+        -:  373:
+        -:  374:        void cut_at(unsigned size)
+        -:  375:        {
+        -:  376:            if(size < m_size) m_size = size;
+        -:  377:        }
+        -:  378:
+function _ZNK11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EE4sizeEv called 96007 returned 100% blocks executed 100%
+    96007:  379:        unsigned size() const { return m_size; }
+        -:  380:
+        -:  381:        const T& operator [] (unsigned i) const
+        -:  382:        {
+        -:  383:            return m_blocks[i >> block_shift][i & block_mask];
+        -:  384:        }
+        -:  385:
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EEixEj called 74097 returned 100% blocks executed 100%
+    74097:  386:        T& operator [] (unsigned i)
+        -:  387:        {
+    74097:  388:            return m_blocks[i >> block_shift][i & block_mask];
+        -:  389:        }
+        -:  390:
+        -:  391:        const T& at(unsigned i) const
+        -:  392:        { 
+        -:  393:            return m_blocks[i >> block_shift][i & block_mask];
+        -:  394:        }
+        -:  395:
+        -:  396:        T& at(unsigned i) 
+        -:  397:        { 
+        -:  398:            return m_blocks[i >> block_shift][i & block_mask];
+        -:  399:        }
+        -:  400:
+        -:  401:        T value_at(unsigned i) const
+        -:  402:        { 
+        -:  403:            return m_blocks[i >> block_shift][i & block_mask];
+        -:  404:        }
+        -:  405:
+        -:  406:        const T& curr(unsigned idx) const
+        -:  407:        {
+        -:  408:            return (*this)[idx];
+        -:  409:        }
+        -:  410:
+        -:  411:        T& curr(unsigned idx)
+        -:  412:        {
+        -:  413:            return (*this)[idx];
+        -:  414:        }
+        -:  415:
+        -:  416:        const T& prev(unsigned idx) const
+        -:  417:        {
+        -:  418:            return (*this)[(idx + m_size - 1) % m_size];
+        -:  419:        }
+        -:  420:
+        -:  421:        T& prev(unsigned idx)
+        -:  422:        {
+        -:  423:            return (*this)[(idx + m_size - 1) % m_size];
+        -:  424:        }
+        -:  425:
+        -:  426:        const T& next(unsigned idx) const
+        -:  427:        {
+        -:  428:            return (*this)[(idx + 1) % m_size];
+        -:  429:        }
+        -:  430:
+        -:  431:        T& next(unsigned idx)
+        -:  432:        {
+        -:  433:            return (*this)[(idx + 1) % m_size];
+        -:  434:        }
+        -:  435:
+        -:  436:        const T& last() const
+        -:  437:        {
+        -:  438:            return (*this)[m_size - 1];
+        -:  439:        }
+        -:  440:
+        -:  441:        T& last()
+        -:  442:        {
+        -:  443:            return (*this)[m_size - 1];
+        -:  444:        }
+        -:  445:
+        -:  446:        unsigned byte_size() const;
+        -:  447:        void serialize(int8u* ptr) const;
+        -:  448:        void deserialize(const int8u* data, unsigned byte_size);
+        -:  449:        void deserialize(unsigned start, const T& empty_val, 
+        -:  450:                         const int8u* data, unsigned byte_size);
+        -:  451:
+        -:  452:        template<class ByteAccessor> 
+        -:  453:        void deserialize(ByteAccessor data)
+        -:  454:        {
+        -:  455:            remove_all();
+        -:  456:            unsigned elem_size = data.size() / sizeof(T);
+        -:  457:
+        -:  458:            for(unsigned i = 0; i < elem_size; ++i)
+        -:  459:            {
+        -:  460:                int8u* ptr = (int8u*)data_ptr();
+        -:  461:                for(unsigned j = 0; j < sizeof(T); ++j)
+        -:  462:                {
+        -:  463:                    *ptr++ = *data;
+        -:  464:                    ++data;
+        -:  465:                }
+        -:  466:                ++m_size;
+        -:  467:            }
+        -:  468:        }
+        -:  469:
+        -:  470:        template<class ByteAccessor>
+        -:  471:        void deserialize(unsigned start, const T& empty_val, ByteAccessor data)
+        -:  472:        {
+        -:  473:            while(m_size < start)
+        -:  474:            {
+        -:  475:                add(empty_val);
+        -:  476:            }
+        -:  477:
+        -:  478:            unsigned elem_size = data.size() / sizeof(T);
+        -:  479:            for(unsigned i = 0; i < elem_size; ++i)
+        -:  480:            {
+        -:  481:                int8u* ptr;
+        -:  482:                if(start + i < m_size)
+        -:  483:                {
+        -:  484:                    ptr = (int8u*)(&((*this)[start + i]));
+        -:  485:                }
+        -:  486:                else
+        -:  487:                {
+        -:  488:                    ptr = (int8u*)data_ptr();
+        -:  489:                    ++m_size;
+        -:  490:                }
+        -:  491:                for(unsigned j = 0; j < sizeof(T); ++j)
+        -:  492:                {
+        -:  493:                    *ptr++ = *data;
+        -:  494:                    ++data;
+        -:  495:                }
+        -:  496:            }
+        -:  497:        }
+        -:  498:
+        -:  499:        const T* block(unsigned nb) const { return m_blocks[nb]; }
+        -:  500:
+        -:  501:    private:
+        -:  502:        void allocate_block(unsigned nb);
+        -:  503:        T*   data_ptr();
+        -:  504:
+        -:  505:        unsigned        m_size;
+        -:  506:        unsigned        m_num_blocks;
+        -:  507:        unsigned        m_max_blocks;
+        -:  508:        T**             m_blocks;
+        -:  509:        unsigned        m_block_ptr_inc;
+        -:  510:    };
+        -:  511:
+        -:  512:
+        -:  513:    //------------------------------------------------------------------------
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EED2Ev called 21910 returned 100% blocks executed 90%
+    21910:  514:    template<class T, unsigned S> pod_bvector<T, S>::~pod_bvector()
+        -:  515:    {
+    21910:  516:        if(m_num_blocks)
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  517:        {
+    21910:  518:            T** blk = m_blocks + m_num_blocks - 1;
+    43820:  519:            while(m_num_blocks > 0)
+branch  0 taken 50%
+branch  1 taken 50%
+        -:  520:            {
+    21910:  521:                pod_allocator<T>::deallocate(*blk, block_size);
+branch  0 taken 100%
+branch  1 taken 0%
+    21910:  522:                --blk;
+    21910:  523:                --m_num_blocks;
+        -:  524:            }
+    21910:  525:        }
+    21910:  526:        pod_allocator<T*>::deallocate(m_blocks, m_max_blocks);
+branch  0 taken 100%
+branch  1 taken 0%
+    21910:  527:    }
+        -:  528:
+        -:  529:
+        -:  530:    //------------------------------------------------------------------------
+        -:  531:    template<class T, unsigned S> 
+        -:  532:    void pod_bvector<T, S>::free_tail(unsigned size)
+        -:  533:    {
+        -:  534:        if(size < m_size)
+        -:  535:        {
+        -:  536:            unsigned nb = (size + block_mask) >> block_shift;
+        -:  537:            while(m_num_blocks > nb)
+        -:  538:            {
+        -:  539:                pod_allocator<T>::deallocate(m_blocks[--m_num_blocks], block_size);
+        -:  540:            }
+        -:  541:            if(m_num_blocks == 0)
+        -:  542:            {
+        -:  543:                pod_allocator<T*>::deallocate(m_blocks, m_max_blocks);
+        -:  544:                m_blocks = 0;
+        -:  545:                m_max_blocks = 0;
+        -:  546:            }
+        -:  547:            m_size = size;
+        -:  548:        }
+        -:  549:    }
+        -:  550:
+        -:  551:
+        -:  552:    //------------------------------------------------------------------------
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EEC2Ev called 21910 returned 100% blocks executed 100%
+    21910:  553:    template<class T, unsigned S> pod_bvector<T, S>::pod_bvector() :
+    21910:  554:        m_size(0),
+    21910:  555:        m_num_blocks(0),
+    21910:  556:        m_max_blocks(0),
+    21910:  557:        m_blocks(0),
+    21910:  558:        m_block_ptr_inc(block_size)
+        -:  559:    {
+    21910:  560:    }
+        -:  561:
+        -:  562:
+        -:  563:    //------------------------------------------------------------------------
+        -:  564:    template<class T, unsigned S> 
+        -:  565:    pod_bvector<T, S>::pod_bvector(unsigned block_ptr_inc) :
+        -:  566:        m_size(0),
+        -:  567:        m_num_blocks(0),
+        -:  568:        m_max_blocks(0),
+        -:  569:        m_blocks(0),
+        -:  570:        m_block_ptr_inc(block_ptr_inc)
+        -:  571:    {
+        -:  572:    }
+        -:  573:
+        -:  574:
+        -:  575:    //------------------------------------------------------------------------
+        -:  576:    template<class T, unsigned S> 
+        -:  577:    pod_bvector<T, S>::pod_bvector(const pod_bvector<T, S>& v) :
+        -:  578:        m_size(v.m_size),
+        -:  579:        m_num_blocks(v.m_num_blocks),
+        -:  580:        m_max_blocks(v.m_max_blocks),
+        -:  581:        m_blocks(v.m_max_blocks ? 
+        -:  582:                 pod_allocator<T*>::allocate(v.m_max_blocks) : 
+        -:  583:                 0),
+        -:  584:        m_block_ptr_inc(v.m_block_ptr_inc)
+        -:  585:    {
+        -:  586:        unsigned i;
+        -:  587:        for(i = 0; i < v.m_num_blocks; ++i)
+        -:  588:        {
+        -:  589:            m_blocks[i] = pod_allocator<T>::allocate(block_size);
+        -:  590:            memcpy(m_blocks[i], v.m_blocks[i], block_size * sizeof(T));
+        -:  591:        }
+        -:  592:    }
+        -:  593:
+        -:  594:
+        -:  595:    //------------------------------------------------------------------------
+        -:  596:    template<class T, unsigned S> 
+        -:  597:    const pod_bvector<T, S>& 
+        -:  598:    pod_bvector<T, S>::operator = (const pod_bvector<T, S>& v)
+        -:  599:    {
+        -:  600:        unsigned i;
+        -:  601:        for(i = m_num_blocks; i < v.m_num_blocks; ++i)
+        -:  602:        {
+        -:  603:            allocate_block(i);
+        -:  604:        }
+        -:  605:        for(i = 0; i < v.m_num_blocks; ++i)
+        -:  606:        {
+        -:  607:            memcpy(m_blocks[i], v.m_blocks[i], block_size * sizeof(T));
+        -:  608:        }
+        -:  609:        m_size = v.m_size;
+        -:  610:        return *this;
+        -:  611:    }
+        -:  612:
+        -:  613:
+        -:  614:    //------------------------------------------------------------------------
+        -:  615:    template<class T, unsigned S>
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EE14allocate_blockEj called 21910 returned 100% blocks executed 83%
+    21910:  616:    void pod_bvector<T, S>::allocate_block(unsigned nb)
+        -:  617:    {
+    21910:  618:        if(nb >= m_max_blocks) 
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  619:        {
+    21910:  620:            T** new_blocks = pod_allocator<T*>::allocate(m_max_blocks + m_block_ptr_inc);
+        -:  621:
+    21910:  622:            if(m_blocks)
+branch  0 taken 0%
+branch  1 taken 100%
+        -:  623:            {
+    #####:  624:                memcpy(new_blocks, 
+    #####:  625:                       m_blocks, 
+    #####:  626:                       m_num_blocks * sizeof(T*));
+        -:  627:
+    #####:  628:                pod_allocator<T*>::deallocate(m_blocks, m_max_blocks);
+    #####:  629:            }
+    21910:  630:            m_blocks = new_blocks;
+    21910:  631:            m_max_blocks += m_block_ptr_inc;
+    21910:  632:        }
+    21910:  633:        m_blocks[nb] = pod_allocator<T>::allocate(block_size);
+    21910:  634:        m_num_blocks++;
+    21910:  635:    }
+        -:  636:
+        -:  637:
+        -:  638:
+        -:  639:    //------------------------------------------------------------------------
+        -:  640:    template<class T, unsigned S>
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EE8data_ptrEv called 74097 returned 100% blocks executed 100%
+    74097:  641:    inline T* pod_bvector<T, S>::data_ptr()
+        -:  642:    {
+    74097:  643:        unsigned nb = m_size >> block_shift;
+    74097:  644:        if(nb >= m_num_blocks)
+branch  0 taken 30%
+branch  1 taken 70%
+        -:  645:        {
+    21910:  646:            allocate_block(nb);
+    21910:  647:        }
+    74097:  648:        return m_blocks[nb] + (m_size & block_mask);
+        -:  649:    }
+        -:  650:
+        -:  651:
+        -:  652:
+        -:  653:    //------------------------------------------------------------------------
+        -:  654:    template<class T, unsigned S> 
+function _ZN11agg_fontnik11pod_bvectorINS_10point_baseIdEELj6EE3addERKS2_ called 74097 returned 100% blocks executed 100%
+    74097:  655:    inline void pod_bvector<T, S>::add(const T& val)
+        -:  656:    {
+    74097:  657:        *data_ptr() = val;
+    74097:  658:        ++m_size;
+    74097:  659:    }
+        -:  660:
+        -:  661:
+        -:  662:    //------------------------------------------------------------------------
+        -:  663:    template<class T, unsigned S> 
+        -:  664:    inline void pod_bvector<T, S>::remove_last()
+        -:  665:    {
+        -:  666:        if(m_size) --m_size;
+        -:  667:    }
+        -:  668:
+        -:  669:
+        -:  670:    //------------------------------------------------------------------------
+        -:  671:    template<class T, unsigned S> 
+        -:  672:    void pod_bvector<T, S>::modify_last(const T& val)
+        -:  673:    {
+        -:  674:        remove_last();
+        -:  675:        add(val);
+        -:  676:    }
+        -:  677:
+        -:  678:
+        -:  679:    //------------------------------------------------------------------------
+        -:  680:    template<class T, unsigned S> 
+        -:  681:    int pod_bvector<T, S>::allocate_continuous_block(unsigned num_elements)
+        -:  682:    {
+        -:  683:        if(num_elements < block_size)
+        -:  684:        {
+        -:  685:            data_ptr(); // Allocate initial block if necessary
+        -:  686:            unsigned rest = block_size - (m_size & block_mask);
+        -:  687:            unsigned index;
+        -:  688:            if(num_elements <= rest)
+        -:  689:            {
+        -:  690:                // The rest of the block is good, we can use it
+        -:  691:                //-----------------
+        -:  692:                index = m_size;
+        -:  693:                m_size += num_elements;
+        -:  694:                return index;
+        -:  695:            }
+        -:  696:
+        -:  697:            // New block
+        -:  698:            //---------------
+        -:  699:            m_size += rest;
+        -:  700:            data_ptr();
+        -:  701:            index = m_size;
+        -:  702:            m_size += num_elements;
+        -:  703:            return index;
+        -:  704:        }
+        -:  705:        return -1; // Impossible to allocate
+        -:  706:    }
+        -:  707:
+        -:  708:
+        -:  709:    //------------------------------------------------------------------------
+        -:  710:    template<class T, unsigned S> 
+        -:  711:    unsigned pod_bvector<T, S>::byte_size() const
+        -:  712:    {
+        -:  713:        return m_size * sizeof(T);
+        -:  714:    }
+        -:  715:
+        -:  716:
+        -:  717:    //------------------------------------------------------------------------
+        -:  718:    template<class T, unsigned S> 
+        -:  719:    void pod_bvector<T, S>::serialize(int8u* ptr) const
+        -:  720:    {
+        -:  721:        unsigned i;
+        -:  722:        for(i = 0; i < m_size; i++)
+        -:  723:        {
+        -:  724:            memcpy(ptr, &(*this)[i], sizeof(T));
+        -:  725:            ptr += sizeof(T);
+        -:  726:        }
+        -:  727:    }
+        -:  728:
+        -:  729:    //------------------------------------------------------------------------
+        -:  730:    template<class T, unsigned S> 
+        -:  731:    void pod_bvector<T, S>::deserialize(const int8u* data, unsigned byte_size)
+        -:  732:    {
+        -:  733:        remove_all();
+        -:  734:        byte_size /= sizeof(T);
+        -:  735:        for(unsigned i = 0; i < byte_size; ++i)
+        -:  736:        {
+        -:  737:            T* ptr = data_ptr();
+        -:  738:            memcpy(ptr, data, sizeof(T));
+        -:  739:            ++m_size;
+        -:  740:            data += sizeof(T);
+        -:  741:        }
+        -:  742:    }
+        -:  743:
+        -:  744:
+        -:  745:    // Replace or add a number of elements starting from "start" position
+        -:  746:    //------------------------------------------------------------------------
+        -:  747:    template<class T, unsigned S> 
+        -:  748:    void pod_bvector<T, S>::deserialize(unsigned start, const T& empty_val, 
+        -:  749:                                        const int8u* data, unsigned byte_size)
+        -:  750:    {
+        -:  751:        while(m_size < start)
+        -:  752:        {
+        -:  753:            add(empty_val);
+        -:  754:        }
+        -:  755:
+        -:  756:        byte_size /= sizeof(T);
+        -:  757:        for(unsigned i = 0; i < byte_size; ++i)
+        -:  758:        {
+        -:  759:            if(start + i < m_size)
+        -:  760:            {
+        -:  761:                memcpy(&((*this)[start + i]), data, sizeof(T));
+        -:  762:            }
+        -:  763:            else
+        -:  764:            {
+        -:  765:                T* ptr = data_ptr();
+        -:  766:                memcpy(ptr, data, sizeof(T));
+        -:  767:                ++m_size;
+        -:  768:            }
+        -:  769:            data += sizeof(T);
+        -:  770:        }
+        -:  771:    }
+        -:  772:
+        -:  773:
+        -:  774:    //---------------------------------------------------------block_allocator
+        -:  775:    // Allocator for arbitrary POD data. Most usable in different cache
+        -:  776:    // systems for efficient memory allocations. 
+        -:  777:    // Memory is allocated with blocks of fixed size ("block_size" in
+        -:  778:    // the constructor). If required size exceeds the block size the allocator
+        -:  779:    // creates a new block of the required size. However, the most efficient
+        -:  780:    // use is when the average reqired size is much less than the block size. 
+        -:  781:    //------------------------------------------------------------------------
+        -:  782:    class block_allocator
+        -:  783:    {
+        -:  784:        struct block_type
+        -:  785:        {
+        -:  786:            int8u*   data;
+        -:  787:            unsigned size;
+        -:  788:        };
+        -:  789:
+        -:  790:    public:
+        -:  791:        void remove_all()
+        -:  792:        {
+        -:  793:            if(m_num_blocks)
+        -:  794:            {
+        -:  795:                block_type* blk = m_blocks + m_num_blocks - 1;
+        -:  796:                while(m_num_blocks--)
+        -:  797:                {
+        -:  798:                    pod_allocator<int8u>::deallocate(blk->data, blk->size);
+        -:  799:                    --blk;
+        -:  800:                }
+        -:  801:                pod_allocator<block_type>::deallocate(m_blocks, m_max_blocks);
+        -:  802:            }
+        -:  803:            m_num_blocks = 0;
+        -:  804:            m_max_blocks = 0;
+        -:  805:            m_blocks = 0;
+        -:  806:            m_buf_ptr = 0;
+        -:  807:            m_rest = 0;
+        -:  808:        }
+        -:  809:
+        -:  810:        ~block_allocator()
+        -:  811:        {
+        -:  812:            remove_all();
+        -:  813:        }
+        -:  814:
+        -:  815:        block_allocator(unsigned block_size, unsigned block_ptr_inc=256-8) :
+        -:  816:            m_block_size(block_size),
+        -:  817:            m_block_ptr_inc(block_ptr_inc),
+        -:  818:            m_num_blocks(0),
+        -:  819:            m_max_blocks(0),
+        -:  820:            m_blocks(0),
+        -:  821:            m_buf_ptr(0),
+        -:  822:            m_rest(0)
+        -:  823:        {
+        -:  824:        }
+        -:  825:       
+        -:  826:
+        -:  827:        int8u* allocate(unsigned size, unsigned alignment=1)
+        -:  828:        {
+        -:  829:            if(size == 0) return 0;
+        -:  830:            if(size <= m_rest)
+        -:  831:            {
+        -:  832:                int8u* ptr = m_buf_ptr;
+        -:  833:                if(alignment > 1)
+        -:  834:                {
+        -:  835:                    unsigned align = 
+        -:  836:                        (alignment - unsigned((size_t)ptr) % alignment) % alignment;
+        -:  837:
+        -:  838:                    size += align;
+        -:  839:                    ptr += align;
+        -:  840:                    if(size <= m_rest)
+        -:  841:                    {
+        -:  842:                        m_rest -= size;
+        -:  843:                        m_buf_ptr += size;
+        -:  844:                        return ptr;
+        -:  845:                    }
+        -:  846:                    allocate_block(size);
+        -:  847:                    return allocate(size - align, alignment);
+        -:  848:                }
+        -:  849:                m_rest -= size;
+        -:  850:                m_buf_ptr += size;
+        -:  851:                return ptr;
+        -:  852:            }
+        -:  853:            allocate_block(size + alignment - 1);
+        -:  854:            return allocate(size, alignment);
+        -:  855:        }
+        -:  856:
+        -:  857:
+        -:  858:    private:
+        -:  859:        void allocate_block(unsigned size)
+        -:  860:        {
+        -:  861:            if(size < m_block_size) size = m_block_size;
+        -:  862:            if(m_num_blocks >= m_max_blocks) 
+        -:  863:            {
+        -:  864:                block_type* new_blocks = 
+        -:  865:                    pod_allocator<block_type>::allocate(m_max_blocks + m_block_ptr_inc);
+        -:  866:
+        -:  867:                if(m_blocks)
+        -:  868:                {
+        -:  869:                    memcpy(new_blocks, 
+        -:  870:                           m_blocks, 
+        -:  871:                           m_num_blocks * sizeof(block_type));
+        -:  872:                    pod_allocator<block_type>::deallocate(m_blocks, m_max_blocks);
+        -:  873:                }
+        -:  874:                m_blocks = new_blocks;
+        -:  875:                m_max_blocks += m_block_ptr_inc;
+        -:  876:            }
+        -:  877:
+        -:  878:            m_blocks[m_num_blocks].size = size;
+        -:  879:            m_blocks[m_num_blocks].data = 
+        -:  880:                m_buf_ptr =
+        -:  881:                pod_allocator<int8u>::allocate(size);
+        -:  882:
+        -:  883:            m_num_blocks++;
+        -:  884:            m_rest = size;
+        -:  885:        }
+        -:  886:
+        -:  887:        unsigned    m_block_size;
+        -:  888:        unsigned    m_block_ptr_inc;
+        -:  889:        unsigned    m_num_blocks;
+        -:  890:        unsigned    m_max_blocks;
+        -:  891:        block_type* m_blocks;
+        -:  892:        int8u*      m_buf_ptr;
+        -:  893:        unsigned    m_rest;
+        -:  894:    };
+        -:  895:
+        -:  896:
+        -:  897:
+        -:  898:
+        -:  899:
+        -:  900:
+        -:  901:
+        -:  902:
+        -:  903:    //------------------------------------------------------------------------
+        -:  904:    enum quick_sort_threshold_e
+        -:  905:    {
+        -:  906:        quick_sort_threshold = 9
+        -:  907:    };
+        -:  908:
+        -:  909:    
+        -:  910:    //-----------------------------------------------------------swap_elements
+        -:  911:    template<class T> inline void swap_elements(T& a, T& b)
+        -:  912:    {
+        -:  913:        T temp = a;
+        -:  914:        a = b;
+        -:  915:        b = temp;
+        -:  916:    }
+        -:  917:
+        -:  918:
+        -:  919:    //--------------------------------------------------------------quick_sort
+        -:  920:    template<class Array, class Less>
+        -:  921:    void quick_sort(Array& arr, Less less)
+        -:  922:    {
+        -:  923:        if(arr.size() < 2) return;
+        -:  924:
+        -:  925:        typename Array::value_type* e1;
+        -:  926:        typename Array::value_type* e2;
+        -:  927:
+        -:  928:        int  stack[80];
+        -:  929:        int* top = stack; 
+        -:  930:        int  limit = arr.size();
+        -:  931:        int  base = 0;
+        -:  932:
+        -:  933:        for(;;)
+        -:  934:        {
+        -:  935:            int len = limit - base;
+        -:  936:
+        -:  937:            int i;
+        -:  938:            int j;
+        -:  939:            int pivot;
+        -:  940:
+        -:  941:            if(len > quick_sort_threshold)
+        -:  942:            {
+        -:  943:                // we use base + len/2 as the pivot
+        -:  944:                pivot = base + len / 2;
+        -:  945:                swap_elements(arr[base], arr[pivot]);
+        -:  946:
+        -:  947:                i = base + 1;
+        -:  948:                j = limit - 1;
+        -:  949:
+        -:  950:                // now ensure that *i <= *base <= *j 
+        -:  951:                e1 = &(arr[j]); 
+        -:  952:                e2 = &(arr[i]);
+        -:  953:                if(less(*e1, *e2)) swap_elements(*e1, *e2);
+        -:  954:
+        -:  955:                e1 = &(arr[base]); 
+        -:  956:                e2 = &(arr[i]);
+        -:  957:                if(less(*e1, *e2)) swap_elements(*e1, *e2);
+        -:  958:
+        -:  959:                e1 = &(arr[j]); 
+        -:  960:                e2 = &(arr[base]);
+        -:  961:                if(less(*e1, *e2)) swap_elements(*e1, *e2);
+        -:  962:
+        -:  963:                for(;;)
+        -:  964:                {
+        -:  965:                    do i++; while( less(arr[i], arr[base]) );
+        -:  966:                    do j--; while( less(arr[base], arr[j]) );
+        -:  967:
+        -:  968:                    if( i > j )
+        -:  969:                    {
+        -:  970:                        break;
+        -:  971:                    }
+        -:  972:
+        -:  973:                    swap_elements(arr[i], arr[j]);
+        -:  974:                }
+        -:  975:
+        -:  976:                swap_elements(arr[base], arr[j]);
+        -:  977:
+        -:  978:                // now, push the largest sub-array
+        -:  979:                if(j - base > limit - i)
+        -:  980:                {
+        -:  981:                    top[0] = base;
+        -:  982:                    top[1] = j;
+        -:  983:                    base   = i;
+        -:  984:                }
+        -:  985:                else
+        -:  986:                {
+        -:  987:                    top[0] = i;
+        -:  988:                    top[1] = limit;
+        -:  989:                    limit  = j;
+        -:  990:                }
+        -:  991:                top += 2;
+        -:  992:            }
+        -:  993:            else
+        -:  994:            {
+        -:  995:                // the sub-array is small, perform insertion sort
+        -:  996:                j = base;
+        -:  997:                i = j + 1;
+        -:  998:
+        -:  999:                for(; i < limit; j = i, i++)
+        -: 1000:                {
+        -: 1001:                    for(; less(*(e1 = &(arr[j + 1])), *(e2 = &(arr[j]))); j--)
+        -: 1002:                    {
+        -: 1003:                        swap_elements(*e1, *e2);
+        -: 1004:                        if(j == base)
+        -: 1005:                        {
+        -: 1006:                            break;
+        -: 1007:                        }
+        -: 1008:                    }
+        -: 1009:                }
+        -: 1010:                if(top > stack)
+        -: 1011:                {
+        -: 1012:                    top  -= 2;
+        -: 1013:                    base  = top[0];
+        -: 1014:                    limit = top[1];
+        -: 1015:                }
+        -: 1016:                else
+        -: 1017:                {
+        -: 1018:                    break;
+        -: 1019:                }
+        -: 1020:            }
+        -: 1021:        }
+        -: 1022:    }
+        -: 1023:
+        -: 1024:
+        -: 1025:
+        -: 1026:
+        -: 1027:    //------------------------------------------------------remove_duplicates
+        -: 1028:    // Remove duplicates from a sorted array. It doesn't cut the 
+        -: 1029:    // tail of the array, it just returns the number of remaining elements.
+        -: 1030:    //-----------------------------------------------------------------------
+        -: 1031:    template<class Array, class Equal>
+        -: 1032:    unsigned remove_duplicates(Array& arr, Equal equal)
+        -: 1033:    {
+        -: 1034:        if(arr.size() < 2) return arr.size();
+        -: 1035:
+        -: 1036:        unsigned i, j;
+        -: 1037:        for(i = 1, j = 1; i < arr.size(); i++)
+        -: 1038:        {
+        -: 1039:            typename Array::value_type& e = arr[i];
+        -: 1040:            if(!equal(e, arr[i - 1]))
+        -: 1041:            {
+        -: 1042:                arr[j++] = e;
+        -: 1043:            }
+        -: 1044:        }
+        -: 1045:        return j;
+        -: 1046:    }
+        -: 1047:
+        -: 1048:    //--------------------------------------------------------invert_container
+        -: 1049:    template<class Array> void invert_container(Array& arr)
+        -: 1050:    {
+        -: 1051:        int i = 0;
+        -: 1052:        int j = arr.size() - 1;
+        -: 1053:        while(i < j)
+        -: 1054:        {
+        -: 1055:            swap_elements(arr[i++], arr[j--]);
+        -: 1056:        }
+        -: 1057:    }
+        -: 1058:
+        -: 1059:    //------------------------------------------------------binary_search_pos
+        -: 1060:    template<class Array, class Value, class Less>
+        -: 1061:    unsigned binary_search_pos(const Array& arr, const Value& val, Less less)
+        -: 1062:    {
+        -: 1063:        if(arr.size() == 0) return 0;
+        -: 1064:
+        -: 1065:        unsigned beg = 0;
+        -: 1066:        unsigned end = arr.size() - 1;
+        -: 1067:
+        -: 1068:        if(less(val, arr[0])) return 0;
+        -: 1069:        if(less(arr[end], val)) return end + 1;
+        -: 1070:
+        -: 1071:        while(end - beg > 1)
+        -: 1072:        {
+        -: 1073:            unsigned mid = (end + beg) >> 1;
+        -: 1074:            if(less(val, arr[mid])) end = mid; 
+        -: 1075:            else                    beg = mid;
+        -: 1076:        }
+        -: 1077:
+        -: 1078:        //if(beg <= 0 && less(val, arr[0])) return 0;
+        -: 1079:        //if(end >= arr.size() - 1 && less(arr[end], val)) ++end;
+        -: 1080:
+        -: 1081:        return end;
+        -: 1082:    }
+        -: 1083:
+        -: 1084:    //----------------------------------------------------------range_adaptor
+        -: 1085:    template<class Array> class range_adaptor
+        -: 1086:    {
+        -: 1087:    public:
+        -: 1088:        typedef typename Array::value_type value_type;
+        -: 1089:
+        -: 1090:        range_adaptor(Array& array, unsigned start, unsigned size) :
+        -: 1091:            m_array(array), m_start(start), m_size(size)
+        -: 1092:        {}
+        -: 1093:
+        -: 1094:        unsigned size() const { return m_size; }
+        -: 1095:        const value_type& operator [] (unsigned i) const { return m_array[m_start + i]; }
+        -: 1096:              value_type& operator [] (unsigned i)       { return m_array[m_start + i]; }
+        -: 1097:        const value_type& at(unsigned i) const           { return m_array[m_start + i]; }
+        -: 1098:              value_type& at(unsigned i)                 { return m_array[m_start + i]; }
+        -: 1099:        value_type  value_at(unsigned i) const           { return m_array[m_start + i]; }
+        -: 1100:
+        -: 1101:    private:
+        -: 1102:        Array& m_array;
+        -: 1103:        unsigned m_start;
+        -: 1104:        unsigned m_size;
+        -: 1105:    };
+        -: 1106:
+        -: 1107:    //---------------------------------------------------------------int_less
+        -: 1108:    inline bool int_less(int a, int b) { return a < b; }
+        -: 1109:
+        -: 1110:    //------------------------------------------------------------int_greater
+        -: 1111:    inline bool int_greater(int a, int b) { return a > b; }
+        -: 1112:
+        -: 1113:    //----------------------------------------------------------unsigned_less
+        -: 1114:    inline bool unsigned_less(unsigned a, unsigned b) { return a < b; }
+        -: 1115:
+        -: 1116:    //-------------------------------------------------------unsigned_greater
+        -: 1117:    inline bool unsigned_greater(unsigned a, unsigned b) { return a > b; }
+        -: 1118:}
+        -: 1119:
+        -: 1120:#endif

@@ -1,0 +1,428 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/core/access.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+        -:    4:// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    5:// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+        -:    6:
+        -:    7:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:    8:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:    9:
+        -:   10:// Use, modification and distribution is subject to the Boost Software License,
+        -:   11:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   12:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   13:
+        -:   14:#ifndef BOOST_GEOMETRY_CORE_ACCESS_HPP
+        -:   15:#define BOOST_GEOMETRY_CORE_ACCESS_HPP
+        -:   16:
+        -:   17:
+        -:   18:#include <cstddef>
+        -:   19:
+        -:   20:#include <boost/core/ignore_unused.hpp>
+        -:   21:#include <boost/mpl/assert.hpp>
+        -:   22:#include <boost/type_traits/is_pointer.hpp>
+        -:   23:#include <boost/type_traits/remove_pointer.hpp>
+        -:   24:
+        -:   25:#include <boost/geometry/core/coordinate_type.hpp>
+        -:   26:#include <boost/geometry/core/point_type.hpp>
+        -:   27:#include <boost/geometry/core/tag.hpp>
+        -:   28:#include <boost/geometry/util/bare_type.hpp>
+        -:   29:
+        -:   30:
+        -:   31:namespace boost { namespace geometry
+        -:   32:{
+        -:   33:
+        -:   34:/// Index of minimum corner of the box.
+        -:   35:int const min_corner = 0;
+        -:   36:
+        -:   37:/// Index of maximum corner of the box.
+        -:   38:int const max_corner = 1;
+        -:   39:
+        -:   40:namespace traits
+        -:   41:{
+        -:   42:
+        -:   43:/*!
+        -:   44:\brief Traits class which gives access (get,set) to points.
+        -:   45:\ingroup traits
+        -:   46:\par Geometries:
+        -:   47:///     @li point
+        -:   48:\par Specializations should provide, per Dimension
+        -:   49:///     @li static inline T get(G const&)
+        -:   50:///     @li static inline void set(G&, T const&)
+        -:   51:\tparam Geometry geometry-type
+        -:   52:\tparam Dimension dimension to access
+        -:   53:*/
+        -:   54:template <typename Geometry, std::size_t Dimension, typename Enable = void>
+        -:   55:struct access
+        -:   56:{
+        -:   57:   BOOST_MPL_ASSERT_MSG
+        -:   58:        (
+        -:   59:            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
+        -:   60:        );
+        -:   61:};
+        -:   62:
+        -:   63:
+        -:   64:/*!
+        -:   65:\brief Traits class defining "get" and "set" to get
+        -:   66:    and set point coordinate values
+        -:   67:\tparam Geometry geometry (box, segment)
+        -:   68:\tparam Index index (min_corner/max_corner for box, 0/1 for segment)
+        -:   69:\tparam Dimension dimension
+        -:   70:\par Geometries:
+        -:   71:    - box
+        -:   72:    - segment
+        -:   73:\par Specializations should provide:
+        -:   74:    - static inline T get(G const&)
+        -:   75:    - static inline void set(G&, T const&)
+        -:   76:\ingroup traits
+        -:   77:*/
+        -:   78:template <typename Geometry, std::size_t Index, std::size_t Dimension>
+        -:   79:struct indexed_access {};
+        -:   80:
+        -:   81:
+        -:   82:} // namespace traits
+        -:   83:
+        -:   84:#ifndef DOXYGEN_NO_DETAIL
+        -:   85:namespace detail
+        -:   86:{
+        -:   87:
+        -:   88:template
+        -:   89:<
+        -:   90:    typename Geometry,
+        -:   91:    typename CoordinateType,
+        -:   92:    std::size_t Index,
+        -:   93:    std::size_t Dimension
+        -:   94:>
+        -:   95:struct indexed_access_non_pointer
+        -:   96:{
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm1ELm0EE3getERKS9_ called 60956658 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm0ELm0EE3getERKS9_ called 61057330 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm1ELm1EE3getERKS9_ called 53999131 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm0ELm1EE3getERKS9_ called 54195573 returned 100% blocks executed 100%
+230208692:   97:    static inline CoordinateType get(Geometry const& geometry)
+        -:   98:    {
+230208692:   99:        return traits::indexed_access<Geometry, Index, Dimension>::get(geometry);
+        -:  100:    }
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm0ELm0EE3setERS9_RKf called 1242129 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm1ELm0EE3setERS9_RKf called 1901776 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm0ELm1EE3setERS9_RKf called 1235135 returned 100% blocks executed 100%
+function _ZN5boost8geometry6detail26indexed_access_non_pointerINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEfLm1ELm1EE3setERS9_RKf called 2022961 returned 100% blocks executed 100%
+  6402001:  101:    static inline void set(Geometry& b, CoordinateType const& value)
+        -:  102:    {
+  6402001:  103:        traits::indexed_access<Geometry, Index, Dimension>::set(b, value);
+  6402001:  104:    }
+        -:  105:};
+        -:  106:
+        -:  107:template
+        -:  108:<
+        -:  109:    typename Geometry,
+        -:  110:    typename CoordinateType,
+        -:  111:    std::size_t Index,
+        -:  112:    std::size_t Dimension
+        -:  113:>
+        -:  114:struct indexed_access_pointer
+        -:  115:{
+        -:  116:    static inline CoordinateType get(Geometry const* geometry)
+        -:  117:    {
+        -:  118:        return traits::indexed_access<typename boost::remove_pointer<Geometry>::type, Index, Dimension>::get(*geometry);
+        -:  119:    }
+        -:  120:    static inline void set(Geometry* geometry, CoordinateType const& value)
+        -:  121:    {
+        -:  122:        traits::indexed_access<typename boost::remove_pointer<Geometry>::type, Index, Dimension>::set(*geometry, value);
+        -:  123:    }
+        -:  124:};
+        -:  125:
+        -:  126:
+        -:  127:} // namespace detail
+        -:  128:#endif // DOXYGEN_NO_DETAIL
+        -:  129:
+        -:  130:
+        -:  131:#ifndef DOXYGEN_NO_DISPATCH
+        -:  132:namespace core_dispatch
+        -:  133:{
+        -:  134:
+        -:  135:template
+        -:  136:<
+        -:  137:    typename Tag,
+        -:  138:    typename Geometry,
+        -:  139:    typename
+        -:  140:    CoordinateType,
+        -:  141:    std::size_t Dimension,
+        -:  142:    typename IsPointer
+        -:  143:>
+        -:  144:struct access
+        -:  145:{
+        -:  146:    //static inline T get(G const&) {}
+        -:  147:    //static inline void set(G& g, T const& value) {}
+        -:  148:};
+        -:  149:
+        -:  150:template
+        -:  151:<
+        -:  152:    typename Tag,
+        -:  153:    typename Geometry,
+        -:  154:    typename CoordinateType,
+        -:  155:    std::size_t Index,
+        -:  156:    std::size_t Dimension,
+        -:  157:    typename IsPointer
+        -:  158:>
+        -:  159:struct indexed_access
+        -:  160:{
+        -:  161:    //static inline T get(G const&) {}
+        -:  162:    //static inline void set(G& g, T const& value) {}
+        -:  163:};
+        -:  164:
+        -:  165:template <typename Point, typename CoordinateType, std::size_t Dimension>
+        -:  166:struct access<point_tag, Point, CoordinateType, Dimension, boost::false_type>
+        -:  167:{
+function _ZN5boost8geometry13core_dispatch6accessINS0_9point_tagENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEfLm0ENS_17integral_constantIbLb0EEEE3getERKS8_ called 122124704 returned 100% blocks executed 100%
+function _ZN5boost8geometry13core_dispatch6accessINS0_9point_tagENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEfLm1ENS_17integral_constantIbLb0EEEE3getERKS8_ called 107907630 returned 100% blocks executed 100%
+230032334:  168:    static inline CoordinateType get(Point const& point)
+        -:  169:    {
+230032334:  170:        return traits::access<Point, Dimension>::get(point);
+        -:  171:    }
+function _ZN5boost8geometry13core_dispatch6accessINS0_9point_tagENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEfLm0ENS_17integral_constantIbLb0EEEE3setERS8_RKf called 3241022 returned 100% blocks executed 100%
+function _ZN5boost8geometry13core_dispatch6accessINS0_9point_tagENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEfLm1ENS_17integral_constantIbLb0EEEE3setERS8_RKf called 3351184 returned 100% blocks executed 100%
+  6592206:  172:    static inline void set(Point& p, CoordinateType const& value)
+        -:  173:    {
+  6592206:  174:        traits::access<Point, Dimension>::set(p, value);
+  6592206:  175:    }
+        -:  176:};
+        -:  177:
+        -:  178:template <typename Point, typename CoordinateType, std::size_t Dimension>
+        -:  179:struct access<point_tag, Point, CoordinateType, Dimension, boost::true_type>
+        -:  180:{
+        -:  181:    static inline CoordinateType get(Point const* point)
+        -:  182:    {
+        -:  183:        return traits::access<typename boost::remove_pointer<Point>::type, Dimension>::get(*point);
+        -:  184:    }
+        -:  185:    static inline void set(Point* p, CoordinateType const& value)
+        -:  186:    {
+        -:  187:        traits::access<typename boost::remove_pointer<Point>::type, Dimension>::set(*p, value);
+        -:  188:    }
+        -:  189:};
+        -:  190:
+        -:  191:
+        -:  192:template
+        -:  193:<
+        -:  194:    typename Box,
+        -:  195:    typename CoordinateType,
+        -:  196:    std::size_t Index,
+        -:  197:    std::size_t Dimension
+        -:  198:>
+        -:  199:struct indexed_access<box_tag, Box, CoordinateType, Index, Dimension, boost::false_type>
+        -:  200:    : detail::indexed_access_non_pointer<Box, CoordinateType, Index, Dimension>
+        -:  201:{};
+        -:  202:
+        -:  203:template
+        -:  204:<
+        -:  205:    typename Box,
+        -:  206:    typename CoordinateType,
+        -:  207:    std::size_t Index,
+        -:  208:    std::size_t Dimension
+        -:  209:>
+        -:  210:struct indexed_access<box_tag, Box, CoordinateType, Index, Dimension, boost::true_type>
+        -:  211:    : detail::indexed_access_pointer<Box, CoordinateType, Index, Dimension>
+        -:  212:{};
+        -:  213:
+        -:  214:
+        -:  215:template
+        -:  216:<
+        -:  217:    typename Segment,
+        -:  218:    typename CoordinateType,
+        -:  219:    std::size_t Index,
+        -:  220:    std::size_t Dimension
+        -:  221:>
+        -:  222:struct indexed_access<segment_tag, Segment, CoordinateType, Index, Dimension, boost::false_type>
+        -:  223:    : detail::indexed_access_non_pointer<Segment, CoordinateType, Index, Dimension>
+        -:  224:{};
+        -:  225:
+        -:  226:
+        -:  227:template
+        -:  228:<
+        -:  229:    typename Segment,
+        -:  230:    typename CoordinateType,
+        -:  231:    std::size_t Index,
+        -:  232:    std::size_t Dimension
+        -:  233:>
+        -:  234:struct indexed_access<segment_tag, Segment, CoordinateType, Index, Dimension, boost::true_type>
+        -:  235:    : detail::indexed_access_pointer<Segment, CoordinateType, Index, Dimension>
+        -:  236:{};
+        -:  237:
+        -:  238:} // namespace core_dispatch
+        -:  239:#endif // DOXYGEN_NO_DISPATCH
+        -:  240:
+        -:  241:
+        -:  242:#ifndef DOXYGEN_NO_DETAIL
+        -:  243:namespace detail
+        -:  244:{
+        -:  245:
+        -:  246:// Two dummy tags to distinguish get/set variants below.
+        -:  247:// They don't have to be specified by the user. The functions are distinguished
+        -:  248:// by template signature also, but for e.g. GCC this is not enough. So give them
+        -:  249:// a different signature.
+        -:  250:struct signature_getset_dimension {};
+        -:  251:struct signature_getset_index_dimension {};
+        -:  252:
+        -:  253:} // namespace detail
+        -:  254:#endif // DOXYGEN_NO_DETAIL
+        -:  255:
+        -:  256:
+        -:  257:/*!
+        -:  258:\brief Get coordinate value of a geometry (usually a point)
+        -:  259:\details \details_get_set
+        -:  260:\ingroup get
+        -:  261:\tparam Dimension \tparam_dimension_required
+        -:  262:\tparam Geometry \tparam_geometry (usually a Point Concept)
+        -:  263:\param geometry \param_geometry (usually a point)
+        -:  264:\return The coordinate value of specified dimension of specified geometry
+        -:  265:
+        -:  266:\qbk{[include reference/core/get_point.qbk]}
+        -:  267:*/
+        -:  268:template <std::size_t Dimension, typename Geometry>
+function _ZN5boost8geometry3getILm0ENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEENS0_15coordinate_typeIT0_E4typeERKS8_PNS0_6detail26signature_getset_dimensionE called 122262787 returned 100% blocks executed 100%
+function _ZN5boost8geometry3getILm1ENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEENS0_15coordinate_typeIT0_E4typeERKS8_PNS0_6detail26signature_getset_dimensionE called 107908057 returned 100% blocks executed 100%
+230170844:  269:inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
+        -:  270:#ifndef DOXYGEN_SHOULD_SKIP_THIS
+        -:  271:        , detail::signature_getset_dimension* dummy = 0
+        -:  272:#endif
+        -:  273:        )
+        -:  274:{
+230170844:  275:    boost::ignore_unused(dummy);
+        -:  276:
+        -:  277:    typedef core_dispatch::access
+        -:  278:        <
+        -:  279:            typename tag<Geometry>::type,
+        -:  280:            typename geometry::util::bare_type<Geometry>::type,
+        -:  281:            typename coordinate_type<Geometry>::type,
+        -:  282:            Dimension,
+        -:  283:            typename boost::is_pointer<Geometry>::type
+        -:  284:        > coord_access_type;
+        -:  285:
+230170844:  286:    return coord_access_type::get(geometry);
+        -:  287:}
+        -:  288:
+        -:  289:
+        -:  290:/*!
+        -:  291:\brief Set coordinate value of a geometry (usually a point)
+        -:  292:\details \details_get_set
+        -:  293:\tparam Dimension \tparam_dimension_required
+        -:  294:\tparam Geometry \tparam_geometry (usually a Point Concept)
+        -:  295:\param geometry geometry to assign coordinate to
+        -:  296:\param geometry \param_geometry (usually a point)
+        -:  297:\param value The coordinate value to set
+        -:  298:\ingroup set
+        -:  299:
+        -:  300:\qbk{[include reference/core/set_point.qbk]}
+        -:  301:*/
+        -:  302:template <std::size_t Dimension, typename Geometry>
+function _ZN5boost8geometry3setILm0ENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEEvRT0_RKNS0_15coordinate_typeIS7_E4typeEPNS0_6detail26signature_getset_dimensionE called 3240950 returned 100% blocks executed 100%
+function _ZN5boost8geometry3setILm1ENS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEEvRT0_RKNS0_15coordinate_typeIS7_E4typeEPNS0_6detail26signature_getset_dimensionE called 3355152 returned 100% blocks executed 100%
+  6596102:  303:inline void set(Geometry& geometry
+        -:  304:        , typename coordinate_type<Geometry>::type const& value
+        -:  305:#ifndef DOXYGEN_SHOULD_SKIP_THIS
+        -:  306:        , detail::signature_getset_dimension* dummy = 0
+        -:  307:#endif
+        -:  308:        )
+        -:  309:{
+  6596102:  310:    boost::ignore_unused(dummy);
+        -:  311:
+        -:  312:    typedef core_dispatch::access
+        -:  313:        <
+        -:  314:            typename tag<Geometry>::type,
+        -:  315:            typename geometry::util::bare_type<Geometry>::type,
+        -:  316:            typename coordinate_type<Geometry>::type,
+        -:  317:            Dimension,
+        -:  318:            typename boost::is_pointer<Geometry>::type
+        -:  319:        > coord_access_type;
+        -:  320:
+  6596102:  321:    coord_access_type::set(geometry, value);
+  6596102:  322:}
+        -:  323:
+        -:  324:
+        -:  325:/*!
+        -:  326:\brief get coordinate value of a Box or Segment
+        -:  327:\details \details_get_set
+        -:  328:\tparam Index \tparam_index_required
+        -:  329:\tparam Dimension \tparam_dimension_required
+        -:  330:\tparam Geometry \tparam_box_or_segment
+        -:  331:\param geometry \param_geometry
+        -:  332:\return coordinate value
+        -:  333:\ingroup get
+        -:  334:
+        -:  335:\qbk{distinguish,with index}
+        -:  336:\qbk{[include reference/core/get_box.qbk]}
+        -:  337:*/
+        -:  338:template <std::size_t Index, std::size_t Dimension, typename Geometry>
+function _ZN5boost8geometry3getILm1ELm0ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEENS0_15coordinate_typeIT1_E4typeERKSA_PNS0_6detail32signature_getset_index_dimensionE called 60950409 returned 100% blocks executed 100%
+function _ZN5boost8geometry3getILm0ELm0ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEENS0_15coordinate_typeIT1_E4typeERKSA_PNS0_6detail32signature_getset_index_dimensionE called 61229068 returned 100% blocks executed 100%
+function _ZN5boost8geometry3getILm1ELm1ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEENS0_15coordinate_typeIT1_E4typeERKSA_PNS0_6detail32signature_getset_index_dimensionE called 54015152 returned 100% blocks executed 100%
+function _ZN5boost8geometry3getILm0ELm1ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEENS0_15coordinate_typeIT1_E4typeERKSA_PNS0_6detail32signature_getset_index_dimensionE called 54189413 returned 100% blocks executed 100%
+230384042:  339:inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
+        -:  340:#ifndef DOXYGEN_SHOULD_SKIP_THIS
+        -:  341:        , detail::signature_getset_index_dimension* dummy = 0
+        -:  342:#endif
+        -:  343:        )
+        -:  344:{
+230384042:  345:    boost::ignore_unused(dummy);
+        -:  346:
+        -:  347:    typedef core_dispatch::indexed_access
+        -:  348:        <
+        -:  349:            typename tag<Geometry>::type,
+        -:  350:            typename geometry::util::bare_type<Geometry>::type,
+        -:  351:            typename coordinate_type<Geometry>::type,
+        -:  352:            Index,
+        -:  353:            Dimension,
+        -:  354:            typename boost::is_pointer<Geometry>::type
+        -:  355:        > coord_access_type;
+        -:  356:
+230384042:  357:    return coord_access_type::get(geometry);
+        -:  358:}
+        -:  359:
+        -:  360:/*!
+        -:  361:\brief set coordinate value of a Box / Segment
+        -:  362:\details \details_get_set
+        -:  363:\tparam Index \tparam_index_required
+        -:  364:\tparam Dimension \tparam_dimension_required
+        -:  365:\tparam Geometry \tparam_box_or_segment
+        -:  366:\param geometry geometry to assign coordinate to
+        -:  367:\param geometry \param_geometry
+        -:  368:\param value The coordinate value to set
+        -:  369:\ingroup set
+        -:  370:
+        -:  371:\qbk{distinguish,with index}
+        -:  372:\qbk{[include reference/core/set_box.qbk]}
+        -:  373:*/
+        -:  374:template <std::size_t Index, std::size_t Dimension, typename Geometry>
+function _ZN5boost8geometry3setILm0ELm0ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvRT1_RKNS0_15coordinate_typeIS9_E4typeEPNS0_6detail32signature_getset_index_dimensionE called 1242107 returned 100% blocks executed 100%
+function _ZN5boost8geometry3setILm1ELm0ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvRT1_RKNS0_15coordinate_typeIS9_E4typeEPNS0_6detail32signature_getset_index_dimensionE called 1901754 returned 100% blocks executed 100%
+function _ZN5boost8geometry3setILm0ELm1ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvRT1_RKNS0_15coordinate_typeIS9_E4typeEPNS0_6detail32signature_getset_index_dimensionE called 1235125 returned 100% blocks executed 100%
+function _ZN5boost8geometry3setILm1ELm1ENS0_5model3boxINS2_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvRT1_RKNS0_15coordinate_typeIS9_E4typeEPNS0_6detail32signature_getset_index_dimensionE called 2021550 returned 100% blocks executed 100%
+  6400536:  375:inline void set(Geometry& geometry
+        -:  376:        , typename coordinate_type<Geometry>::type const& value
+        -:  377:#ifndef DOXYGEN_SHOULD_SKIP_THIS
+        -:  378:        , detail::signature_getset_index_dimension* dummy = 0
+        -:  379:#endif
+        -:  380:        )
+        -:  381:{
+  6400536:  382:    boost::ignore_unused(dummy);
+        -:  383:
+        -:  384:    typedef core_dispatch::indexed_access
+        -:  385:        <
+        -:  386:            typename tag<Geometry>::type,
+        -:  387:            typename geometry::util::bare_type<Geometry>::type,
+        -:  388:            typename coordinate_type<Geometry>::type,
+        -:  389:            Index,
+        -:  390:            Dimension,
+        -:  391:            typename boost::is_pointer<Geometry>::type
+        -:  392:        > coord_access_type;
+        -:  393:
+  6400536:  394:    coord_access_type::set(geometry, value);
+  6400536:  395:}
+        -:  396:
+        -:  397:}} // namespace boost::geometry
+        -:  398:
+        -:  399:#endif // BOOST_GEOMETRY_CORE_ACCESS_HPP

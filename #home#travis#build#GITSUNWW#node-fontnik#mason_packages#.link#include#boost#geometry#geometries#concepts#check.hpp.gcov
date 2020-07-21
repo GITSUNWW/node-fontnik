@@ -1,0 +1,257 @@
+        -:    0:Source:/home/travis/build/GITSUNWW/node-fontnik/mason_packages/.link/include/boost/geometry/geometries/concepts/check.hpp
+        -:    0:Graph:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcno
+        -:    0:Data:/home/travis/build/GITSUNWW/node-fontnik/build/Debug/obj.target/fontnik/src/glyphs.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// Boost.Geometry (aka GGL, Generic Geometry Library)
+        -:    2:
+        -:    3:// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+        -:    4:// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+        -:    5:// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+        -:    6:
+        -:    7:// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+        -:    8:// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+        -:    9:
+        -:   10:// Use, modification and distribution is subject to the Boost Software License,
+        -:   11:// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+        -:   12:// http://www.boost.org/LICENSE_1_0.txt)
+        -:   13:
+        -:   14:
+        -:   15:#ifndef BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_CHECK_HPP
+        -:   16:#define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_CHECK_HPP
+        -:   17:
+        -:   18:
+        -:   19:#include <boost/concept_check.hpp>
+        -:   20:#include <boost/concept/requires.hpp>
+        -:   21:#include <boost/type_traits/is_const.hpp>
+        -:   22:#include <boost/variant/variant_fwd.hpp>
+        -:   23:
+        -:   24:#include <boost/geometry/core/tag.hpp>
+        -:   25:#include <boost/geometry/core/tags.hpp>
+        -:   26:
+        -:   27:#include <boost/geometry/geometries/concepts/box_concept.hpp>
+        -:   28:#include <boost/geometry/geometries/concepts/linestring_concept.hpp>
+        -:   29:#include <boost/geometry/geometries/concepts/multi_point_concept.hpp>
+        -:   30:#include <boost/geometry/geometries/concepts/multi_linestring_concept.hpp>
+        -:   31:#include <boost/geometry/geometries/concepts/multi_polygon_concept.hpp>
+        -:   32:#include <boost/geometry/geometries/concepts/point_concept.hpp>
+        -:   33:#include <boost/geometry/geometries/concepts/polygon_concept.hpp>
+        -:   34:#include <boost/geometry/geometries/concepts/ring_concept.hpp>
+        -:   35:#include <boost/geometry/geometries/concepts/segment_concept.hpp>
+        -:   36:
+        -:   37:#include <boost/geometry/algorithms/not_implemented.hpp>
+        -:   38:
+        -:   39:namespace boost { namespace geometry
+        -:   40:{
+        -:   41:
+        -:   42:
+        -:   43:#ifndef DOXYGEN_NO_DETAIL
+        -:   44:namespace detail { namespace concept_check
+        -:   45:{
+        -:   46:
+        -:   47:template <typename Concept>
+        -:   48:class check
+        -:   49:{
+        -:   50:    BOOST_CONCEPT_ASSERT((Concept ));
+        -:   51:};
+        -:   52:
+        -:   53:}} // namespace detail::concept_check
+        -:   54:#endif // DOXYGEN_NO_DETAIL
+        -:   55:
+        -:   56:
+        -:   57:
+        -:   58:#ifndef DOXYGEN_NO_DISPATCH
+        -:   59:namespace dispatch
+        -:   60:{
+        -:   61:
+        -:   62:template
+        -:   63:<
+        -:   64:    typename Geometry,
+        -:   65:    typename GeometryTag = typename geometry::tag<Geometry>::type,
+        -:   66:    bool IsConst = boost::is_const<Geometry>::type::value
+        -:   67:>
+        -:   68:struct check : not_implemented<GeometryTag>
+        -:   69:{};
+        -:   70:
+        -:   71:
+        -:   72:template <typename Geometry>
+        -:   73:struct check<Geometry, point_tag, true>
+        -:   74:    : detail::concept_check::check<concepts::ConstPoint<Geometry> >
+        -:   75:{};
+        -:   76:
+        -:   77:
+        -:   78:template <typename Geometry>
+        -:   79:struct check<Geometry, point_tag, false>
+        -:   80:    : detail::concept_check::check<concepts::Point<Geometry> >
+        -:   81:{};
+        -:   82:
+        -:   83:
+        -:   84:template <typename Geometry>
+        -:   85:struct check<Geometry, linestring_tag, true>
+        -:   86:    : detail::concept_check::check<concepts::ConstLinestring<Geometry> >
+        -:   87:{};
+        -:   88:
+        -:   89:
+        -:   90:template <typename Geometry>
+        -:   91:struct check<Geometry, linestring_tag, false>
+        -:   92:    : detail::concept_check::check<concepts::Linestring<Geometry> >
+        -:   93:{};
+        -:   94:
+        -:   95:
+        -:   96:template <typename Geometry>
+        -:   97:struct check<Geometry, ring_tag, true>
+        -:   98:    : detail::concept_check::check<concepts::ConstRing<Geometry> >
+        -:   99:{};
+        -:  100:
+        -:  101:
+        -:  102:template <typename Geometry>
+        -:  103:struct check<Geometry, ring_tag, false>
+        -:  104:    : detail::concept_check::check<concepts::Ring<Geometry> >
+        -:  105:{};
+        -:  106:
+        -:  107:template <typename Geometry>
+        -:  108:struct check<Geometry, polygon_tag, true>
+        -:  109:    : detail::concept_check::check<concepts::ConstPolygon<Geometry> >
+        -:  110:{};
+        -:  111:
+        -:  112:
+        -:  113:template <typename Geometry>
+        -:  114:struct check<Geometry, polygon_tag, false>
+        -:  115:    : detail::concept_check::check<concepts::Polygon<Geometry> >
+        -:  116:{};
+        -:  117:
+        -:  118:
+        -:  119:template <typename Geometry>
+        -:  120:struct check<Geometry, box_tag, true>
+        -:  121:    : detail::concept_check::check<concepts::ConstBox<Geometry> >
+        -:  122:{};
+        -:  123:
+        -:  124:
+        -:  125:template <typename Geometry>
+        -:  126:struct check<Geometry, box_tag, false>
+        -:  127:    : detail::concept_check::check<concepts::Box<Geometry> >
+        -:  128:{};
+        -:  129:
+        -:  130:
+        -:  131:template <typename Geometry>
+        -:  132:struct check<Geometry, segment_tag, true>
+        -:  133:    : detail::concept_check::check<concepts::ConstSegment<Geometry> >
+        -:  134:{};
+        -:  135:
+        -:  136:
+        -:  137:template <typename Geometry>
+        -:  138:struct check<Geometry, segment_tag, false>
+        -:  139:    : detail::concept_check::check<concepts::Segment<Geometry> >
+        -:  140:{};
+        -:  141:
+        -:  142:
+        -:  143:template <typename Geometry>
+        -:  144:struct check<Geometry, multi_point_tag, true>
+        -:  145:    : detail::concept_check::check<concepts::ConstMultiPoint<Geometry> >
+        -:  146:{};
+        -:  147:
+        -:  148:
+        -:  149:template <typename Geometry>
+        -:  150:struct check<Geometry, multi_point_tag, false>
+        -:  151:    : detail::concept_check::check<concepts::MultiPoint<Geometry> >
+        -:  152:{};
+        -:  153:
+        -:  154:
+        -:  155:template <typename Geometry>
+        -:  156:struct check<Geometry, multi_linestring_tag, true>
+        -:  157:    : detail::concept_check::check<concepts::ConstMultiLinestring<Geometry> >
+        -:  158:{};
+        -:  159:
+        -:  160:
+        -:  161:template <typename Geometry>
+        -:  162:struct check<Geometry, multi_linestring_tag, false>
+        -:  163:    : detail::concept_check::check<concepts::MultiLinestring<Geometry> >
+        -:  164:{};
+        -:  165:
+        -:  166:
+        -:  167:template <typename Geometry>
+        -:  168:struct check<Geometry, multi_polygon_tag, true>
+        -:  169:    : detail::concept_check::check<concepts::ConstMultiPolygon<Geometry> >
+        -:  170:{};
+        -:  171:
+        -:  172:
+        -:  173:template <typename Geometry>
+        -:  174:struct check<Geometry, multi_polygon_tag, false>
+        -:  175:    : detail::concept_check::check<concepts::MultiPolygon<Geometry> >
+        -:  176:{};
+        -:  177:
+        -:  178:
+        -:  179:} // namespace dispatch
+        -:  180:#endif
+        -:  181:
+        -:  182:
+        -:  183:
+        -:  184:
+        -:  185:namespace concepts
+        -:  186:{
+        -:  187:
+        -:  188:
+        -:  189:#ifndef DOXYGEN_NO_DETAIL
+        -:  190:namespace detail
+        -:  191:{
+        -:  192:
+        -:  193:
+        -:  194:template <typename Geometry>
+        -:  195:struct checker : dispatch::check<Geometry>
+        -:  196:{};
+        -:  197:
+        -:  198:template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+        -:  199:struct checker<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+        -:  200:{};
+        -:  201:
+        -:  202:template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+        -:  203:struct checker<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const>
+        -:  204:{};
+        -:  205:
+        -:  206:
+        -:  207:}
+        -:  208:#endif // DOXYGEN_NO_DETAIL
+        -:  209:
+        -:  210:
+        -:  211:/*!
+        -:  212:    \brief Checks, in compile-time, the concept of any geometry
+        -:  213:    \ingroup concepts
+        -:  214:*/
+        -:  215:template <typename Geometry>
+function _ZN5boost8geometry8concepts5checkIKNS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEEvv called 1889849 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts5checkINS0_5model5pointIfLm2ENS0_2cs9cartesianEEEEEvv called 1620825 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts5checkIKNS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvv called 102796882 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts5checkINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEEEvv called 8406428 returned 100% blocks executed 100%
+114713984:  216:inline void check()
+        -:  217:{
+        -:  218:    detail::checker<Geometry> c;
+114713984:  219:    boost::ignore_unused_variable_warning(c);
+114713984:  220:}
+        -:  221:
+        -:  222:
+        -:  223:/*!
+        -:  224:    \brief Checks, in compile-time, the concept of two geometries, and if they
+        -:  225:        have equal dimensions
+        -:  226:    \ingroup concepts
+        -:  227:*/
+        -:  228:template <typename Geometry1, typename Geometry2>
+function _ZN5boost8geometry8concepts35check_concepts_and_equal_dimensionsIKNS0_5model5pointIfLm2ENS0_2cs9cartesianEEES7_EEvv called 1523733 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts35check_concepts_and_equal_dimensionsIKNS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEESA_EEvv called 23936630 returned 99% blocks executed 100%
+function _ZN5boost8geometry8concepts35check_concepts_and_equal_dimensionsIKNS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEES9_EEvv called 1002536 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts35check_concepts_and_equal_dimensionsINS0_5model5pointIfLm2ENS0_2cs9cartesianEEEKNS3_3boxIS7_EEEEvv called 97146 returned 100% blocks executed 100%
+function _ZN5boost8geometry8concepts35check_concepts_and_equal_dimensionsINS0_5model3boxINS3_5pointIfLm2ENS0_2cs9cartesianEEEEEKS9_EEvv called 3497498 returned 100% blocks executed 100%
+ 30057543:  229:inline void check_concepts_and_equal_dimensions()
+        -:  230:{
+ 30057543:  231:    check<Geometry1>();
+ 30057543:  232:    check<Geometry2>();
+ 30057543:  233:    assert_dimension_equal<Geometry1, Geometry2>();
+ 30057543:  234:}
+        -:  235:
+        -:  236:
+        -:  237:} // namespace concepts
+        -:  238:
+        -:  239:
+        -:  240:}} // namespace boost::geometry
+        -:  241:
+        -:  242:
+        -:  243:#endif // BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_CHECK_HPP
