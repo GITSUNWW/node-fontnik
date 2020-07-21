@@ -113,7 +113,7 @@ matrix:
   #verbose: true
   #on:
     #branch: master
-after_script:
+before_script:
   - node fontbuilder.js
   #- ls -a
   #- rm -rf .git --如果推送整个目录则需要删除.git文件，如果只推送构建后的文件目录dist则cd ./dist就行，不需要删除.git文件，否则最后一句git push会推送不上
