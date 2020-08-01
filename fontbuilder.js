@@ -30,4 +30,4 @@ function output2pbf(font, start, end, outputDir) {
 //convert("./fonts/simfang/simfang.ttf", "./fonts/simfang/");
 //convert("./fonts/simhei/simhei.ttf", "./fonts/simhei/");
 //convert("./fonts/simsun/simsun.ttc", "./fonts/simsun/");
-convert("./fonts/simsun/simsun.ttc", "./fonts/open-sans/");
+convert("./fonts/open-sans/OpenSans-Regular.ttf", "./fonts/open-sans/");
